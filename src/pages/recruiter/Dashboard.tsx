@@ -1,8 +1,14 @@
 import { UserIcon, BriefcaseIcon, UsersIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
+// import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
+
+  // Aquí puedes definir el jobId y apiUrl si es necesario para el botón de procesar CVs, mas abajo esta la explicacion de por qué está comentado
+  // const jobId = '934b732b-ab9f-4fd3-97d9-6e41fbe2089b'; // PONÉ TU JOB_ID REAL DE PRUEBA
+  // const apiUrl = 'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/cv-processor'; // PONÉ TU URL REAL DEL API
+
 
   return (
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
@@ -46,6 +52,13 @@ const RecruiterDashboard = () => {
               Ver Perfil
             </button>
           </div>
+
+          {/*este botón es para procesar todos los CVs de un puesto específico, esta comentado porque no va en esta pantalla, hay que pasarla a la pantalla (una vez creada)*/}
+          {/*donde estan los puestos de trabajo del reclutador, para poder mandar por job_id todos los cvs a procesar.*/}
+        {/*  <div className="mt-8">*/}
+        {/*  <h2 className="text-2xl font-bold mb-4">Procesar todos los CVs</h2>*/}
+        {/*  <ProcessCVsButton jobId={jobId} apiUrl={apiUrl} />*/}
+        {/*</div>*/}
         </div>
       </div>
     </div>
