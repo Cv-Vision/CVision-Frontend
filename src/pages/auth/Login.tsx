@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
+import { signIn } from '@/services/AuthService.ts';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simula login: guarda el rol en localStorage
-    localStorage.setItem('mockRole', role);
-    if (role === 'candidate') {
-      navigate('/candidate/dashboard');
-    } else {
-      navigate('/recruiter/dashboard');
+    setLoading(true);
+    setError('');
+
+    try {
+      await signIn({ username: email, password });
+      // Después del login exitoso, podemos guardar el rol (opcional)
+      localStorage.setItem('mockRole', role);
+
+      if (role === 'candidate') {
+        navigate('/candidate/dashboard');
+      } else {
+        navigate('/recruiter/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,9 +66,11 @@ const Login = () => {
           <button
             type="submit"
             className="w-full bg-blue-400 text-white font-semibold py-3 rounded-lg shadow hover:bg-blue-600 transition-colors text-lg"
+            disabled={loading}
           >
-            Ingresar
+            {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
         </form>
         <p className="mt-6 text-gray-600 text-center">
           ¿No tienes cuenta?{' '}
@@ -65,4 +81,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

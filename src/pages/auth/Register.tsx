@@ -1,22 +1,40 @@
 import React, { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
+import { signUp } from '@/services/AuthService.ts';
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isValidUsername = (username: string) => {
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/; // Letras, números y guiones bajos, 3-20 caracteres
+    return usernameRegex.test(username);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simula registro: guarda el rol en localStorage
-    localStorage.setItem('mockRole', role);
-    if (role === 'candidate') {
-      navigate('/candidate/dashboard');
-    } else {
-      navigate('/recruiter/dashboard');
+    setLoading(true);
+    setError('');
+
+    if (!isValidUsername(username)) {
+      setError('El nombre de usuario solo puede contener letras, números y guiones bajos. De 3 a 20 caracteres.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await signUp({ username, email, password });
+      navigate('/confirm', { state: { username } }); // Redirige y pasa username
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,10 +54,10 @@ const Register = () => {
           </select>
           <input
             type="text"
-            placeholder="Nombre completo"
+            placeholder="Nombre de usuario"
             className="w-full border border-gray-200 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-green-300"
-            value={name}
-            onChange={e => setName(e.target.value)}
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             required
           />
           <input
@@ -61,9 +79,11 @@ const Register = () => {
           <button
             type="submit"
             className="w-full bg-green-400 text-white font-semibold py-3 rounded-lg shadow hover:bg-green-600 transition-colors text-lg"
+            disabled={loading}
           >
-            Registrarse
+            {loading ? 'Registrando...' : 'Registrarse'}
           </button>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
         </form>
         <p className="mt-6 text-gray-600 text-center">
           ¿Ya tienes cuenta?{' '}
@@ -74,4 +94,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;

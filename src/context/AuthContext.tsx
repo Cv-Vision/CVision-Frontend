@@ -1,31 +1,33 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 
 interface AuthContextType {
-  role: 'candidate' | 'recruiter' | null;
-  setRole: (role: 'candidate' | 'recruiter' | null) => void;
+  user: any | null;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [role, setRole] = useState<'candidate' | 'recruiter' | null>(null);
-
-  useEffect(() => {
-    const storedRole = localStorage.getItem('mockRole');
-    if (storedRole === 'candidate' || storedRole === 'recruiter') {
-      setRole(storedRole);
-    }
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ role, setRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  }
   return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const authContextValue: AuthContextType = {
+    user: null,
+    isAuthenticated: false, // De momento false porque no tenemos login persistente
+  };
+
+  return (
+    <AuthContext.Provider value={authContextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

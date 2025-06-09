@@ -1,5 +1,4 @@
-import React from 'react';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.tsx';
 import { AppRouter } from './router';
 import { Navbar } from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';

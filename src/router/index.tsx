@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/auth/Login';
@@ -12,6 +11,7 @@ import { ProtectedRoute } from '../components/ProtectedRoute';
 import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
 import Candidates from '../pages/recruiter/Candidates';
+import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
 
 export function AppRouter() {
   return (
@@ -19,6 +19,7 @@ export function AppRouter() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/confirm" element={<ConfirmAccount />} />
       <Route path="/candidate/dashboard" element={
         <ProtectedRoute requiredRole="candidate">
           <CandidateDashboard />
