@@ -106,3 +106,31 @@ export function getAccessToken() {
 export function logout() {
   sessionStorage.removeItem('accessToken');
 }
+
+
+interface ResendConfirmationCodeParams {
+  username: string;
+}
+
+export async function resendConfirmationCode({ username }: ResendConfirmationCodeParams) {
+  const response = await fetch(COGNITO_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode',
+    },
+    body: JSON.stringify({
+      ClientId: CLIENT_ID,
+      Username: username,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    // AWS Cognito devuelve un objeto con .message
+    throw new Error(err.message || 'Error reenviando código de confirmación');
+  }
+
+  // Si quieres obtener datos de la respuesta, puedes hacer return response.json()
+  return response.json();
+}

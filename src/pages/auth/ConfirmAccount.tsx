@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { confirmSignUp } from '@/services/AuthService.ts';
+import { confirmSignUp, resendConfirmationCode } from '@/services/AuthService.ts';
 
 const ConfirmAccount = () => {
   const location = useLocation();
@@ -10,6 +10,45 @@ const ConfirmAccount = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendError, setResendError] = useState('');
+  const [resendSuccess, setResendSuccess] = useState('');
+  const [canResend, setCanResend] = useState(true);
+  const [timer, setTimer] = useState(60);
+
+  // Efecto para decrementar el timer cuando canResend = false
+  React.useEffect(() => {
+      let interval: NodeJS.Timeout;
+      if (!canResend) {
+        interval = setInterval(() => {
+          setTimer(prev => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setCanResend(true);
+              return 60;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+      return () => clearInterval(interval);
+    }, [canResend]);
+  
+    const handleResend = async () => {
+      setResendLoading(true);
+      setResendError('');
+      setResendSuccess('');
+      try {
+        await resendConfirmationCode({ username });
+        setResendSuccess('Código reenviado. Revisa tu correo.');
+        setCanResend(false);
+      } catch (err: any) {
+        setResendError(err.message);
+      } finally {
+        setResendLoading(false);
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +102,27 @@ const ConfirmAccount = () => {
               Cuenta confirmada con éxito. Redirigiendo al login...
             </p>
           )}
+
+          <button
+            type='button'
+            onClick={handleResend}
+            disabled={!canResend || resendLoading}
+            className={`w-full mt-4 py-3 rounded-lg font-semibold text-white ${
+                          resendLoading
+                            ? 'bg-gray-400'
+                            : !canResend
+                            ? 'bg-gray-300 cursor-not-allowed'
+                            : 'bg-blue-400 hover:bg-blue-600'
+                        }`}
+            >
+              {resendLoading
+              ? "Enviando..."
+            : !canResend
+            ? `Reenviar en ${timer}s`
+            : 'Reenviar codigo'}
+          </button>
+          {resendError && <p className="text-red-500 mt-2">{resendError}</p>}
+          {resendSuccess && <p className="text-green-500 mt-2">{resendSuccess}</p>}
         </form>
       </div>
     </div>
