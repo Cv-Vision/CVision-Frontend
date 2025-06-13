@@ -87,6 +87,12 @@ const JobApplication = () => {
       return;
     }
 
+    for (const q of questions) {
+      if (!answers[q.id] || answers[q.id].trim() === '' ) {
+        setError(`Por favor respondar la pregunta: "${q.text}"`)
+      }
+    }
+
     try {
       const formData = new FormData();
       formData.append('cv', cvFile);

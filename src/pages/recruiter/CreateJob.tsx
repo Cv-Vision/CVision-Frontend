@@ -24,6 +24,31 @@ const CreateJob = () => {
     salary: ''
   });
 
+  const [questions, setQuestions] = useState<string[]>([]);
+
+  const addQuestion = () => {
+    if (questions.length < 10) {
+      setQuestions(prev => [...prev, '']);
+    }
+  };
+
+  const handleQuestionChange = (index: number, value: string) => {
+    setQuestions(prev => {
+      const copy = [...prev];
+      copy[index] = value;
+      return copy;
+    });
+  };
+  
+  const removeQuestion = (index: number) => {
+    setQuestions(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const payload = {
+    ...formData,
+    questions,
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aquí iría la lógica para guardar el puesto
@@ -151,6 +176,42 @@ const CreateJob = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent"
               required
             />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Preguntas para evaluar (opcional, máximo 10)
+            </label>
+
+            {questions.map((q, idx) => (
+              <div key={idx} className="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder={`Pregunta ${idx + 1}`}
+                  value={q}
+                  onChange={e => handleQuestionChange(idx, e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(idx)}
+                  className="px-2 py-1 text-sm text-red-500 hover:underline"
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+
+            {questions.length < 10 && (
+              <button
+                type="button"
+                onClick={addQuestion}
+                className="text-sm text-green-500 hover:underline"
+              >
+                + Agregar pregunta
+              </button>
+            )}
           </div>
 
           <div className="flex justify-end gap-4">
