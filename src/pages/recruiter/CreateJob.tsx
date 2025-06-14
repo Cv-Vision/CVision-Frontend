@@ -44,10 +44,10 @@ const CreateJob = () => {
     setQuestions(prev => prev.filter((_, i) => i !== index));
   };
 
-  const payload = {
-    ...formData,
-    questions,
-  }
+  // const payload = {
+  //   ...formData,
+  //   questions,
+  // }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

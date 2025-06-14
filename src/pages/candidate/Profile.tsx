@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { Link } from 'react-router-dom';
 import { UserIcon } from '@heroicons/react/24/solid';
 
-interface CVHistory {
-  id: string;
-  date: string;
-  status: 'pending' | 'analyzed' | 'error';
-  matches: number;
-}
+// interface CVHistory {
+//   id: string;
+//   date: string;
+//   status: 'pending' | 'analyzed' | 'error';
+//   matches: number;
+// }
 
 export function CandidateProfile() {
   const { user } = useAuth();
@@ -16,22 +15,6 @@ export function CandidateProfile() {
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [bio, setBio] = useState(user?.bio || '');
-
-  // Mock CV history data
-  const cvHistory: CVHistory[] = [
-    {
-      id: '1',
-      date: '2024-03-15',
-      status: 'analyzed',
-      matches: 5,
-    },
-    {
-      id: '2',
-      date: '2024-03-10',
-      status: 'analyzed',
-      matches: 3,
-    },
-  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

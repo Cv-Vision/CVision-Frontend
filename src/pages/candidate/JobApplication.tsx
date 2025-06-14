@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchWithAuth } from "@/services/fetchWithAuth.ts";
 
 interface Question {
   id: string;
@@ -28,10 +29,9 @@ const JobApplication = () => {
   useEffect(() => {
     const fetchJobAndQuestions = async () => {
       try {
-        // TODO: Replace with actual API calls
         const [jobResponse, questionsResponse] = await Promise.all([
-          fetch(`/api/jobs/${jobId}`),
-          fetch(`/api/jobs/${jobId}/questions`)
+          fetchWithAuth(`/api/jobs/${jobId}`),
+          fetchWithAuth(`/api/jobs/${jobId}/questions`)
         ]);
 
         if (!jobResponse.ok || !questionsResponse.ok) {
@@ -98,7 +98,7 @@ const JobApplication = () => {
       formData.append('cv', cvFile);
       formData.append('answers', JSON.stringify(answers));
 
-      const response = await fetch(`/api/jobs/${jobId}/apply`, {
+      const response = await fetchWithAuth(`/api/jobs/${jobId}/apply`, {
         method: 'POST',
         body: formData,
       });
@@ -265,4 +265,4 @@ const JobApplication = () => {
   );
 };
 
-export default JobApplication; 
+export default JobApplication;

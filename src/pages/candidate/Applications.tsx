@@ -1,4 +1,3 @@
-import React from 'react';
 import { ClipboardDocumentListIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
 
 const mockApplications: any[] = [];
