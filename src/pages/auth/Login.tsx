@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
+import { useAuth } from "@/context/AuthContext.tsx";
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +12,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +21,10 @@ const Login = () => {
 
     try {
       await signIn({ username: email, password });
-      // Después del login exitoso, podemos guardar el rol (opcional)
-      localStorage.setItem('mockRole', role);
+      const userData = { email, role };
+      if (login) {
+        login(userData);
+      }
 
       if (role === 'candidate') {
         navigate('/candidate/dashboard');

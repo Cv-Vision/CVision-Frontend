@@ -1,4 +1,3 @@
-import React from 'react';
 import { UserIcon, EnvelopeIcon, PhoneIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 
 // Mock data para candidatos

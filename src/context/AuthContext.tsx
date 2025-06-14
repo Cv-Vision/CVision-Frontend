@@ -1,9 +1,12 @@
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 
 interface AuthContextType {
   user: any | null;
   isAuthenticated: boolean;
+  logout?: () => void;
+  login?: (userData: any) => void;
 }
+
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -20,9 +23,35 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<any | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const userData = sessionStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const login = (userData: any) => {
+    sessionStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    sessionStorage.clear();
+    setUser(null);
+    setIsAuthenticated(false);
+    window.location.href = '/login';
+  };
+
   const authContextValue: AuthContextType = {
-    user: null,
-    isAuthenticated: false, // De momento false porque no tenemos login persistente
+    user,
+    isAuthenticated,
+    logout,
+    login,
   };
 
   return (
@@ -31,3 +60,4 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
+
