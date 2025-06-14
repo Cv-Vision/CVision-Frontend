@@ -1,6 +1,6 @@
 import { AuthProvider } from './context/AuthContext.tsx';
 import { AppRouter } from './router';
-import { Navbar } from './components/Navbar';
+import { NavbarComponent } from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';
 
 export function App() {
@@ -8,7 +8,7 @@ export function App() {
     <BrowserRouter>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-          <Navbar />
+          <NavbarComponent />
           <main>
             <AppRouter />
           </main>
