@@ -1,4 +1,5 @@
-import { UserIcon, EnvelopeIcon, PhoneIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
+import { UserIcon, EnvelopeIcon, PhoneIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data para candidatos
 const mockCandidates = [
@@ -10,7 +11,8 @@ const mockCandidates = [
     position: 'Desarrollador Frontend',
     status: 'pending',
     cvUrl: '#',
-    matchScore: 85
+    matchScore: 85,
+    jobId: 'frontend-123',
   },
   {
     id: 2,
@@ -20,7 +22,8 @@ const mockCandidates = [
     position: 'Desarrollador Backend',
     status: 'reviewed',
     cvUrl: '#',
-    matchScore: 92
+    matchScore: 92,
+    jobId: 'backend-456',
   },
   {
     id: 3,
@@ -30,11 +33,14 @@ const mockCandidates = [
     position: 'Desarrollador Full Stack',
     status: 'interviewed',
     cvUrl: '#',
-    matchScore: 78
+    matchScore: 78,
+    jobId: 'fullstack-789',
   }
 ];
 
 const Candidates = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-blue-100 py-10 px-4">
       <div className="max-w-6xl mx-auto">
@@ -115,9 +121,17 @@ const Candidates = () => {
                           Ver CV
                         </button>
                         <button
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
+                          onClick={() => navigate(`/recruiter/job/${candidate.jobId}/analysis?highlight=${candidate.id}`)}
+                        >
+                          <ChartBarIcon className="h-5 w-5" />
+                          Ver Análisis
+                        </button>
+                        <button
+                          className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
                           onClick={() => alert('Funcionalidad de contacto en desarrollo')}
                         >
+                          <PhoneIcon className="h-5 w-5" />
                           Contactar
                         </button>
                       </div>
