@@ -1,0 +1,83 @@
+import { Table } from '@/components/dashboard/Table';
+import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
+import { getJobs } from '@/hooks/GetJobs.ts';
+import { useNavigate } from 'react-router-dom';
+import {BriefcaseIcon} from "@heroicons/react/24/solid";
+import {PlusIcon} from "@heroicons/react/16/solid";
+
+const JobPostings: React.FC = () => {
+    const { jobs, isLoading, error } = getJobs();
+    const nav = useNavigate();
+
+    const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);
+    const handleEdit = (id: number) => nav(`/recruiter/edit-job/${id}`);
+    const handleDelete = (id: number) => alert(`Falta implementar delete ${id}`);
+
+    const headers = ['Título','Descripción','Estado','Acciones'];
+
+    const exampleJob = {
+        id: 1,
+        title: 'Desarrollador Frontend Senior',
+        description: 'Buscamos un desarrollador Frontend Senior con experiencia en React, TypeScript y Tailwind CSS. El candidato ideal debe tener al menos 5 años de experiencia en desarrollo web y un fuerte conocimiento de patrones de diseño y arquitectura de software.',
+        status: 'Activo',
+        questions: ["example question 1", "example question 2"],
+        company: 'TechCorp',
+        createdAt: '2025-06-01'
+    };
+
+
+    // todo: remove exampleJob and just keep the data feching
+    const rows = [
+        JobRow({
+            job: exampleJob,
+            onView: handleView,
+            onEdit: handleEdit,
+            onDelete: handleDelete,
+            isLoading
+        }),
+        ...jobs.map(job =>
+            JobRow({
+                job,
+                onView: handleView,
+                onEdit: handleEdit,
+                onDelete: handleDelete,
+                isLoading
+            })
+        )
+    ];
+
+    return (
+        <div className="min-h-screen bg-blue-100 py-10 px-4">
+            <div className="max-w-6xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-lg p-8">
+                    {/* HEADER with Add‑Job button */}
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                            <BriefcaseIcon className="h-8 w-8 text-green-400" />
+                            <h1 className="text-3xl font-bold text-gray-800">Puestos de trabajo</h1>
+                        </div>
+
+                        <button
+                            onClick={() => nav('/recruiter/create-job')}
+                            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-lg shadow-sm"
+                        >
+                            <PlusIcon className="h-5 w-5" />
+                            <span>Agregar puesto</span>
+                        </button>
+                    </div>
+
+                    {error && (
+                        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {error}
+                        </div>
+                    )}
+
+                    <Table headers={headers} rows={rows} />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default JobPostings;
+
