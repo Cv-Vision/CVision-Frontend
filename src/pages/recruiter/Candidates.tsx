@@ -1,4 +1,4 @@
-import { BriefcaseIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { BriefcaseIcon, PencilIcon, TrashIcon, EyeIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { fetchWithAuth } from '../../services/fetchWithAuth';
@@ -108,6 +108,13 @@ const Candidates = () => {
                       >
                         <EyeIcon className="h-5 w-5" />
                         {isLoading ? 'Cargando...' : 'Ver Análisis'}
+                      </button>
+                      <button
+                        className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
+                        onClick={() => navigate(`/recruiter/job/${mockJob.id}`)}
+                      >
+                        <DocumentTextIcon className="h-5 w-5" />
+                        Ver Detalles
                       </button>
                       <button
                         className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
