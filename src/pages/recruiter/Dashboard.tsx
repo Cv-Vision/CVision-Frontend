@@ -35,7 +35,7 @@ const RecruiterDashboard = () => {
             <p className="text-gray-600 text-sm mb-4 text-center">Revisa los puestos de trabajo que has publicado</p>
             <button
               className="bg-green-400 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-colors font-semibold"
-              onClick={() => navigate('/recruiter/candidates')}
+              onClick={() => navigate('/recruiter/job-postings')}
             >
               Ver Puestos de Trabajo
             </button>
