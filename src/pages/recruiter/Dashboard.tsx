@@ -31,13 +31,13 @@ const RecruiterDashboard = () => {
           {/* Ver Candidatos */}
           <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow">
             <UsersIcon className="h-8 w-8 text-green-400 mb-2" />
-            <h2 className="text-lg font-bold text-gray-800 mb-1">Ver Candidatos</h2>
-            <p className="text-gray-600 text-sm mb-4 text-center">Revisa los candidatos que han aplicado</p>
+            <h2 className="text-lg font-bold text-gray-800 mb-1">Ver Puestos de Trabajo</h2>
+            <p className="text-gray-600 text-sm mb-4 text-center">Revisa los puestos de trabajo que has publicado</p>
             <button
               className="bg-green-400 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-colors font-semibold"
               onClick={() => navigate('/recruiter/candidates')}
             >
-              Ver Candidatos
+              Ver Puestos de Trabajo
             </button>
           </div>
           {/* Mi Perfil */}

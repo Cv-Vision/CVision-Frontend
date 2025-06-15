@@ -12,14 +12,8 @@ export interface GeminiAnalysisResult {
 }
 
 export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAnalysisResult[]> => {
-  const token = sessionStorage.getItem('accessToken');
   const response = await fetchWithAuth(
-    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/get_gemini_analysis_results?job_id=${jobId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/get-cvs-analysis-results?job_id=${jobId}`
   );
 
   if (!response.ok) {
