@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import { chatbotService, ChatbotResponse } from '../services/chatbotService';
+import { useParams } from 'react-router-dom';
 
 interface Message {
   type: 'bot' | 'user';
@@ -23,6 +24,7 @@ const SOFT_SKILLS_QUESTIONS = [
 const INITIAL_GREETING = "¡Hola! Soy tu asistente de evaluación de habilidades blandas. Voy a hacerte algunas preguntas para conocer mejor tus competencias. ¿Estás listo para comenzar?";
 
 const SoftSkillsChatbot: React.FC<SoftSkillsChatbotProps> = ({ onClose, onSubmit }) => {
+  const { jobId } = useParams<{ jobId: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
   const [answers, setAnswers] = useState<string[]>([]);
