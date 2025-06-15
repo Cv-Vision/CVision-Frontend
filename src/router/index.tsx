@@ -10,7 +10,7 @@ import { RecruiterProfile } from '../pages/recruiter/Profile';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
-import Candidates from '../pages/recruiter/Candidates';
+import JobPostings from '../pages/recruiter/JobPostings.tsx';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
 import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 
@@ -56,9 +56,9 @@ export function AppRouter() {
           <CreateJob />
         </ProtectedRoute>
       } />
-      <Route path="/recruiter/candidates" element={
+      <Route path="/recruiter/job-postings" element={
         <ProtectedRoute requiredRole="recruiter">
-          <Candidates />
+          <JobPostings />
         </ProtectedRoute>
       } />
       <Route path="/recruiter/job/:jobId/analysis" element={

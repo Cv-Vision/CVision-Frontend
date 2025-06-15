@@ -13,7 +13,7 @@ const mockJob = {
   createdAt: '2024-03-15'
 };
 
-const Candidates = () => {
+const JobPostings = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,4 +135,4 @@ const Candidates = () => {
   );
 };
 
-export default Candidates; 
+export default JobPostings;
