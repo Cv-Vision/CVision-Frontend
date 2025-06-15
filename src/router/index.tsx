@@ -10,9 +10,9 @@ import { RecruiterProfile } from '../pages/recruiter/Profile';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
-import JobPostings from '../pages/recruiter/JobPostings.tsx';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
 import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
+import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 
 export function AppRouter() {
   return (
