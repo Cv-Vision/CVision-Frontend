@@ -36,7 +36,32 @@ const JobDetailsPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const [jobData, setJobData] = useState<JobData | null>(null);
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([
+    {
+      id: '1',
+      fullName: 'Juan Pérez',
+      score: 92,
+      cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      analysis: {
+        strengths: ['Trabajo en equipo', 'Comunicación'],
+        weaknesses: ['Inglés técnico'],
+        recommendations: ['Mejorar inglés', 'Profundizar en React'],
+        detailedFeedback: 'Buen perfil, destaca en trabajo en equipo. Puede mejorar en inglés técnico.'
+      }
+    },
+    {
+      id: '2',
+      fullName: 'Ana Gómez',
+      score: 85,
+      cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      analysis: {
+        strengths: ['Liderazgo', 'Resolución de problemas'],
+        weaknesses: ['Experiencia en backend'],
+        recommendations: ['Aprender Node.js'],
+        detailedFeedback: 'Muy buen liderazgo, le falta experiencia en backend.'
+      }
+    }
+  ]);
   const [activeTab, setActiveTab] = useState<Tab>('details');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +84,19 @@ const JobDetailsPage: React.FC = () => {
       const data = await response.json();
       setJobData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar los detalles del puesto');
+      // MOCK: Si falla, carga datos de ejemplo
+      setJobData({
+        id: jobId!,
+        title: 'Mock Puesto Frontend',
+        description: 'Descripción de ejemplo para el puesto.',
+        requirements: {
+          seniority: 'Mid',
+          englishLevel: 'Intermedio',
+          contractType: 'Full-time',
+          additionalRequirements: 'Experiencia en React y TypeScript.'
+        }
+      });
+      setError(null); // Oculta el error
     } finally {
       setIsLoading(false);
     }
@@ -74,11 +111,37 @@ const JobDetailsPage: React.FC = () => {
         throw new Error('Error al cargar los candidatos');
       }
       const data = await response.json();
-      // Sort candidates by score in descending order
       const sortedCandidates = data.sort((a: Candidate, b: Candidate) => b.score - a.score);
       setCandidates(sortedCandidates);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar los candidatos');
+      // MOCK: Si falla, carga candidatos de ejemplo
+      setCandidates([
+        {
+          id: '1',
+          fullName: 'Juan Pérez',
+          score: 92,
+          cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          analysis: {
+            strengths: ['Trabajo en equipo', 'Comunicación'],
+            weaknesses: ['Inglés técnico'],
+            recommendations: ['Mejorar inglés', 'Profundizar en React'],
+            detailedFeedback: 'Buen perfil, destaca en trabajo en equipo. Puede mejorar en inglés técnico.'
+          }
+        },
+        {
+          id: '2',
+          fullName: 'Ana Gómez',
+          score: 85,
+          cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          analysis: {
+            strengths: ['Liderazgo', 'Resolución de problemas'],
+            weaknesses: ['Experiencia en backend'],
+            recommendations: ['Aprender Node.js'],
+            detailedFeedback: 'Muy buen liderazgo, le falta experiencia en backend.'
+          }
+        }
+      ]);
+      setError(null); // Oculta el error
     } finally {
       setIsLoading(false);
     }
