@@ -30,25 +30,30 @@ export const Table: React.FC<TableProps> = ({ headers, rows }) => {
     }
 
     return (
-        <table className="min-w-full border-collapse">
-            <thead>
-            <tr>
-                {headers.map((text, idx) => (
-                    <th key={idx} className="p-2 border bg-gray-200 text-left">
-                        {text}
-                    </th>
-                ))}
-            </tr>
-            </thead>
-            <tbody>
-            {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="hover:bg-gray-50">
-                    {row.map((cell, cIdx) => (
-                        React.cloneElement(cell, { key: cIdx })
+        <div className="overflow-x-auto">
+            <table className="w-full">
+                <thead>
+                <tr className="bg-gray-50">
+                    {headers.map((text, idx) => (
+                        <th
+                            key={idx}
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            {text}
+                        </th>
                     ))}
                 </tr>
-            ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody className="bg-white">
+                {rows.map((row, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-gray-50">
+                        {row.map((cellNode, cIdx) => (
+                            <React.Fragment key={cIdx}>{cellNode}</React.Fragment>
+                        ))}
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+        </div>
     );
 };
