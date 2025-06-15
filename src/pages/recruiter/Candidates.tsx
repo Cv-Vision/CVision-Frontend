@@ -1,4 +1,4 @@
-import { BriefcaseIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { BriefcaseIcon, PencilIcon, TrashIcon, EyeIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { fetchWithAuth } from '../../services/fetchWithAuth';
@@ -96,7 +96,7 @@ const Candidates = () => {
           )}
 
           <div className="flex gap-8">
-            {/* Lista de puestos - Ancho fijo sin scroll */}
+            {/* Lista de puestos */}
             <div className="w-[800px] flex-shrink-0">
               <table className="w-full">
                 <thead>
@@ -141,6 +141,13 @@ const Candidates = () => {
                         </button>
                         <button
                           className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
+                          onClick={() => navigate(`/recruiter/job/${mockJob.id}`)}
+                        >
+                          <DocumentTextIcon className="h-5 w-5" />
+                          Ver Detalles
+                        </button>
+                        <button
+                          className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
                           onClick={() => navigate(`/recruiter/edit-job/${mockJob.id}`)}
                         >
                           <PencilIcon className="h-5 w-5" />
@@ -170,7 +177,7 @@ const Candidates = () => {
               </table>
             </div>
 
-            {/* Sección de subida de CVs - Ocupa el espacio restante */}
+            {/* Sección de subida de CVs */}
             <div className="flex-1 bg-gray-50 rounded-lg p-6">
               {selectedJob ? (
                 showUploadArea ? (
@@ -236,4 +243,4 @@ const Candidates = () => {
   );
 };
 
-export default Candidates; 
+export default Candidates;
