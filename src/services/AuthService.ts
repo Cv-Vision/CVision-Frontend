@@ -1,4 +1,3 @@
-
 const CLIENT_ID = '7q9u97f4vklogma8e8vipfvb0d';
 const REGION = 'us-east-2';
 const COGNITO_ENDPOINT = `https://cognito-idp.${REGION}.amazonaws.com/`;
@@ -93,20 +92,19 @@ export async function signIn({ username, password }: SignInParams) {
 
   const data = await response.json();
 
-  // Guarda el access token en sessionStorage
-  sessionStorage.setItem('accessToken', data.AuthenticationResult.AccessToken);
+  // Guarda el id token en sessionStorage
+  sessionStorage.setItem('idToken', data.AuthenticationResult.IdToken);
 
   return data;
 }
 
-export function getAccessToken() {
-  return sessionStorage.getItem('accessToken');
+export function getIdToken() {
+  return sessionStorage.getItem('idToken');
 }
 
 export function logout() {
-  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('idToken');
 }
-
 
 interface ResendConfirmationCodeParams {
   username: string;

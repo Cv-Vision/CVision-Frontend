@@ -12,6 +12,7 @@ import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
 import Candidates from '../pages/recruiter/Candidates';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
+import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 
 export function AppRouter() {
   return (
@@ -58,6 +59,11 @@ export function AppRouter() {
       <Route path="/recruiter/candidates" element={
         <ProtectedRoute requiredRole="recruiter">
           <Candidates />
+        </ProtectedRoute>
+      } />
+      <Route path="/recruiter/job/:jobId/analysis" element={
+        <ProtectedRoute requiredRole="recruiter">
+          <CVAnalysisResults />
         </ProtectedRoute>
       } />
     </Routes>
