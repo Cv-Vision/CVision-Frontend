@@ -21,7 +21,19 @@ export function useGetJobs() {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (!res.ok) throw new Error('Error cargando puestos');
-                setJobs(await res.json());
+                
+                
+                const raw = (await res.json()) as any[];
+                const mappedJobs = raw.map(item => ({
+                    id:          item.pk.split('#')[1],    // p.ej. "ba417f42-8640-4dcb-b335-9b248f2972ce"
+                    title:       item.title,
+                    description: item.description,
+                    company:     item.company ?? '', // si tu API lo trae
+                    status:      item.status,       // número
+                    questions:   item.questions ?? [] 
+                }));
+                setJobs(mappedJobs);
+                
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error desconocido');
             } finally {
