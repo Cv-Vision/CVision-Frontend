@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 
-export function createJobForm() {
+export function useCreateJobForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

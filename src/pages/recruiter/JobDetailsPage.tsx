@@ -4,7 +4,7 @@ import { BriefcaseIcon, UserGroupIcon, DocumentTextIcon } from '@heroicons/react
 import BackButton from '@/components/BackButton';
 import JobDetails from '../../components/JobDetails';
 import CandidateList from '../../components/CandidateList';
-import { fetchWithAuth } from '../../services/fetchWithAuth';
+import { fetchWithAuth } from '@/services/fetchWithAuth';
 
 interface JobData {
   id: string;
