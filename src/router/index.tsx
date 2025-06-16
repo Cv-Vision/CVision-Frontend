@@ -13,7 +13,9 @@ import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
 import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
-import JobDetailsPage from '../pages/recruiter/JobDetailsPage';
+//import JobDetailsPage from '../pages/recruiter/JobDetailsPage';
+import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
+
 
 export function AppRouter() {
   return (
@@ -69,7 +71,7 @@ export function AppRouter() {
       } />
       <Route path="/recruiter/job/:jobId" element={
         <ProtectedRoute requiredRole="recruiter">
-          <JobDetailsPage />
+          <JobPostingDetails />
         </ProtectedRoute>
       } />
     </Routes>

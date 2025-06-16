@@ -15,6 +15,7 @@ interface Candidate {
 }
 
 interface CandidateListProps {
+  jobId: string;
   candidates: Candidate[];
   isLoading?: boolean;
   error?: string | null;
