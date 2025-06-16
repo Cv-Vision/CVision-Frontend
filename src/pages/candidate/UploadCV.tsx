@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '@/components/BackButton';
 
 export function UploadCV() {
   const [file, setFile] = useState<File | null>(null);
@@ -57,6 +58,7 @@ export function UploadCV() {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
+            <BackButton />
             <h3 className="text-lg font-medium leading-6 text-gray-900">
               Sube tu CV
             </h3>
