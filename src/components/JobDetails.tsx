@@ -16,7 +16,8 @@ interface JobDetailsProps {
 }
 
 const JobDetails: React.FC<JobDetailsProps> = ({
-                                                 initialDescription,
+  //jobId,
+  initialDescription,
   initialRequirements,
   onSave,
 }) => {
