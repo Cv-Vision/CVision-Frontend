@@ -4,7 +4,7 @@ import {Job} from "@/context/JobContext.tsx";
 
 // Custom hook for fetch + loading + error logic regarding job postings
 
-export function getJobs() {
+export function useGetJobs() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

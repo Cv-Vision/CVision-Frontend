@@ -1,12 +1,12 @@
 import { Table } from '@/components/dashboard/Table';
 import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
-import { getJobs } from '@/hooks/GetJobs.ts';
+import { useGetJobs } from '@/hooks/useGetJobs';
 import { useNavigate } from 'react-router-dom';
 import {BriefcaseIcon} from "@heroicons/react/24/solid";
 import {PlusIcon} from "@heroicons/react/16/solid";
 
 const JobPostings: React.FC = () => {
-    const { jobs, isLoading, error } = getJobs();
+    const { jobs, isLoading, error } = useGetJobs();
     const nav = useNavigate();
 
     const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);

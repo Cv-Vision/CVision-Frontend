@@ -6,6 +6,7 @@ export type Job = {
   description: string;
   company: string;
   questions: string[];
+  status: number;
 };
 
 export type Application = {
@@ -34,7 +35,8 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
         '¿Por qué quieres trabajar en TechCorp?',
         '¿Qué experiencia tienes con React?',
         '¿Cómo resolverías un conflicto en un equipo de desarrollo?'
-      ]
+      ],
+      status: 1
     },
     {
       id: 2,
@@ -45,7 +47,8 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
         '¿Qué te motiva a trabajar en DataSoft?',
         '¿Cómo optimizarías una API REST?',
         '¿Qué experiencia tienes con bases de datos NoSQL?'
-      ]
+      ],
+      status: 1
     }
   ]);
 
