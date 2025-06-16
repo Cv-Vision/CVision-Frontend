@@ -85,18 +85,23 @@ export async function signIn({ username, password }: SignInParams) {
     }),
   });
 
+  const data = await response.json(); // ✅ Parse una sola vez
+
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error signing in');
+    console.error('Sign in error:', data); // ✅ Mostrar error en consola
+    throw new Error(data.message || 'Error signing in');
   }
 
-  const data = await response.json();
+  const idToken = data.AuthenticationResult?.IdToken;
+  if (!idToken) {
+    console.error('Missing IdToken in response:', data); // ✅ Si no hay token, mostrar error
+    throw new Error('No se obtuvo token');
+  }
 
-  // Guarda el id token en sessionStorage
-  sessionStorage.setItem('idToken', data.AuthenticationResult.IdToken);
-
+  sessionStorage.setItem('idToken', idToken);
   return data;
 }
+
 
 export function getIdToken() {
   return sessionStorage.getItem('idToken');
@@ -104,6 +109,7 @@ export function getIdToken() {
 
 export function logout() {
   sessionStorage.removeItem('idToken');
+  sessionStorage.removeItem('user');
 }
 
 interface ResendConfirmationCodeParams {
@@ -125,10 +131,8 @@ export async function resendConfirmationCode({ username }: ResendConfirmationCod
 
   if (!response.ok) {
     const err = await response.json();
-    // AWS Cognito devuelve un objeto con .message
     throw new Error(err.message || 'Error reenviando código de confirmación');
   }
 
-  // Si quieres obtener datos de la respuesta, puedes hacer return response.json()
   return response.json();
 }

@@ -20,8 +20,15 @@ const Login = () => {
     setError('');
 
     try {
-      await signIn({ username: email, password });
-      const userData = { email, role };
+      const cognitoUser = await signIn({ username: email, password });
+
+      const token = cognitoUser?.AuthenticationResult?.IdToken;
+
+      if (!token) {
+        throw new Error("No se pudo obtener el token de sesión");
+      }
+
+      const userData = { email, role, token };
       if (login) {
         login(userData);
       }
@@ -32,13 +39,14 @@ const Login = () => {
         navigate('/recruiter/dashboard');
       }
     } catch (err: any) {
+      console.error("Error al hacer login:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  return (
+    return (
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
       <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-10 flex flex-col items-center">
         <ArrowRightOnRectangleIcon className="h-12 w-12 text-blue-400 mb-4" />
