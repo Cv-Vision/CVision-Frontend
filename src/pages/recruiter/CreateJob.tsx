@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BriefcaseIcon } from '@heroicons/react/24/solid';
+import BackButton from '@/components/BackButton';
 import { createJobForm } from '@/hooks/createJobForm';
 
 export default function CreateJob() {
@@ -22,6 +24,7 @@ export default function CreateJob() {
   return (
     <div className="min-h-screen bg-blue-100 py-10">
       <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
+        <BackButton />
         <h2 className="text-2xl font-semibold mb-6">Crear Nuevo Puesto</h2>
 
         <form onSubmit={handleSubmit}>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useJobs, Job } from '../../context/JobContext';
 import ChatBox from '../../components/ChatBox';
+import BackButton from '@/components/BackButton';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import { CVDropzone } from '../../components/CVDropzone';
 
@@ -44,6 +45,7 @@ const JobListings: React.FC = () => {
   return (
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
       <div className="bg-white rounded-2xl shadow-lg max-w-4xl w-full p-10 flex flex-col items-center">
+        <BackButton />
         <ListBulletIcon className="h-10 w-10 text-blue-400 mb-4" />
         <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Posiciones disponibles</h2>
         

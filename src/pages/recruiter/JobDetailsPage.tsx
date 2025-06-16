@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BriefcaseIcon, UserGroupIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
+import BackButton from '@/components/BackButton';
 import JobDetails from '../../components/JobDetails';
 import CandidateList from '../../components/CandidateList';
 import { fetchWithAuth } from '../../services/fetchWithAuth';
@@ -219,56 +220,59 @@ const JobDetailsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-blue-100 py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <BriefcaseIcon className="h-8 w-8 text-blue-400" />
-          <h1 className="text-3xl font-bold text-gray-800">{jobData.title}</h1>
-        </div>
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <BackButton />
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 mb-8">
+            <BriefcaseIcon className="h-8 w-8 text-blue-400" />
+            <h1 className="text-3xl font-bold text-gray-800">{jobData.title}</h1>
+          </div>
 
-        {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('details')}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'details'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <DocumentTextIcon className="h-5 w-5" />
-              Detalles del Puesto
-            </button>
-            <button
-              onClick={() => setActiveTab('candidates')}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'candidates'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <UserGroupIcon className="h-5 w-5" />
-              Candidatos ({candidates.length})
-            </button>
-          </nav>
-        </div>
+          {/* Tabs */}
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'details'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <DocumentTextIcon className="h-5 w-5" />
+                Detalles del Puesto
+              </button>
+              <button
+                onClick={() => setActiveTab('candidates')}
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'candidates'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <UserGroupIcon className="h-5 w-5" />
+                Candidatos ({candidates.length})
+              </button>
+            </nav>
+          </div>
 
-        {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow p-6">
-          {activeTab === 'details' ? (
-            <JobDetails
-              jobId={jobId!}
-              initialDescription={jobData.description}
-              initialRequirements={jobData.requirements}
-              onSave={handleSave}
-            />
-          ) : (
-            <CandidateList
-              candidates={candidates}
-              isLoading={isLoading}
-              error={error}
-            />
-          )}
+          {/* Tab Content */}
+          <div className="bg-white rounded-lg shadow p-6">
+            {activeTab === 'details' ? (
+              <JobDetails
+                jobId={jobId!}
+                initialDescription={jobData.description}
+                initialRequirements={jobData.requirements}
+                onSave={handleSave}
+              />
+            ) : (
+              <CandidateList
+                candidates={candidates}
+                isLoading={isLoading}
+                error={error}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

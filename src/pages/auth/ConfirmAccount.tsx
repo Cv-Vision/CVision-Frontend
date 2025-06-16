@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { confirmSignUp, resendConfirmationCode } from '@/services/AuthService.ts';
+import BackButton from '@/components/BackButton';
 
 const ConfirmAccount = () => {
   const location = useLocation();
@@ -71,6 +72,7 @@ const ConfirmAccount = () => {
   return (
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
       <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-10 flex flex-col items-center">
+        <BackButton />
         <h1 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">Confirma tu Cuenta</h1>
         <form className="w-full flex flex-col gap-6 mt-6" onSubmit={handleSubmit}>
           <input

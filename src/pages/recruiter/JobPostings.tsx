@@ -2,8 +2,9 @@ import { Table } from '@/components/dashboard/Table';
 import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useNavigate } from 'react-router-dom';
-import { BriefcaseIcon } from "@heroicons/react/24/solid";
-import { PlusIcon } from "@heroicons/react/16/solid";
+import {BriefcaseIcon} from "@heroicons/react/24/solid";
+import {PlusIcon} from "@heroicons/react/16/solid";
+import BackButton from '@/components/BackButton';
 
 const JobPostings: React.FC = () => {
   const { jobs, isLoading, error } = useGetJobs();
@@ -28,13 +29,13 @@ const JobPostings: React.FC = () => {
     <div className="min-h-screen bg-blue-100 py-10 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-8">
+          <BackButton />
           {/* HEADER with Add‑Job button */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <BriefcaseIcon className="h-8 w-8 text-green-400" />
               <h1 className="text-3xl font-bold text-gray-800">Puestos de trabajo</h1>
             </div>
-
             <button
               onClick={() => nav('/recruiter/create-job')}
               className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-lg shadow-sm"
