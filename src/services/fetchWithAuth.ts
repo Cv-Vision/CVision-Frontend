@@ -1,39 +1,66 @@
 export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
-  const token = sessionStorage.getItem('accessToken');
+  const token = sessionStorage.getItem('idToken');
 
   if (!token) {
-    throw new Error('No access token found. Please log in.');
+    throw new Error('No se encontró el token de identidad. Por favor, inicie sesión nuevamente.');
   }
 
   const authHeaders = {
-    Authorization: `Bearer ${token}`,
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Origin': window.location.origin
   };
 
   const mergedHeaders = {
-    ...init?.headers,
     ...authHeaders,
+    ...init?.headers,
   };
 
   const mergedInit: RequestInit = {
     ...init,
     headers: mergedHeaders,
+    mode: 'cors',
+    credentials: 'include'
   };
 
-  const response = await fetch(input, mergedInit);
+  try {
+    const response = await fetch(input, mergedInit);
 
-  if (!response.ok) {
-    // Manejo global de errores
-    if (response.status === 401) {
-      throw new Error('No autorizado. ¿El token expiró?');
+    // Handle CORS preflight
+    if (response.status === 204) {
+      // This is a successful preflight response
+      return response;
     }
-    if (response.status === 403) {
-      throw new Error('Acceso prohibido.');
+
+    if (!response.ok) {
+      // Handle specific error cases
+      if (response.status === 401) {
+        // Clear token and redirect to login
+        sessionStorage.removeItem('idToken');
+        window.location.href = '/login';
+        throw new Error('No autorizado. Por favor, inicie sesión nuevamente.');
+      }
+      if (response.status === 403) {
+        throw new Error('Acceso prohibido.');
+      }
+      if (response.status === 500) {
+        throw new Error('Error interno del servidor.');
+      }
+
+      // Try to get error message from response
+      let errorMessage = `Error en la solicitud: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // Silently handle JSON parse error
+      }
+      throw new Error(errorMessage);
     }
-    if (response.status === 500) {
-      throw new Error('Error interno del servidor.');
-    }
-    throw new Error(`Error en la solicitud: ${response.status}`);
+
+    return response;
+  } catch (error) {
+    throw error;
   }
-
-  return response;
 }
