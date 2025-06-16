@@ -29,6 +29,8 @@ const Navbar = () => {
     navigate('/login');
   };
   console.log('isAuthenticated:', isAuthenticated);
+  const userRole = user?.role === 'candidate' ? 'Candidato' : 'Reclutador';
+
   return (
     <header className="w-full bg-white shadow-md px-6 py-3 flex justify-between items-center">
       <h1
@@ -40,7 +42,7 @@ const Navbar = () => {
 
       {isAuthenticated && user && (
         <div className="flex items-center gap-4">
-          <span className="text-gray-700 text-sm capitalize">{user.role}</span>
+          <span className="text-gray-700 text-sm capitalize">{userRole}</span>
           <button
             onClick={handleLogout}
             className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
