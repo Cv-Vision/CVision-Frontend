@@ -25,7 +25,7 @@ export function useGetJobs() {
                 
                 const raw = (await res.json()) as any[];
                 const mappedJobs = raw.map(item => ({
-                    id:          item.pk.split('#')[1],    // p.ej. "ba417f42-8640-4dcb-b335-9b248f2972ce"
+                    pk:          item.pk.split('#')[1],    // p.ej. "ba417f42-8640-4dcb-b335-9b248f2972ce"
                     title:       item.title,
                     description: item.description,
                     company:     item.company ?? '', // si tu API lo trae

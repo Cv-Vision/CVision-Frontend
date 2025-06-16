@@ -206,6 +206,7 @@ const JobDetailsPage: React.FC = () => {
               />
             ) : (
               <CandidateList
+                jobId={jobId!}
                 candidates={candidates}
                 isLoading={isLoading}
                 error={error}

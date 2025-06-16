@@ -22,12 +22,12 @@ export function JobRow({
 }: JobRowProps) {
     
     return [
-        <TableCell key="title" onClick={() => onRowClick(job.id)}>
+        <TableCell key="title" onClick={() => onRowClick(job.pk)}>
             <div className="text-sm font-medium text-gray-900">{job.title}</div>
             <div className="text-sm text-gray-500">{job.company}</div>
         </TableCell>,
 
-        <TableCell key="desc" onClick={() => onRowClick(job.id)}>
+        <TableCell key="desc" onClick={() => onRowClick(job.pk)}>
             <div className="text-sm text-gray-900 line-clamp-2">{job.description}</div>
         </TableCell>,
 
@@ -40,7 +40,7 @@ export function JobRow({
         <TableCell key="actions">
             <div className="flex gap-2">
                 <button
-                    onClick={() => onDelete(job.id)}
+                    onClick={() => onDelete(job.pk)}
                     className="text-red-600 hover:text-red-900 flex items-center gap-1"
                 >
                     <TrashIcon className="h-5 w-5" /> Eliminar
