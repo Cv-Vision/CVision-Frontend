@@ -26,12 +26,12 @@ const RecruiterDashboard = () => {
           <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
             <BriefcaseIcon className="h-8 w-8 text-green-400 mb-2" />
             <p className="text-2xl font-bold text-gray-800">{totalActiveJobs}</p>
-            <p className="text-sm text-gray-500">Vacantes Activas</p>
+            <p className="text-sm text-gray-500">Publicaciones Activas</p>
           </div>
           <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
             <DocumentCheckIcon className="h-8 w-8 text-green-400 mb-2" />
             <p className="text-2xl font-bold text-gray-800">{cvsPerHour}</p>
-            <p className="text-sm text-gray-500">CVs Analizados / h</p>
+            <p className="text-sm text-gray-500">CVs Analizados / hora</p>
           </div>
         </div>
 
