@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BriefcaseIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/BackButton';
 import { createJobForm } from '@/hooks/createJobForm';
 

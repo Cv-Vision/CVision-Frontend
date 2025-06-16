@@ -14,6 +14,8 @@ const JobListings: React.FC = () => {
   const [uploadedCvUrls, setUploadedCvUrls] = useState<string[]>([]);
 
   const handleCvUploadComplete = (fileUrls: string[]) => {
+    // TODO remove this upload call when variable is used in the future, this is here to fix build issues
+    uploadedCvUrls;
     setUploadedCvUrls(fileUrls);
     setCvUploaded(true);
     if (selectedJob?.questions && selectedJob.questions.length > 0) {
