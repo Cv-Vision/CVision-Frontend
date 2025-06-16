@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
-import { createJobForm } from '@/hooks/createJobForm';
+import { useCreateJobForm } from '@/hooks/useCreateJobForm.ts';
 
 export default function CreateJob() {
   const [title, setTitle] = useState('');
@@ -13,7 +13,7 @@ export default function CreateJob() {
     isSubmitting,
     error,
     success
-  } = createJobForm();
+  } = useCreateJobForm();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Job = {
-  id: string;
+  pk: string;
   title: string;
   description: string;
   company: string;
@@ -12,7 +12,7 @@ export type Job = {
 export type Application = {
   jobId: string;
   answers: string[];
-  candidate: string; // mock: nombre o id del candidato
+  candidate: string;
 };
 
 type JobContextType = {
@@ -27,7 +27,7 @@ const JobContext = createContext<JobContextType | undefined>(undefined);
 export const JobProvider = ({ children }: { children: ReactNode }) => {
   const [jobs, setJobs] = useState<Job[]>([
     {
-      id: 'thisIsAMockId',
+      pk: 'a',
       title: 'Frontend Developer',
       description: 'React, TypeScript, Tailwind',
       company: 'TechCorp',
@@ -39,7 +39,7 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
       status: 1
     },
     {
-      id: 'thisIsAMockId2',
+      pk: 'b',
       title: 'Backend Developer',
       description: 'Node.js, Express, MongoDB',
       company: 'DataSoft',
