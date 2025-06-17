@@ -121,7 +121,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             method: 'PUT',
             body: file,
             headers: {
-              'Content-Type': 'application/pdf',
+              'Content-Type': file.type,
             },
             mode: 'cors',
           });
