@@ -12,19 +12,20 @@ const JobPostings: React.FC = () => {
 
   const handleRowClick = (id: string) => nav(`/recruiter/job/${id}`);
 
-  const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);
-  const handleEdit = (id: number) => nav(`/recruiter/edit-job/${id}`);
   const handleDelete = (id: string) => alert(`Falta implementar delete ${id}`);
+
+  const handleStatusChange = (id: string, newStatus: string) => {
+      // todo: Implementar lógica para cambiar el estado del puesto de trabajo en backend
+    alert(`Falta implementar cambio de estado para ${id} a ${newStatus}`);
+  };
 
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
   const rows = jobs.map(job =>
     JobRow({
       job,
       onRowClick: handleRowClick,
-      onView: handleView,
-      onEdit: handleEdit,
       onDelete: handleDelete,
-      isLoading
+      onStatusChange: handleStatusChange,
     })
   );
 
@@ -33,7 +34,6 @@ const JobPostings: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <BackButton />
-          {/* HEADER with Add‑Job button */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <BriefcaseIcon className="h-8 w-8 text-green-400" />

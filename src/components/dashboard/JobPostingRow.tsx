@@ -5,22 +5,34 @@ import {Job} from "@/context/JobContext.tsx";
 interface JobRowProps {
     job: Job;
     onRowClick: (id: string) => void;
-    onView: (id: number) => void;
-    onEdit: (id: number) => void;
     onDelete: (id: string) => void;
-    isLoading: boolean;
+    onStatusChange: (id: string, newStatus: string) => void; // Added prop
 }
-// TODO: Eliminar el campo status del Job y usar un enum o algo similar para los estados de los trabajos asi no esta mas hardcodeado
 
 export function JobRow({ 
     job, 
     onRowClick, 
-    //onView, 
-    //onEdit, 
-    onDelete, 
-    //isLoading 
+    onDelete,
+    onStatusChange
 }: JobRowProps) {
-    
+    console.log('JobRow called with job:', job);
+
+    // Map status values to display labels and colors
+    // todo: Cambiar los valores de statusMap a los que se usan en el backend, por ahora son los mismos que en el frontend (donde dice "ACTIVE", "closed", "archived")
+    const statusMap: Record<string, { label: string; color: string }> = {
+        ACTIVE: { label: 'Abierta', color: 'text-green-800 bg-green-100' },
+        closed: { label: 'Cerrada', color: 'text-red-800 bg-red-100' },
+        archived: { label: 'Archivada', color: 'text-gray-800 bg-gray-200' },
+    };
+
+    // todo: Cambiar los valores de statusMap a los que se usan en el backend, por ahora son los mismos que en el frontend (donde dice "ACTIVE", "closed", "archived")
+    const statusOptions = [
+        { value: 'ACTIVE', label: 'Abierta' },
+        { value: 'closed', label: 'Cerrada' },
+        { value: 'archived', label: 'Archivada' },
+    ];
+    const currentStatus = statusMap[job.status] || { label: job.status, color: 'text-gray-800 bg-gray-100' };
+
     return [
         <TableCell key="title" onClick={() => onRowClick(job.pk)}>
             <div className="text-sm font-medium text-gray-900">{job.title}</div>
@@ -32,9 +44,21 @@ export function JobRow({
         </TableCell>,
 
         <TableCell key="status">
-            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                {job.status}
+            <span
+                className={`inline-block px-2 py-1 rounded text-xs font-semibold border border-gray-300 ${currentStatus.color}`}
+                style={{ marginBottom: 4 }}
+            >
+                {currentStatus.label}
             </span>
+            <select
+                className="ml-2 px-2 py-1 rounded border border-gray-300 text-xs font-semibold bg-white text-gray-800"
+                value={job.status}
+                onChange={e => onStatusChange(job.pk, e.target.value)}
+            >
+                {statusOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+            </select>
         </TableCell>,
 
         <TableCell key="actions">
