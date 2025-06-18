@@ -30,8 +30,8 @@ const JobApplication = () => {
     const fetchJobAndQuestions = async () => {
       try {
         const [jobResponse, questionsResponse] = await Promise.all([
-          fetchWithAuth(`/api/jobs/${jobId}`),
-          fetchWithAuth(`/api/jobs/${jobId}/questions`)
+          fetchWithAuth(`/recruiter/job/${jobId}`),
+          fetchWithAuth(`/recruiter/job/${jobId}/questions`)
         ]);
 
         if (!jobResponse.ok || !questionsResponse.ok) {
@@ -98,7 +98,7 @@ const JobApplication = () => {
       formData.append('cv', cvFile);
       formData.append('answers', JSON.stringify(answers));
 
-      const response = await fetchWithAuth(`/api/jobs/${jobId}/apply`, {
+      const response = await fetchWithAuth(`/recruiter/job/${jobId}/apply`, {
         method: 'POST',
         body: formData,
       });

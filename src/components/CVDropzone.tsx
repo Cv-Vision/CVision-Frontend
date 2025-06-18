@@ -19,25 +19,27 @@ interface PresignedUrlResponse {
   }>;
 }
 
+// Allowed types and extensions for CVs
+const allowedTypes: { [key: string]: string[] } = {
+  'application/pdf': ['.pdf'],
+  'image/png': ['.png'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+};
+
+const flatAllowedTypes = Object.keys(allowedTypes)
+
 export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete, onError }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Filter only PDF files
-    const pdfFiles = acceptedFiles.filter(file => file.type === 'application/pdf');
-    if (pdfFiles.length !== acceptedFiles.length) {
-      onError?.('Solo se permiten archivos PDF');
-      return;
-    }
-
-    // Check file sizes (max 5MB each)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const validFiles = pdfFiles.filter(file => file.size <= maxSize);
-    if (validFiles.length !== pdfFiles.length) {
-      onError?.('Algunos archivos superan el límite de 5MB');
-      return;
+    const validFiles = acceptedFiles.filter(file => {
+      return flatAllowedTypes.includes(file.type) && file.size <= 5 * 1024 * 1024; // Max 5MB
+    });
+    const rejected = acceptedFiles.filter(file => !flatAllowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024);
+    if (rejected.length > 0) {
+      onError?.('Algunos archivos fueron rechazados (tipo no permitido o tamaño > 5MB)');
     }
 
     setFiles(prevFiles => [...prevFiles, ...validFiles]);
@@ -45,9 +47,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf']
-    },
+    accept: allowedTypes,
     multiple: true,
     noClick: false,
     noKeyboard: false
@@ -121,7 +121,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             method: 'PUT',
             body: file,
             headers: {
-              'Content-Type': 'application/pdf',
+              'Content-Type': file.type,
             },
             mode: 'cors',
           });
@@ -167,7 +167,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         <p className="mt-2 text-sm text-gray-600">
           {isDragActive
             ? 'Suelta los archivos aquí...'
-            : 'Arrastra y suelta archivos PDF aquí, o haz clic para seleccionar'}
+            : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
         <p className="mt-1 text-xs text-gray-500">
           Solo PDF, máximo 5MB por archivo

@@ -37,32 +37,7 @@ const JobDetailsPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const [jobData, setJobData] = useState<JobData | null>(null);
-  const [candidates, setCandidates] = useState<Candidate[]>([
-    {
-      id: '1',
-      fullName: 'Juan Pérez',
-      score: 92,
-      cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      analysis: {
-        strengths: ['Trabajo en equipo', 'Comunicación'],
-        weaknesses: ['Inglés técnico'],
-        recommendations: ['Mejorar inglés', 'Profundizar en React'],
-        detailedFeedback: 'Buen perfil, destaca en trabajo en equipo. Puede mejorar en inglés técnico.'
-      }
-    },
-    {
-      id: '2',
-      fullName: 'Ana Gómez',
-      score: 85,
-      cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      analysis: {
-        strengths: ['Liderazgo', 'Resolución de problemas'],
-        weaknesses: ['Experiencia en backend'],
-        recommendations: ['Aprender Node.js'],
-        detailedFeedback: 'Muy buen liderazgo, le falta experiencia en backend.'
-      }
-    }
-  ]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('details');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,26 +53,15 @@ const JobDetailsPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`/api/jobs/${jobId}`);
+      const response = await fetchWithAuth(`/api/recruiter/job/${jobId}`);
       if (!response.ok) {
         throw new Error('Error al cargar los detalles del puesto');
       }
       const data = await response.json();
       setJobData(data);
     } catch (err) {
-      // MOCK: Si falla, carga datos de ejemplo
-      setJobData({
-        id: jobId!,
-        title: 'Mock Puesto Frontend',
-        description: 'Descripción de ejemplo para el puesto.',
-        requirements: {
-          seniority: 'Mid',
-          englishLevel: 'Intermedio',
-          contractType: 'Full-time',
-          additionalRequirements: 'Experiencia en React y TypeScript.'
-        }
-      });
-      setError(null); // Oculta el error
+      // Manejo de error real sin datos mock
+      setError(err instanceof Error ? err.message : 'Error al cargar los detalles del puesto');
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +71,7 @@ const JobDetailsPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`/api/jobs/${jobId}/candidates`);
+      const response = await fetchWithAuth(`/api/recruiter/job/${jobId}/candidates`);
       if (!response.ok) {
         throw new Error('Error al cargar los candidatos');
       }
@@ -115,34 +79,9 @@ const JobDetailsPage: React.FC = () => {
       const sortedCandidates = data.sort((a: Candidate, b: Candidate) => b.score - a.score);
       setCandidates(sortedCandidates);
     } catch (err) {
-      // MOCK: Si falla, carga candidatos de ejemplo
-      setCandidates([
-        {
-          id: '1',
-          fullName: 'Juan Pérez',
-          score: 92,
-          cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          analysis: {
-            strengths: ['Trabajo en equipo', 'Comunicación'],
-            weaknesses: ['Inglés técnico'],
-            recommendations: ['Mejorar inglés', 'Profundizar en React'],
-            detailedFeedback: 'Buen perfil, destaca en trabajo en equipo. Puede mejorar en inglés técnico.'
-          }
-        },
-        {
-          id: '2',
-          fullName: 'Ana Gómez',
-          score: 85,
-          cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          analysis: {
-            strengths: ['Liderazgo', 'Resolución de problemas'],
-            weaknesses: ['Experiencia en backend'],
-            recommendations: ['Aprender Node.js'],
-            detailedFeedback: 'Muy buen liderazgo, le falta experiencia en backend.'
-          }
-        }
-      ]);
-      setError(null); // Oculta el error
+      // Manejo de error real sin datos mock
+      setError(err instanceof Error ? err.message : 'Error al cargar los candidatos');
+      setCandidates([]);
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +89,7 @@ const JobDetailsPage: React.FC = () => {
 
   const handleSave = async (description: string, requirements: JobData['requirements']) => {
     try {
-      const response = await fetchWithAuth(`/api/jobs/${jobId}`, {
+      const response = await fetchWithAuth(`/api/recruiter/job/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -267,6 +206,7 @@ const JobDetailsPage: React.FC = () => {
               />
             ) : (
               <CandidateList
+                jobId={jobId!}
                 candidates={candidates}
                 isLoading={isLoading}
                 error={error}

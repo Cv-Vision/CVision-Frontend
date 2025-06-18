@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
-import { chatbotService, ChatbotResponse } from '../services/chatbotService';
-import { useParams } from 'react-router-dom';
+import { chatbotService } from '../services/chatbotService';
+// import { useParams } from 'react-router-dom';
 
 interface Message {
   type: 'bot' | 'user';
@@ -13,18 +13,18 @@ interface SoftSkillsChatbotProps {
   onSubmit: (answers: string[]) => void;
 }
 
-const SOFT_SKILLS_QUESTIONS = [
-  "¿Podrías contarme sobre una situación en la que tuviste que trabajar en equipo para resolver un problema complejo?",
-  "Describe un momento en el que tuviste que manejar un conflicto en el trabajo. ¿Cómo lo resolviste?",
-  "¿Cuál ha sido tu experiencia más significativa como líder o guiando a un equipo?",
-  "¿Cómo manejas situaciones de estrés o presión en el trabajo?",
-  "¿Podrías compartir un ejemplo de cómo has adaptado tu estilo de comunicación para trabajar efectivamente con diferentes tipos de personas?"
-];
+// const SOFT_SKILLS_QUESTIONS = [
+//   "¿Podrías contarme sobre una situación en la que tuviste que trabajar en equipo para resolver un problema complejo?",
+//   "Describe un momento en el que tuviste que manejar un conflicto en el trabajo. ¿Cómo lo resolviste?",
+//   "¿Cuál ha sido tu experiencia más significativa como líder o guiando a un equipo?",
+//   "¿Cómo manejas situaciones de estrés o presión en el trabajo?",
+//   "¿Podrías compartir un ejemplo de cómo has adaptado tu estilo de comunicación para trabajar efectivamente con diferentes tipos de personas?"
+// ];
 
-const INITIAL_GREETING = "¡Hola! Soy tu asistente de evaluación de habilidades blandas. Voy a hacerte algunas preguntas para conocer mejor tus competencias. ¿Estás listo para comenzar?";
+// const INITIAL_GREETING = "¡Hola! Soy tu asistente de evaluación de habilidades blandas. Voy a hacerte algunas preguntas para conocer mejor tus competencias. ¿Estás listo para comenzar?";
 
 const SoftSkillsChatbot: React.FC<SoftSkillsChatbotProps> = ({ onClose, onSubmit }) => {
-  const { jobId } = useParams<{ jobId: string }>();
+  // const { jobId } = useParams<{ jobId: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
   const [answers, setAnswers] = useState<string[]>([]);

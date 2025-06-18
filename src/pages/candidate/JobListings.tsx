@@ -14,6 +14,8 @@ const JobListings: React.FC = () => {
   const [uploadedCvUrls, setUploadedCvUrls] = useState<string[]>([]);
 
   const handleCvUploadComplete = (fileUrls: string[]) => {
+    // TODO remove this upload call when variable is used in the future, this is here to fix build issues
+    uploadedCvUrls;
     setUploadedCvUrls(fileUrls);
     setCvUploaded(true);
     if (selectedJob?.questions && selectedJob.questions.length > 0) {
@@ -53,7 +55,7 @@ const JobListings: React.FC = () => {
           {/* Job List */}
           <div className="space-y-6">
             {jobs.map((job) => (
-              <li key={job.id} className="bg-blue-50 rounded-lg shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between list-none">
+              <li key={job.pk} className="bg-blue-50 rounded-lg shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between list-none">
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800">{job.title} <span className="text-sm text-gray-500">({job.company})</span></h3>
                   <p className="text-gray-700 mb-2">{job.description}</p>
@@ -61,13 +63,13 @@ const JobListings: React.FC = () => {
                 </div>
                 <button
                   className={`mt-4 md:mt-0 px-4 py-2 rounded-lg shadow transition-colors font-semibold ${
-                    selectedJob?.id === job.id
+                    selectedJob?.pk === job.pk
                       ? 'bg-green-500 text-white hover:bg-green-600'
                       : 'bg-blue-400 text-white hover:bg-blue-600'
                   }`}
                   onClick={() => handleApply(job)}
                 >
-                  {selectedJob?.id === job.id ? 'Seleccionado' : 'Aplicar'}
+                  {selectedJob?.pk === job.pk ? 'Seleccionado' : 'Aplicar'}
                 </button>
               </li>
             ))}
@@ -81,7 +83,7 @@ const JobListings: React.FC = () => {
                   Subir CV para: {selectedJob.title}
                 </h3>
                 <CVDropzone
-                  jobId={selectedJob.id.toString()}
+                  jobId={selectedJob.pk.toString()}
                   onUploadComplete={handleCvUploadComplete}
                   onError={handleCvUploadError}
                 />

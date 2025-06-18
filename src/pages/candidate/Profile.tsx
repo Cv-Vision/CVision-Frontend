@@ -20,6 +20,7 @@ export function CandidateProfile() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // lógica para guardar perfil
+    isEditing;
     setIsEditing(false);
   };
 

@@ -10,14 +10,17 @@ const JobPostings: React.FC = () => {
   const { jobs, isLoading, error } = useGetJobs();
   const nav = useNavigate();
 
+  const handleRowClick = (id: string) => nav(`/recruiter/job/${id}`);
+
   const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);
   const handleEdit = (id: number) => nav(`/recruiter/edit-job/${id}`);
-  const handleDelete = (id: number) => alert(`Falta implementar delete ${id}`);
+  const handleDelete = (id: string) => alert(`Falta implementar delete ${id}`);
 
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
   const rows = jobs.map(job =>
     JobRow({
       job,
+      onRowClick: handleRowClick,
       onView: handleView,
       onEdit: handleEdit,
       onDelete: handleDelete,

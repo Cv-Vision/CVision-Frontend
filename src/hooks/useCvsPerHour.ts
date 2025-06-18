@@ -14,7 +14,7 @@ export function useCvsPerHour() {
         let total = 0;
         await Promise.all(
           activeJobs.map(async job => {
-            const results = await getCVAnalysisResults(job.id.toString());
+            const results = await getCVAnalysisResults(job.pk.toString());
             total += results.filter(r => new Date(r.timestamp) >= oneHourAgo).length;
           })
         );

@@ -8,7 +8,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { role } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role as 'candidate' | 'recruiter' | undefined;
   const location = useLocation();
 
   // En desarrollo, permitimos acceso si el rol coincide o si no hay rol requerido

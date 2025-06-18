@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, DocumentArrowDownIcon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
 
 interface Candidate {
   id: string;
@@ -22,11 +23,13 @@ interface CandidateListProps {
 }
 
 const CandidateList: React.FC<CandidateListProps> = ({
+  jobId,
   candidates,
   isLoading = false,
   error = null,
 }) => {
   const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const toggleCandidate = (candidateId: string) => {
     setExpandedCandidate(expandedCandidate === candidateId ? null : candidateId);
@@ -98,6 +101,17 @@ const CandidateList: React.FC<CandidateListProps> = ({
                     <DocumentArrowDownIcon className="h-5 w-5" />
                     Descargar CV
                   </button>
+
+                  {/* Botón para ir a análisis */}
+                  <button
+                    onClick={() =>
+                      navigate(`/recruiter/job/${jobId}/analysis?highlight=${candidate.id}`)
+                    }
+                    className="mt-2 text-blue-600 hover:underline"
+                  >
+                    Ver análisis
+                  </button>
+
                 </div>
               </div>
               <button
