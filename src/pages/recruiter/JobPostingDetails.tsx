@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
 import { useState } from 'react';
@@ -8,6 +9,7 @@ import AnalysisButton from '@/components/AnalysisButton';
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
+  const { candidates, isLoading: isLoadingCandidates, error: errorCandidates } = useGetCandidatesByJobId(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
 
@@ -80,7 +82,12 @@ const JobPostingDetails = () => {
 
         <div>
           <h2 className="text-lg font-semibold mb-2">Resultados del análisis</h2>
-          <CandidateList jobId={job.pk} candidates={[]} />
+          <CandidateList
+            jobId={jobId!}
+            candidates={candidates}
+            isLoading={isLoadingCandidates}
+            error={errorCandidates}
+          />
         </div>
         <div>
           <h2 className="text-lg font-semibold mb-2">Cargar nuevos CVs</h2>
