@@ -5,10 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import {BriefcaseIcon} from "@heroicons/react/24/solid";
 import {PlusIcon} from "@heroicons/react/16/solid";
 import BackButton from '@/components/BackButton';
+import { useState, useMemo } from 'react';
 
 const JobPostings: React.FC = () => {
   const { jobs, isLoading, error } = useGetJobs();
   const nav = useNavigate();
+  // todo: Cambiar los valores de statusFilter a los que se usan en el backend, por ahora son los mismos que en el frontend (donde dice "all", "open", "closed")
+  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'closed' | 'archived'>('all');
+  const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
 
   const handleRowClick = (id: string) => nav(`/recruiter/job/${id}`);
 
@@ -19,15 +23,21 @@ const JobPostings: React.FC = () => {
     alert(`Falta implementar cambio de estado para ${id} a ${newStatus}`);
   };
 
-  const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
-  const rows = jobs.map(job =>
-    JobRow({
-      job,
-      onRowClick: handleRowClick,
-      onDelete: handleDelete,
-      onStatusChange: handleStatusChange,
-    })
-  );
+  // filter jobs based on status filter selected
+  const filteredJobs = useMemo(() => {
+      if (statusFilter === 'all') return jobs;
+      return jobs.filter(job => job.status.toLowerCase() === statusFilter);
+      }, [jobs, statusFilter]);
+
+    const rows = filteredJobs.map(job =>
+        JobRow({
+            job,
+            onRowClick: handleRowClick,
+            onDelete: handleDelete,
+            onStatusChange: handleStatusChange,
+        })
+    );
+
 
   return (
     <div className="min-h-screen bg-blue-100 py-10 px-4">
@@ -47,6 +57,37 @@ const JobPostings: React.FC = () => {
               <span>Agregar puesto</span>
             </button>
           </div>
+            <div className="flex items-center gap-2">
+                {['all', 'open', 'closed', 'archived'].map((status) => {
+                    let baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
+                    let activeClasses = '';
+                    let inactiveClasses = '';
+                    if (status === 'open') {
+                        activeClasses = 'bg-green-600 text-white';
+                        inactiveClasses = 'bg-green-100 text-green-800 hover:bg-green-200';
+                    } else if (status === 'closed') {
+                        activeClasses = 'bg-red-600 text-white';
+                        inactiveClasses = 'bg-red-100 text-red-800 hover:bg-red-200';
+                    } else if (status === 'archived') {
+                        activeClasses = 'bg-gray-600 text-white';
+                        inactiveClasses = 'bg-gray-200 text-gray-800 hover:bg-gray-300';
+                    } else {
+                        activeClasses = 'bg-blue-600 text-white';
+                        inactiveClasses = 'bg-gray-200 text-gray-700 hover:bg-gray-300';
+                    }
+                    return (
+                        <button
+                            key={status}
+                            onClick={() => setStatusFilter(status as 'all' | 'open' | 'closed' | 'archived')}
+                            className={
+                                baseClasses + ' ' + (statusFilter === status ? activeClasses : inactiveClasses)
+                            }
+                        >
+                            {status === 'all' ? 'Todos' : status === 'open' ? 'Abiertos' : status === 'closed' ? 'Cerrados' : 'Archivados'}
+                        </button>
+                    );
+                })}
+            </div>
 
           {isLoading && (
             <div className="text-center text-gray-500">Cargando puestos de trabajo...</div>
