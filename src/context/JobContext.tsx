@@ -10,7 +10,7 @@ export type Job = {
 };
 
 export type Application = {
-  jobId: number;
+  jobId: string;
   answers: string[];
   candidate: string;
 };

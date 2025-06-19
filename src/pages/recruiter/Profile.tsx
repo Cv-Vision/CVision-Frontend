@@ -13,6 +13,7 @@ export function RecruiterProfile() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement profile update
+    isEditing;
     setIsEditing(false);
   };
 
