@@ -19,17 +19,18 @@ const JPCandidatesList: React.FC<JPCandidatesListProps> = ({ jobId }) => {
 
     const headers = ['Nombre', 'Fecha de aplicación', 'CV'];
     const rows = candidates.map(c => [
-        <TableCell key={`name-${c.cv_id}`} onClick={() => navigate(`/candidate/${c.cv_id}`)}>{c.name}{/*todo: cambiar el navegar a la pagina de candidato*/}</TableCell>,
+        <TableCell key={`name-${c.cv_id}`} onClick={() => navigate(`/candidate/${c.cv_id}`)}>{c.name}</TableCell>,
         <TableCell key={`date-${c.cv_id}`}>{new Date(c.created_at).toLocaleString()}</TableCell>,
         <TableCell key={`cv-${c.cv_id}`}>
-            {/*todo: modificar para acceso a S3*/}
             <a
-                href={`https://your-s3-bucket.amazonaws.com/${c.cv_s3_key}`}
+                href={c.cv_s3_key}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 underline text-sm"
+                download
             >
-                View CV
+                {/*todo: fix the CV downloading logic in S3*/}
+                Descargar CV
             </a>
         </TableCell>
     ]);
