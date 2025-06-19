@@ -3,7 +3,7 @@ import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import { CVDropzone } from "@/components/CVDropzone";
 import { useState } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
-import JPCandidatesList from './JPCandidatesList';
+import JPCandidatesList from './jp_elements/JPCandidatesList.tsx';
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
