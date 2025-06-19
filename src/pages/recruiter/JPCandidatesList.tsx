@@ -19,7 +19,7 @@ const JPCandidatesList: React.FC<JPCandidatesListProps> = ({ jobId }) => {
 
     const headers = ['Nombre', 'Fecha de aplicación', 'CV'];
     const rows = candidates.map(c => [
-        <TableCell key={`name-${c.cv_id}`} onClick={() => navigate(`/candidate/${c.cv_id}`)}>{c.name}{/*todo: cambiar el navegar a la pagina de candidato*/}</TableCell>,
+        <TableCell key={`name-${c.cv_id}`} onClick={() => navigate(`/candidate/${c.cv_id}`)}>{c.name}{/*todo: modificar para acceder a modal de candidato*/}</TableCell>,
         <TableCell key={`date-${c.cv_id}`}>{new Date(c.created_at).toLocaleString()}</TableCell>,
         <TableCell key={`cv-${c.cv_id}`}>
             {/*todo: modificar para acceso a S3*/}
