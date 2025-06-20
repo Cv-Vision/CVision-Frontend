@@ -16,6 +16,20 @@ function formatDate(dateString?: string) {
   return date.toLocaleString();
 }
 
+export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisResultWithCreatedAt[] }) => {
+  if (!results || results.length === 0) return null;
+  const total = results.length;
+  const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
+  const maxResult = results[0];
+  return (
+    <div className="bg-blue-50 rounded-lg p-4 mb-6 flex flex-col gap-2">
+      <div className="text-lg font-semibold text-gray-800">Total de CVs analizados: <span className="font-bold">{total}</span></div>
+      <div className="text-lg font-semibold text-gray-800">Promedio de score: <span className="font-bold">{avg}%</span></div>
+      <div className="text-lg font-semibold text-gray-800">Score más alto: <span className="font-bold">{maxResult.score}%</span> ({maxResult.name || maxResult.cv_name || maxResult.participant_id})</div>
+    </div>
+  );
+};
+
 const CVAnalysisResultCard = ({ result }: { result: GeminiAnalysisResultWithCreatedAt }) => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="flex justify-between items-start mb-4">
@@ -79,7 +93,8 @@ const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
         setLoading(true);
         setError(null);
         const data = await getGeminiAnalysisResults(jobId);
-        setResults(data);
+        // Ordenar resultados de mayor a menor score
+        setResults([...data].sort((a, b) => b.score - a.score));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -115,23 +130,10 @@ const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
     );
   }
 
-  // Ordenar resultados de mayor a menor score
-  const sortedResults = [...results].sort((a, b) => b.score - a.score);
-
-  // Resumen simple
-  const total = sortedResults.length;
-  const avg = Math.round(sortedResults.reduce((acc, r) => acc + r.score, 0) / total);
-  const maxResult = sortedResults[0];
-
   return (
     <div>
-      <div className="bg-blue-50 rounded-lg p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="text-lg font-semibold text-gray-800">Total de CVs analizados: <span className="font-bold">{total}</span></div>
-        <div className="text-lg font-semibold text-gray-800">Promedio de score: <span className="font-bold">{avg}%</span></div>
-        <div className="text-lg font-semibold text-gray-800">Score más alto: <span className="font-bold">{maxResult.score}%</span> ({maxResult.name || maxResult.cv_name || maxResult.participant_id})</div>
-      </div>
       <div className="grid gap-6">
-        {sortedResults.map((result, idx) => (
+        {results.map((result, idx) => (
           <CVAnalysisResultCard key={idx} result={result} />
         ))}
       </div>
