@@ -20,6 +20,15 @@ export default function CreateJob() {
     await createJob({ title, description });
   };
 
+  // Reset form and redirect after success
+  if (success) {
+    setTimeout(() => {
+      setTitle('');
+      setDescription('');
+      navigate('/recruiter/job-postings');
+    }, 1200); // Show success message for 1.2s
+  }
+
   return (
     <div className="min-h-screen bg-blue-100 py-10">
       <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
