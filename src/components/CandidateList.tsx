@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon, DocumentArrowDownIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
