@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getGeminiAnalysisResults, GeminiAnalysisResult } from '../../services/geminiAnalysisService';
+import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -21,11 +21,28 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
   const total = results.length;
   const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
   const maxResult = results[0];
+  // Tooltip state
+  const [showTooltip, setShowTooltip] = useState(false);
   return (
     <div className="bg-blue-50 rounded-lg p-4 mb-6 flex flex-col gap-2">
       <div className="text-lg font-semibold text-gray-800">Total de CVs analizados: <span className="font-bold">{total}</span></div>
       <div className="text-lg font-semibold text-gray-800">Promedio de score: <span className="font-bold">{avg}%</span></div>
-      <div className="text-lg font-semibold text-gray-800">Score más alto: <span className="font-bold">{maxResult.score}%</span> ({maxResult.name || maxResult.cv_name || maxResult.participant_id})</div>
+      <div className="text-lg font-semibold text-gray-800 relative">
+        <span
+          className="cursor-pointer underline decoration-dotted decoration-2 underline-offset-2"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          Score más alto:
+        </span>
+        <span className="font-bold ml-1">{maxResult.score}%</span>
+        {showTooltip && (
+          <div className="absolute left-0 mt-2 z-10 bg-white border border-gray-300 rounded shadow-lg p-3 text-sm min-w-[180px]">
+            <div><span className="font-semibold">Nombre:</span> {maxResult.name || maxResult.cv_name || maxResult.participant_id}</div>
+            <div><span className="font-semibold">Score:</span> {maxResult.score}%</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -51,7 +68,7 @@ const CVAnalysisResultCard = ({ result }: { result: GeminiAnalysisResultWithCrea
       </div>
     </div>
     <div className="mb-6">
-      <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones técnicas</h4>
+      <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones</h4>
       <ul className="list-disc list-inside space-y-2">
         {result.reasons.map((reason, idx) => (
           <li key={idx} className="text-gray-700">{reason}</li>
@@ -141,4 +158,4 @@ const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
   );
 };
 
-export default CVAnalysisResultsInline; 
+export default CVAnalysisResultsInline;

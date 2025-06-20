@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
-import { getGeminiAnalysisResults } from '../../services/geminiAnalysisService';
-import type { GeminiAnalysisResult } from '../../services/geminiAnalysisService';
+import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
+import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
