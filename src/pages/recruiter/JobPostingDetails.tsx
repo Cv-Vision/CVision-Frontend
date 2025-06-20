@@ -17,7 +17,6 @@ interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
-  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
