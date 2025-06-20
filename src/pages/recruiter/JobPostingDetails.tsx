@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
