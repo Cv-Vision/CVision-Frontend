@@ -91,7 +91,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
   }
 
   // Create table headers and rows for the Table component
-  const headers = ['Candidato', 'Score', 'CV', 'Análisis', 'Acciones'];
+  const headers = ['Candidato', 'Score'];
 
   const rows = candidates.map((candidate) => [
     // Candidate Name
@@ -104,41 +104,6 @@ const CandidateList: React.FC<CandidateListProps> = ({
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
         {candidate.score}
       </span>
-    </TableCell>,
-
-    // CV Download Button
-    <TableCell key={`cv-${candidate.id}`}>
-      <button
-          onClick={() => handleDownloadCV(candidate.cvUrl, candidate.fullName)}
-          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-      >
-        <DocumentArrowDownIcon className="h-5 w-5" />
-        Descargar CV
-      </button>
-    </TableCell>,
-
-    // Analysis Button
-    <TableCell key={`analysis-${candidate.id}`}>
-      <button
-          onClick={() => navigate(`/recruiter/job/${jobId}/analysis?highlight=${candidate.id}`)}
-          className="text-blue-600 hover:underline"
-      >
-        Ver análisis
-      </button>
-    </TableCell>,
-
-    // Expand/Collapse Button
-    <TableCell key={`actions-${candidate.id}`}>
-      <button
-          onClick={() => toggleCandidate(candidate.id)}
-          className="text-gray-400 hover:text-gray-600"
-      >
-        {expandedCandidate === candidate.id ? (
-            <ChevronUpIcon className="h-6 w-6" />
-        ) : (
-            <ChevronDownIcon className="h-6 w-6" />
-        )}
-      </button>
     </TableCell>
   ]);
 
