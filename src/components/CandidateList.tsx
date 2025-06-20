@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon, DocumentArrowDownIcon } from '@heroicons/react/24/solid';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
 
@@ -36,57 +34,31 @@ const getScoreColorClass = (score: number) => {
 };
 
 const CandidateList: React.FC<CandidateListProps> = ({
-                                                       jobId,
-                                                       candidates,
-                                                       isLoading = false,
-                                                       error = null,
-                                                     }) => {
-  const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
-  const navigate = useNavigate();
-
-  const toggleCandidate = (candidateId: string) => {
-    setExpandedCandidate(expandedCandidate === candidateId ? null : candidateId);
-  };
-
-  const handleDownloadCV = async (cvUrl: string, candidateName: string) => {
-    try {
-      const response = await fetch(cvUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `CV_${candidateName.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('Error downloading CV:', err);
-      alert('Error al descargar el CV. Por favor, intente nuevamente.');
-    }
-  };
-
+  candidates,
+  isLoading = false,
+  error = null,
+}) => {
   if (isLoading) {
     return (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   if (error) {
     return (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        {error}
+      </div>
     );
   }
 
   if (candidates.length === 0) {
     return (
-        <div className="text-center py-8 text-gray-500">
-          No hay candidatos para mostrar
-        </div>
+      <div className="text-center py-8 text-gray-500">
+        No hay candidatos para mostrar
+      </div>
     );
   }
 
@@ -108,54 +80,9 @@ const CandidateList: React.FC<CandidateListProps> = ({
   ]);
 
   return (
-      <div className="space-y-4">
-        <Table headers={headers} rows={rows} />
-
-        {/* Expanded candidate details */}
-        {expandedCandidate && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4 mt-2">
-              {candidates
-                  .filter(candidate => candidate.id === expandedCandidate)
-                  .map(candidate => (
-                      <div key={candidate.id} className="mt-4 space-y-4 pt-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Fortalezas</h4>
-                          <ul className="list-disc list-inside space-y-1 text-gray-600">
-                            {candidate.analysis.strengths.map((strength, index) => (
-                                <li key={index}>{strength}</li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Áreas de Mejora</h4>
-                          <ul className="list-disc list-inside space-y-1 text-gray-600">
-                            {candidate.analysis.weaknesses.map((weakness, index) => (
-                                <li key={index}>{weakness}</li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Recomendaciones</h4>
-                          <ul className="list-disc list-inside space-y-1 text-gray-600">
-                            {candidate.analysis.recommendations.map((recommendation, index) => (
-                                <li key={index}>{recommendation}</li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Análisis Detallado</h4>
-                          <p className="text-gray-600 whitespace-pre-wrap">
-                            {candidate.analysis.detailedFeedback}
-                          </p>
-                        </div>
-                      </div>
-                  ))}
-            </div>
-        )}
-      </div>
+    <div className="space-y-4">
+      <Table headers={headers} rows={rows} />
+    </div>
   );
 };
 

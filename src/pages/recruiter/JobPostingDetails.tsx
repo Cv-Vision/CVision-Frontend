@@ -1,22 +1,50 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
-import CVAnalysisResultsInline from './CVAnalysisResultsInline';
+import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
+import { getGeminiAnalysisResults } from '../../services/geminiAnalysisService';
+import type { GeminiAnalysisResult } from '../../services/geminiAnalysisService';
+
+interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
+  name?: string;
+  created_at?: string;
+}
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
+  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResultWithCreatedAt[]>([]);
+  const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Hook para obtener candidatos
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
   const { candidates, isLoading: candidatesLoading, error: candidatesError } = useGetCandidatesByJobId(cleanJobId);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (!cleanJobId) return;
+      try {
+        setAnalysisLoading(true);
+        setAnalysisError(null);
+        const data = await getGeminiAnalysisResults(cleanJobId);
+        setAnalysisResults([...data].sort((a, b) => b.score - a.score));
+      } catch (err) {
+        setAnalysisError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+    fetchResults();
+  }, [cleanJobId]);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
@@ -40,8 +68,34 @@ const JobPostingDetails = () => {
   if (!job) return <p className="p-4">No se encontró el puesto de trabajo.</p>;
 
   return (
-    <div className="min-h-screen bg-blue-100 py-10 px-4">
-      <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-lg space-y-8">
+    <div className="min-h-screen bg-blue-100 py-10 px-4 flex flex-row gap-8">
+      {/* Card pequeño para cargar nuevos CVs */}
+      <div className="w-full max-w-xs bg-white p-6 rounded-2xl shadow-lg self-start mt-16">
+        {/* Métricas de análisis arriba */}
+        <h2 className="text-lg font-semibold mb-4">Métricas de análisis</h2>
+        {analysisLoading ? (
+          <div className="flex justify-center items-center h-16">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+          </div>
+        ) : analysisError ? (
+          <div className="text-red-600 text-sm mb-2">{analysisError}</div>
+        ) : (
+          <CVAnalysisMetricsSummary results={analysisResults} />
+        )}
+        <h2 className="text-lg font-semibold mb-2 mt-8">Cargar nuevos CVs</h2>
+        <CVDropzone jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`} />
+        <div className="mt-4">
+          <AnalysisButton jobId={job.pk} />
+        </div>
+      </div>
+      {/* Card principal */}
+      <div className="flex-1 w-full bg-white p-8 rounded-2xl shadow-lg space-y-8 relative">
+        <button
+          className="absolute left-6 top-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded shadow text-sm"
+          onClick={() => navigate('/recruiter/job-postings')}
+        >
+          ← Volver
+        </button>
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800">{job.title}</h1>
           <select
@@ -99,9 +153,15 @@ const JobPostingDetails = () => {
               </>
             )}
             {isDescriptionCollapsed && (
-              <p className="bg-gray-100 p-4 rounded whitespace-pre-line">
-                {job.description.split(/\s+/).slice(0, 100).join(' ')}{job.description.split(/\s+/).length > 100 ? '...' : ''}
-              </p>
+              <div className="relative">
+                <p className="bg-gray-100 p-4 rounded whitespace-pre-line max-h-80 overflow-hidden">
+                  {job.description}
+                </p>
+                {/* Gradiente para indicar que hay más texto */}
+                <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-8 rounded-b-2xl"
+                  style={{background: 'linear-gradient(to bottom, rgba(243,244,246,0) 0%, rgba(243,244,246,1) 100%)'}}
+                />
+              </div>
             )}
           </div>
           {/* Lista de Candidatos con scroll y alto máximo */}
@@ -110,14 +170,6 @@ const JobPostingDetails = () => {
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <CandidateList jobId={job.pk} candidates={candidates} isLoading={candidatesLoading} error={candidatesError} />
             </div>
-          </div>
-        </div>
-        {/* Sección para cargar nuevos CVs */}
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Cargar nuevos CVs</h2>
-          <CVDropzone jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`} />
-          <div className="mt-4">
-            <AnalysisButton jobId={job.pk} />
           </div>
         </div>
         {/* Resultados del análisis debajo de la descripción y extendido */}
