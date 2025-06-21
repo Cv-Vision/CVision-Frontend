@@ -163,7 +163,7 @@ const JobPostingDetails = () => {
           <div className="flex-1 min-w-0 max-w-md">
             <h2 className="text-lg font-semibold mb-2">Candidatos</h2>
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-              <CandidateList jobId={job.pk} candidates={candidates} isLoading={candidatesLoading} error={candidatesError} />
+              <CandidateList jobId={cleanJobId} candidates={candidates} isLoading={candidatesLoading} error={candidatesError} />
             </div>
           </div>
         </div>

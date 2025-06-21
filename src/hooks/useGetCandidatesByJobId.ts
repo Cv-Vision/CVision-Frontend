@@ -5,6 +5,7 @@ export interface Candidate {
   fullName: string;
   score: number;
   cvUrl: string;
+  valoracion?: string; // Valoración del candidato
   analysis: {
     strengths: string[];
     weaknesses: string[];
@@ -49,6 +50,7 @@ export const useGetCandidatesByJobId = (jobId: string) => {
           fullName: item.name || '',
           score: item.score ?? 0,
           cvUrl: item.cv_s3_key ? `${S3_BASE_URL}${item.cv_s3_key}` : '',
+          valoracion: item.Valoracion ?? undefined,
           analysis: {
             strengths: [],
             weaknesses: [],
