@@ -174,7 +174,15 @@ const JobPostingDetails = () => {
         </div>
         {/* Resultados del análisis debajo de la descripción y extendido */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-2">Resultados del análisis</h2>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">Resultados del análisis</h2>
+            <button
+              onClick={() => navigate(`/recruiter/job/${cleanJobId}/analysis`)}
+              className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            >
+              Ver Análisis Completo
+            </button>
+          </div>
           <div className="w-full">
             <CVAnalysisResultsInline jobId={cleanJobId} />
           </div>
