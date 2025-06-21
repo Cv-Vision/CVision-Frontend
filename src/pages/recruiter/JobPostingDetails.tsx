@@ -29,6 +29,9 @@ const JobPostingDetails = () => {
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
   const { candidates, isLoading: candidatesLoading, error: candidatesError } = useGetCandidatesByJobId(cleanJobId);
   const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
+  const andaPaAllaBobo = () => {
+    navigate(analysisDetailsPath);
+  };
   
   useEffect(() => {
     const fetchResults = async () => {
@@ -178,7 +181,7 @@ const JobPostingDetails = () => {
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">Resultados del análisis</h2>
             <button
-              onClick={() => navigate(analysisDetailsPath)}
+              onClick={andaPaAllaBobo}
               className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
             >
               Ver Análisis Completo
