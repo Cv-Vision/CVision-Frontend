@@ -27,7 +27,7 @@ const JobPostingDetails = () => {
 
   // Hook para obtener candidatos
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
-  const { candidates, isLoading: candidatesLoading, error: candidatesError } = useGetCandidatesByJobId(cleanJobId);
+  const { candidates, isLoading: candidatesLoading, error: candidatesError, refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -85,7 +85,7 @@ const JobPostingDetails = () => {
         <h2 className="text-lg font-semibold mb-2 mt-8">Cargar nuevos CVs</h2>
         <CVDropzone jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`} />
         <div className="mt-4">
-          <AnalysisButton jobId={job.pk} />
+          <AnalysisButton jobId={job.pk} onSuccess={() => setTimeout(refetchCandidates, 12000)} />
         </div>
       </div>
       {/* Card principal */}
