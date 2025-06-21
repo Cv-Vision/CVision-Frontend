@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
@@ -6,8 +6,9 @@ import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
-import { getGeminiAnalysisResults } from '../../services/geminiAnalysisService';
-import type { GeminiAnalysisResult } from '../../services/geminiAnalysisService';
+import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
+import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import BackButton from '@/components/BackButton';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   name?: string;
@@ -16,7 +17,6 @@ interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
-  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
@@ -90,12 +90,7 @@ const JobPostingDetails = () => {
       </div>
       {/* Card principal */}
       <div className="flex-1 w-full bg-white p-8 rounded-2xl shadow-lg space-y-8 relative">
-        <button
-          className="absolute left-6 top-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded shadow text-sm"
-          onClick={() => navigate('/recruiter/job-postings')}
-        >
-          ← Volver
-        </button>
+        <BackButton />
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800">{job.title}</h1>
           <select
