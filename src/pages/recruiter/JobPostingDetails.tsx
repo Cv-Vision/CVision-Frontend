@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
@@ -17,6 +17,7 @@ interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
+  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
@@ -28,6 +29,11 @@ const JobPostingDetails = () => {
   // Hook para obtener candidatos
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
   const { candidates, isLoading: candidatesLoading, error: candidatesError, refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
+
+  const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
+  const andaPaAllaBobo = () => {
+    navigate(analysisDetailsPath);
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -169,7 +175,15 @@ const JobPostingDetails = () => {
         </div>
         {/* Resultados del análisis debajo de la descripción y extendido */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-2">Resultados del análisis</h2>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">Resultados del análisis</h2>
+            <button
+              onClick={andaPaAllaBobo}
+              className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            >
+              Ver Análisis Completo
+            </button>
+          </div>
           <div className="w-full">
             <CVAnalysisResultsInline jobId={cleanJobId} />
           </div>
