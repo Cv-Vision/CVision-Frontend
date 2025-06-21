@@ -9,6 +9,7 @@ import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisR
 import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
 import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   name?: string;
@@ -32,6 +33,7 @@ const JobPostingDetails = () => {
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
   const S3_BASE_URL = 'https://cv-bucket.s3.amazonaws.com/';
   const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
+  const handleRemoveUploadedCv = (key: string) => setUploadedCvs(prev => prev.filter(k => k !== key));
 
   // Hook para obtener candidatos
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
@@ -122,15 +124,22 @@ const JobPostingDetails = () => {
             <h4 className="text-sm font-medium text-gray-700">CVs subidos:</h4>
             <div className="max-h-40 overflow-y-auto space-y-2">
               {uploadedCvs.map((key) => (
-                <a
-                  key={key}
-                  href={`${S3_BASE_URL}${key}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm block"
-                >
-                  {getFileNameFromKey(key)}
-                </a>
+                <div key={key} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                  <a
+                    href={`${S3_BASE_URL}${key}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    {getFileNameFromKey(key)}
+                  </a>
+                  <button
+                    onClick={() => handleRemoveUploadedCv(key)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
