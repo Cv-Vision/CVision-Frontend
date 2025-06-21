@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
@@ -17,6 +17,7 @@ interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
+  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
