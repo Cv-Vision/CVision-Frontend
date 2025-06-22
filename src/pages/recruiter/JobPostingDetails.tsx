@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
@@ -9,6 +9,7 @@ import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisR
 import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
 import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   name?: string;
@@ -17,6 +18,7 @@ interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
 
 const JobPostingDetails = () => {
   const { jobId } = useParams(); //la ruta será /recruiter/:jobId
+  const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
@@ -25,9 +27,22 @@ const JobPostingDetails = () => {
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
+  // State for upload messages and uploaded CVs list
+  const [uploadedCvs, setUploadedCvs] = useState<string[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
+  const S3_BASE_URL = 'https://cv-bucket.s3.amazonaws.com/';
+  const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
+  const handleRemoveUploadedCv = (key: string) => setUploadedCvs(prev => prev.filter(k => k !== key));
+
   // Hook para obtener candidatos
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
-  const { candidates, isLoading: candidatesLoading, error: candidatesError } = useGetCandidatesByJobId(cleanJobId);
+  const { candidates, isLoading: candidatesLoading, error: candidatesError, refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
+
+  const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
+  const andaPaAllaBobo = () => {
+    navigate(analysisDetailsPath);
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -83,10 +98,52 @@ const JobPostingDetails = () => {
           <CVAnalysisMetricsSummary results={analysisResults} />
         )}
         <h2 className="text-lg font-semibold mb-2 mt-8">Cargar nuevos CVs</h2>
-        <CVDropzone jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`} />
+        {uploadError && (
+          <div className="text-red-600 text-sm mb-2">{uploadError}</div>
+        )}
+        {uploadSuccessMessage && (
+          <div className="text-green-600 text-sm mb-2">{uploadSuccessMessage}</div>
+        )}
+        <CVDropzone
+          jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`}
+          onUploadComplete={(keys) => {
+            setUploadError(null);
+            setUploadSuccessMessage('CVs subidos exitosamente');
+            setUploadedCvs(prev => [...prev, ...keys]);
+          }}
+          onError={(errorMsg) => {
+            setUploadError(errorMsg);
+            setUploadSuccessMessage(null);
+          }}
+        />
         <div className="mt-4">
-          <AnalysisButton jobId={job.pk} />
+          <AnalysisButton jobId={job.pk} onSuccess={() => setTimeout(refetchCandidates, 12000)} />
         </div>
+        {uploadedCvs.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium text-gray-700">CVs subidos:</h4>
+            <div className="max-h-40 overflow-y-auto space-y-2">
+              {uploadedCvs.map((key) => (
+                <div key={key} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                  <a
+                    href={`${S3_BASE_URL}${key}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    {getFileNameFromKey(key)}
+                  </a>
+                  <button
+                    onClick={() => handleRemoveUploadedCv(key)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {/* Card principal */}
       <div className="flex-1 w-full bg-white p-8 rounded-2xl shadow-lg space-y-8 relative">
@@ -169,7 +226,15 @@ const JobPostingDetails = () => {
         </div>
         {/* Resultados del análisis debajo de la descripción y extendido */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-2">Resultados del análisis</h2>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">Resultados del análisis</h2>
+            <button
+              onClick={andaPaAllaBobo}
+              className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            >
+              Ver Análisis Completo
+            </button>
+          </div>
           <div className="w-full">
             <CVAnalysisResultsInline jobId={cleanJobId} />
           </div>
