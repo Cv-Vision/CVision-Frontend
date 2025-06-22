@@ -9,6 +9,13 @@ interface CandidateDetailModalProps {
     reasons: string[];
 }
 
+// Function to get score color class - same as in CandidateList.tsx
+const getScoreColorClass = (score: number) => {
+  if (score >= 70) return 'bg-green-500';
+  if (score >= 40) return 'bg-yellow-400';
+  return 'bg-red-500';
+};
+
 // This component displays detailed information about a candidate in a modal form
 // To use it a candidate's name, score, and reasons must be passed to it.
 const CandidateDetailModal: React.FC<CandidateDetailModalProps> = (
@@ -21,9 +28,7 @@ const CandidateDetailModal: React.FC<CandidateDetailModalProps> = (
     }) => {
     if (!isOpen) return null;
 
-    let scoreColor = 'bg-green-500';
-    if (score < 60) scoreColor = 'bg-red-500';
-    else if (score < 80) scoreColor = 'bg-yellow-400';
+    const scoreColor = getScoreColorClass(score);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
