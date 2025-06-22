@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getGeminiAnalysisResults, GeminiAnalysisResult } from '../../services/geminiAnalysisService';
-import AnalysisButton from '../../components/AnalysisButton';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -165,14 +164,14 @@ const CVAnalysisResults = () => {
     // NO limpiar selectedPosition aquí, así el filtro por puesto se mantiene
   };
 
-  const handleAnalysisSuccess = () => {
-    // Refresh the results after successful analysis
-    handleRetry();
-  };
+  // const handleAnalysisSuccess = () => {
+  //   // Refresh the results after successful analysis
+  //   handleRetry();
+  // };
 
-  const handleAnalysisError = (error: string) => {
-    setError(error);
-  };
+  // const handleAnalysisError = (error: string) => {
+  //   setError(error);
+  // };
 
   if (loading) {
     return (
@@ -242,13 +241,6 @@ const CVAnalysisResults = () => {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-gray-900">Resultados de Análisis de CVs</h1>
-            {jobId && (
-              <AnalysisButton
-                jobId={jobId}
-                onSuccess={handleAnalysisSuccess}
-                onError={handleAnalysisError}
-              />
-            )}
           </div>
           <button
             onClick={() => navigate(-1)}
