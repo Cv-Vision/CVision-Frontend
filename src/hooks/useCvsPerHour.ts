@@ -9,7 +9,7 @@ export function useCvsPerHour() {
   useEffect(() => {
     async function fetchCvsRate() {
       try {
-        const activeJobs = jobs.filter(job => job.status === 1);
+        const activeJobs = jobs.filter(job => job.status === "ACTIVE");
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
         let total = 0;
         await Promise.all(
