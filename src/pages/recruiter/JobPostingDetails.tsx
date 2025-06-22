@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
-import CandidateList from '@/components/CandidateList';
 import { CVDropzone } from "@/components/CVDropzone";
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
@@ -224,6 +223,7 @@ const JobPostingDetails = () => {
             </div>
           </div>
         </div>
+
         {/* Resultados del análisis debajo de la descripción y extendido */}
         <div className="mt-8">
           <div className="flex justify-between items-center mb-2">
