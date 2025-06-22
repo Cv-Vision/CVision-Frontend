@@ -9,6 +9,7 @@ import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
 import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import CandidateList from '@/components/CandidateList';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   name?: string;

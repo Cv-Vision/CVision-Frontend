@@ -6,18 +6,18 @@ export interface TableCellProps {
     children: React.ReactNode;
     // Optional click handler for the entire cell (useful if you want the whole cell to be clickable without it being a button)
     onClick?: () => void;
+    className?: string; // Optional className for additional styling
 }
 
 /*
  Modular TableCell component. Use this to wrap any content (text, buttons, icons, etc.)
  inside a table cell, with an optional onClick action.
  */
-export const TableCell: React.FC<TableCellProps> = ({ children, onClick }) => (
-    <td
-        onClick={onClick}
-        className="p-2 border cursor-pointer hover:bg-gray-100"
-    >
-        {children}
-    </td>
-);
+export const TableCell: React.FC<TableCellProps> = ({ children, onClick, className }) => {
+    return (
+      <td onClick={onClick} className={`p-2 ${className ?? ''}`}>
+          {children}
+      </td>
+    );
+};
 
