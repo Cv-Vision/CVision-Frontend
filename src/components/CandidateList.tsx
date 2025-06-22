@@ -4,7 +4,7 @@ import { TableCell } from './dashboard/TableCell';
 import { CandidateRatingDropdown } from './CandidateRatingDropdown';
 
 interface Candidate {
-  valoracion?: string; // <- antes estaba como `valoracion: string`
+  rating?: string;
   id: string;
   fullName: string;
   score: number;
@@ -75,7 +75,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
         <CandidateRatingDropdown
           jobId={jobId}
           cvId={candidate.id}
-          initialValue={candidate.valoracion || ''}
+          initialValue={candidate.rating || ''}
         />
       </div>
     </TableCell>,

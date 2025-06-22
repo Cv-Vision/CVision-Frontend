@@ -29,4 +29,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   @apply bg-gray-50;
-} 
+}
+
+@keyframes fade-in-out {
+  0% { opacity: 0; transform: translateY(-10px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 1.2s ease-in-out;
+}
