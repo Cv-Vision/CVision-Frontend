@@ -1,8 +1,10 @@
 import React from 'react';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
+import { CandidateRatingDropdown } from './CandidateRatingDropdown';
 
 interface Candidate {
+  valoracion?: string; // <- antes estaba como `valoracion: string`
   id: string;
   fullName: string;
   score: number;
@@ -34,6 +36,7 @@ const getScoreColorClass = (score: number) => {
 };
 
 const CandidateList: React.FC<CandidateListProps> = ({
+  jobId,
   candidates,
   isLoading = false,
   error = null,
@@ -64,20 +67,27 @@ const CandidateList: React.FC<CandidateListProps> = ({
 
   // Create table headers and rows for the Table component
   const headers = ['Candidato', 'Score'];
-
   const rows = candidates.map((candidate) => [
-    // Candidate Name
+    // Candidato + Dropdown
     <TableCell key={`name-${candidate.id}`}>
-      <div className="font-semibold text-gray-900">{candidate.fullName}</div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <span className="font-semibold text-gray-900">{candidate.fullName}</span>
+        <CandidateRatingDropdown
+          jobId={jobId}
+          cvId={candidate.id}
+          initialValue={candidate.valoracion || ''}
+        />
+      </div>
     </TableCell>,
 
-    // Score with color based on value
+    // Score con color
     <TableCell key={`score-${candidate.id}`}>
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
-        {candidate.score}
-      </span>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
+      {candidate.score}
+    </span>
     </TableCell>
   ]);
+
 
   return (
     <div className="space-y-4">

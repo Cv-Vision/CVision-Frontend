@@ -5,6 +5,7 @@ export interface Candidate {
   fullName: string;
   score: number;
   cvUrl: string;
+  valoracion?: string; // Valoración del candidato
   analysis: {
     strengths: string[];
     weaknesses: string[];
@@ -13,7 +14,6 @@ export interface Candidate {
   };
 }
 
-// Cambia esto por el nombre real de tu bucket si es diferente
 const S3_BUCKET = 'cv-bucket';
 const S3_BASE_URL = `https://${S3_BUCKET}.s3.amazonaws.com/`;
 
@@ -22,22 +22,24 @@ export const useGetCandidatesByJobId = (jobId: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch candidates, used on mount and for manual refresh
   const fetchCandidates = async () => {
     if (!jobId) return;
     setIsLoading(true);
     setError(null);
+
     const idToken = sessionStorage.getItem('idToken');
     if (!idToken) {
       setError('No autenticado');
       setIsLoading(false);
       return;
     }
+
     try {
-      const res = await fetch(
-        `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/candidates`,
-        { headers: { Authorization: `Bearer ${idToken}` } }
-      );
+      const res = await fetch(`https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/candidates`, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
       if (!res.ok) throw new Error('Error al obtener candidatos');
       const data = await res.json();
       const mappedCandidates: Candidate[] = (data.candidates || []).map((item: any) => ({
@@ -45,7 +47,13 @@ export const useGetCandidatesByJobId = (jobId: string) => {
         fullName: item.name || '',
         score: item.score ?? 0,
         cvUrl: item.cv_s3_key ? `${S3_BASE_URL}${item.cv_s3_key}` : '',
-        analysis: { strengths: [], weaknesses: [], recommendations: [], detailedFeedback: '' },
+        valoracion: item.Valoracion ?? undefined,
+        analysis: {
+          strengths: [],
+          weaknesses: [],
+          recommendations: [],
+          detailedFeedback: '',
+        },
       }));
       mappedCandidates.sort((a, b) => b.score - a.score);
       setCandidates(mappedCandidates);
@@ -61,4 +69,4 @@ export const useGetCandidatesByJobId = (jobId: string) => {
   }, [jobId]);
 
   return { candidates, isLoading, error, refetch: fetchCandidates };
-}; 
+};
