@@ -10,6 +10,8 @@ import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import CandidateList from '@/components/CandidateList';
+import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
+
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   name?: string;
@@ -31,6 +33,7 @@ const JobPostingDetails = () => {
   const [uploadedCvs, setUploadedCvs] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
+  const [extraRequirements, setExtraRequirements] = useState<ExtraRequirements | undefined>(undefined);
   const S3_BASE_URL = 'https://cv-bucket.s3.amazonaws.com/';
   const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
   const handleRemoveUploadedCv = (key: string) => setUploadedCvs(prev => prev.filter(k => k !== key));
@@ -117,7 +120,10 @@ const JobPostingDetails = () => {
           }}
         />
         <div className="mt-4">
-          <AnalysisButton jobId={job.pk} onSuccess={() => setTimeout(refetchCandidates, 12000)} />
+          <ExtraRequirementsForm onChange={setExtraRequirements} />
+        </div>
+        <div className="mt-4">
+          <AnalysisButton jobId={job.pk} extraRequirements={extraRequirements} onSuccess={() => setTimeout(refetchCandidates, 12000)} />
         </div>
         {uploadedCvs.length > 0 && (
           <div className="mt-4">
