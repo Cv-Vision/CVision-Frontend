@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
 import { CandidateRatingDropdown } from './CandidateRatingDropdown';
+import CandidateDetailModal from './../pages/recruiter/jp_elements/CandidateModal';
+import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
 interface Candidate {
   rating?: string;
@@ -9,12 +11,6 @@ interface Candidate {
   fullName: string;
   score: number;
   cvUrl: string;
-  analysis: {
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-    detailedFeedback: string;
-  };
 }
 
 interface CandidateListProps {
@@ -24,23 +20,28 @@ interface CandidateListProps {
   error?: string | null;
 }
 
-// Utility function to determine color based on score
 const getScoreColorClass = (score: number) => {
-  if (score >= 70) {
-    return 'bg-green-100 text-green-800'; // High score
-  } else if (score >= 40) {
-    return 'bg-yellow-100 text-yellow-800'; // Medium score
-  } else {
-    return 'bg-red-100 text-red-800'; // Low score
-  }
+  if (score >= 70) return 'bg-green-100 text-green-800';
+  if (score >= 40) return 'bg-yellow-100 text-yellow-800';
+  return 'bg-red-100 text-red-800';
 };
 
 const CandidateList: React.FC<CandidateListProps> = ({
-  jobId,
-  candidates,
-  isLoading = false,
-  error = null,
-}) => {
+                                                       jobId,
+                                                       candidates,
+                                                       isLoading = false,
+                                                       error = null,
+                                                     }) => {
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResult[]>([]);
+
+  useEffect(() => {
+    if (!jobId) return;
+    getGeminiAnalysisResults(jobId)
+      .then(setAnalysisResults)
+      .catch(() => setAnalysisResults([]));
+  }, [jobId]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -59,39 +60,55 @@ const CandidateList: React.FC<CandidateListProps> = ({
 
   if (candidates.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        No hay candidatos para mostrar
-      </div>
+      <div className="text-center py-8 text-gray-500">No hay candidatos para mostrar</div>
     );
   }
 
-  // Create table headers and rows for the Table component
   const headers = ['Candidato', 'Score'];
   const rows = candidates.map((candidate) => [
-    // Candidato + Dropdown
     <TableCell key={`name-${candidate.id}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-semibold text-gray-900">{candidate.fullName}</span>
-        <CandidateRatingDropdown
-          jobId={jobId}
-          cvId={candidate.id}
-          initialValue={candidate.rating || ''}
-        />
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md"
+        onClick={() => setSelectedCandidate(candidate)}
+      >
+        <span className="font-semibold text-gray-900">
+          {candidate.fullName}
+        </span>
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <CandidateRatingDropdown
+            jobId={jobId}
+            cvId={candidate.id}
+            initialValue={candidate.rating || ''}
+          />
+        </div>
       </div>
     </TableCell>,
 
-    // Score con color
-    <TableCell key={`score-${candidate.id}`}>
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
-      {candidate.score}
-    </span>
+    <TableCell key={`score-${candidate.id}`} className="text-center">
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
+        {candidate.score}
+      </span>
     </TableCell>
   ]);
 
+  const selectedAnalysis = selectedCandidate
+    ? analysisResults.find((r) => r.participant_id === selectedCandidate.id)
+    : null;
 
   return (
     <div className="space-y-4">
       <Table headers={headers} rows={rows} />
+
+      {selectedCandidate && (
+        <CandidateDetailModal
+          isOpen={true}
+          onClose={() => setSelectedCandidate(null)}
+          name={selectedCandidate.fullName}
+          score={selectedCandidate.score}
+          reasons={selectedAnalysis?.reasons || ['Sin observaciones disponibles.']}
+        />
+      )}
     </div>
   );
 };
