@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
 import { CandidateRatingDropdown } from './CandidateRatingDropdown';
-import CandidateDetailModal from './../pages/recruiter/jp_elements/CandidateModal';
-import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
-
-interface Candidate {
-  rating?: string;
-  id: string;
-  fullName: string;
-  score: number;
-  cvUrl: string;
-}
+import CandidateModal from '../pages/recruiter/jp_elements/CandidateModal';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { GeminiAnalysisResult, getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
 
 interface CandidateListProps {
   jobId: string;
-  candidates: Candidate[];
-  isLoading?: boolean;
-  error?: string | null;
 }
 
 const getScoreColorClass = (score: number) => {
@@ -26,89 +16,66 @@ const getScoreColorClass = (score: number) => {
   return 'bg-red-100 text-red-800';
 };
 
-const CandidateList: React.FC<CandidateListProps> = ({
-                                                       jobId,
-                                                       candidates,
-                                                       isLoading = false,
-                                                       error = null,
-                                                     }) => {
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
+  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number }>(null);
   const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResult[]>([]);
+  const { candidates, isLoading, error } = useGetCandidatesByJobId(jobId);
 
   useEffect(() => {
-    if (!jobId) return;
-    getGeminiAnalysisResults(jobId)
-      .then(setAnalysisResults)
-      .catch(() => setAnalysisResults([]));
+    const fetchAnalysis = async () => {
+      try {
+        const results = await getGeminiAnalysisResults(jobId);
+        setAnalysisResults(results);
+      } catch (err) {
+        console.error('Error al obtener análisis de CVs:', err);
+      }
+    };
+
+    fetchAnalysis();
   }, [jobId]);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-        {error}
-      </div>
-    );
-  }
-
-  if (candidates.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">No hay candidatos para mostrar</div>
-    );
-  }
+  if (isLoading) return <div className="p-4">Cargando...</div>;
+  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+  if (!candidates.length) return <div className="p-4 text-gray-500">No hay candidatos</div>;
 
   const headers = ['Candidato', 'Score'];
   const rows = candidates.map((candidate) => [
     <TableCell key={`name-${candidate.id}`}>
       <div
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md"
-        onClick={() => setSelectedCandidate(candidate)}
+        onClick={() =>
+          setSelectedCandidate({
+            fullName: candidate.fullName,
+            score: candidate.score,
+          })
+        }
       >
-        <span className="font-semibold text-gray-900">
-          {candidate.fullName}
-        </span>
-
+        <span className="font-semibold text-gray-900">{candidate.fullName}</span>
         <div onClick={(e) => e.stopPropagation()}>
-          <CandidateRatingDropdown
-            jobId={jobId}
-            cvId={candidate.id}
-            initialValue={candidate.rating || ''}
-          />
+          <CandidateRatingDropdown jobId={jobId} cvId={candidate.id} initialValue={candidate.rating || ''} />
         </div>
       </div>
     </TableCell>,
-
     <TableCell key={`score-${candidate.id}`} className="text-center">
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(candidate.score)}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(
+          candidate.score
+        )}`}
+      >
         {candidate.score}
       </span>
-    </TableCell>
+    </TableCell>,
   ]);
-
-  const selectedAnalysis = selectedCandidate
-    ? analysisResults.find((r) => r.participant_id === selectedCandidate.id)
-    : null;
 
   return (
     <div className="space-y-4">
       <Table headers={headers} rows={rows} />
-
-      {selectedCandidate && (
-        <CandidateDetailModal
-          isOpen={true}
-          onClose={() => setSelectedCandidate(null)}
-          name={selectedCandidate.fullName}
-          score={selectedCandidate.score}
-          reasons={selectedAnalysis?.reasons || ['Sin observaciones disponibles.']}
-        />
-      )}
+      <CandidateModal
+        isOpen={!!selectedCandidate}
+        onClose={() => setSelectedCandidate(null)}
+        selectedCandidate={selectedCandidate}
+        analysisResults={analysisResults}
+      />
     </div>
   );
 };

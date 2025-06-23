@@ -2,6 +2,7 @@ import { fetchWithAuth } from './fetchWithAuth';
 
 export interface GeminiAnalysisResult {
   score: number;
+  name: string;
   reasons: string[];
   timestamp: string;
   participant_id?: string;

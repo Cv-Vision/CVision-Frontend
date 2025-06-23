@@ -3,7 +3,6 @@ import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/gemin
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
-  name?: string;
   created_at?: string;
 }
 
@@ -150,7 +149,7 @@ const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
   return (
     <div>
       <div className="grid gap-6">
-        {results.map((result, idx) => (
+        {results.slice(0, 3).map((result, idx) => (
           <CVAnalysisResultCard key={idx} result={result} />
         ))}
       </div>
