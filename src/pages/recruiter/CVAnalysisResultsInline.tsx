@@ -3,7 +3,6 @@ import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/gemin
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
-  name?: string;
   created_at?: string;
 }
 
