@@ -22,15 +22,16 @@ export const useGetCandidatesByJobId = (jobId: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCandidates = async () => {
-    if (!jobId) return;
-    setIsLoading(true);
-    setError(null);
+  const fetchCandidates = async (skipLoading = false) => {
+    if (!skipLoading) {
+      setIsLoading(true);
+      setError(null);
+    }
 
     const idToken = sessionStorage.getItem('idToken');
     if (!idToken) {
       setError('No autenticado');
-      setIsLoading(false);
+      if (!skipLoading) setIsLoading(false);
       return;
     }
 
@@ -60,12 +61,16 @@ export const useGetCandidatesByJobId = (jobId: string) => {
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setIsLoading(false);
+      if (!skipLoading) setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!jobId) return;
+    // initial fetch shows loading, subsequent polls are silent
     fetchCandidates();
+    const intervalId = setInterval(() => fetchCandidates(true), 4000);
+    return () => clearInterval(intervalId);
   }, [jobId]);
 
   return { candidates, isLoading, error, refetch: fetchCandidates };
