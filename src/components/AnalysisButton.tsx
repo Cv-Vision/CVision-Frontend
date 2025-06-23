@@ -13,7 +13,6 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
   jobId, 
   onSuccess, 
   onError,
-  extraRequirements
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
