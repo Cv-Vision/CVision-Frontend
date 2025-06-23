@@ -11,6 +11,7 @@ import BackButton from '@/components/BackButton';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import CandidateList from '@/components/CandidateList';
 import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
+import axios from 'axios';
 
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -81,6 +82,71 @@ const JobPostingDetails = () => {
     console.log('Guardar nueva descripción:', newDescription);
   };
 
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const handleUpdateJob = async () => {
+    if (!job) return;
+    setUpdateLoading(true);
+    setUpdateSuccess(null);
+    setUpdateError(null);
+    try {
+      const token = sessionStorage.getItem('idToken');
+      if (!token) throw new Error('No hay token de autenticación.');
+      // Mapear los campos según lo que espera el backend
+      const payload: Record<string, any> = {
+        description: job.description,
+      };
+      if (extraRequirements) {
+        if (extraRequirements.seniority && extraRequirements.seniority.length > 0) {
+          // El backend espera un string tipo "JUNIOR" o "SENIOR" (no array)
+          // Tomamos el primero o el último seleccionado (ajustar según preferencia)
+          payload.experience_level = extraRequirements.seniority[0]?.toUpperCase();
+        }
+        if (extraRequirements.englishLevel) {
+          // Mapear a los valores del Enum del backend
+          const englishMap: Record<string, string> = {
+            'Básico': 'BASIC',
+            'Intermedio': 'INTERMEDIATE',
+            'Avanzado': 'ADVANCED',
+          };
+          payload.english_level = englishMap[extraRequirements.englishLevel] || 'NOT_REQUIRED';
+        }
+        payload.industry_experience = {
+          required: extraRequirements.industryRequired,
+          industry: extraRequirements.industryRequired ? extraRequirements.industryText : ''
+        };
+        if (extraRequirements.contractTypes && extraRequirements.contractTypes.length > 0) {
+          // El backend espera un string tipo "FULL_TIME" (no array)
+          // Tomamos el primero seleccionado
+          const contractMap: Record<string, string> = {
+            'Full-time': 'FULL_TIME',
+            'Part-time': 'PART_TIME',
+            'Freelance': 'FREELANCE',
+            'Temporal': 'CONTRACT',
+          };
+          payload.contract_type = contractMap[extraRequirements.contractTypes[0]] || 'FULL_TIME';
+        }
+        if (extraRequirements.freeText) {
+          payload.additional_requirements = extraRequirements.freeText;
+        }
+      }
+      const url = `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${job.pk.replace('JD#','')}/update`;
+      await axios.put(url, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      setUpdateSuccess('Requisitos actualizados correctamente.');
+    } catch (err: any) {
+      setUpdateError(err?.response?.data?.message || err.message || 'Error al actualizar.');
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
   if (isLoading) return <p className="p-4">Cargando datos del puesto...</p>;
   if (error) return <p className="p-4 text-red-600">{error}</p>;
   if (!job) return <p className="p-4">No se encontró el puesto de trabajo.</p>;
@@ -121,6 +187,17 @@ const JobPostingDetails = () => {
         />
         <div className="mt-4">
           <ExtraRequirementsForm onChange={setExtraRequirements} />
+        </div>
+        <div className="mt-2 flex flex-col gap-2">
+          <button
+            onClick={handleUpdateJob}
+            disabled={updateLoading}
+            className={`px-4 py-2 rounded-md text-white font-medium ${updateLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 active:bg-green-800'} transition-colors duration-200`}
+          >
+            {updateLoading ? 'Actualizando...' : 'Actualizar requisitos del puesto'}
+          </button>
+          {updateSuccess && <div className="text-green-600 text-sm">{updateSuccess}</div>}
+          {updateError && <div className="text-red-600 text-sm">{updateError}</div>}
         </div>
         <div className="mt-4">
           <AnalysisButton jobId={job.pk} extraRequirements={extraRequirements} onSuccess={() => setTimeout(refetchCandidates, 12000)} />

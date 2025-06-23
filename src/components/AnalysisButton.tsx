@@ -13,7 +13,6 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
   jobId, 
   onSuccess, 
   onError,
-  extraRequirements
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,10 +26,7 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
       }
 
       const payload: Record<string, any> = { job_id: jobId };
-      if (extraRequirements) {
-        payload.extra_requirements = extraRequirements;
-        console.log('Extra requirements:', extraRequirements);
-      }
+      // Ya no se envían requisitos adicionales
       const response = await axios.post(
         'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/call_cv_batch_invoker',
         payload,
