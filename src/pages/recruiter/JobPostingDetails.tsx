@@ -33,7 +33,7 @@ const JobPostingDetails = () => {
     error: statusError,
   } = useUpdateJobPostingData();
 
-  const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE' | 'CANCELLED'>('ACTIVE');
+  const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED'>('ACTIVE');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(true);
@@ -78,7 +78,7 @@ const JobPostingDetails = () => {
   }, [cleanJobId]);
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as 'ACTIVE' | 'INACTIVE' | 'CANCELLED';
+    const newStatus = e.target.value as 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
     if (job && newStatus) {
       setSelectedStatus(newStatus); // ✅ Actualizar UI
       await updateJobPostingData(job.pk, { status: newStatus });
@@ -156,8 +156,8 @@ const JobPostingDetails = () => {
   };
 
   useEffect(() => {
-    if (['ACTIVE', 'INACTIVE', 'CANCELLED'].includes(job?.status as string)) {
-      setSelectedStatus(job?.status as 'ACTIVE' | 'INACTIVE' | 'CANCELLED');
+    if (['ACTIVE', 'INACTIVE', 'CANCELLED', 'DELETED'].includes(job?.status as string)) {
+      setSelectedStatus(job?.status as 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED');
     }
   }, [job?.status]);
 
@@ -182,6 +182,7 @@ const JobPostingDetails = () => {
               <option value="ACTIVE">Activo</option>
               <option value="INACTIVE">Inactivo</option>
               <option value="CANCELLED">Cancelado</option>
+              <option value="DELETED">Eliminado</option>
             </select>
             {statusError && <span className="text-red-500 text-xs mt-1">{statusError}</span>}
             {showSuccess && (
