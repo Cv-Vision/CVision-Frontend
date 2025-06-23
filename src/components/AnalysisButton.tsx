@@ -28,8 +28,24 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
 
       const payload: Record<string, any> = { job_id: jobId };
       if (extraRequirements) {
-        payload.extra_requirements = extraRequirements;
-        console.log('Extra requirements:', extraRequirements);
+        // Mapear los campos según lo que espera el backend
+        if (extraRequirements.seniority && extraRequirements.seniority.length > 0) {
+          payload.experience_level = extraRequirements.seniority.join(', ');
+        }
+        if (extraRequirements.englishLevel) {
+          payload.english_level = extraRequirements.englishLevel;
+        }
+        // El backend espera un objeto con required y industry
+        payload.industry_experience = {
+          required: extraRequirements.industryRequired,
+          industry: extraRequirements.industryRequired ? extraRequirements.industryText : ''
+        };
+        if (extraRequirements.contractTypes && extraRequirements.contractTypes.length > 0) {
+          payload.contract_type = extraRequirements.contractTypes.join(', ');
+        }
+        if (extraRequirements.freeText) {
+          payload.additional_requirements = extraRequirements.freeText;
+        }
       }
       const response = await axios.post(
         'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/call_cv_batch_invoker',
