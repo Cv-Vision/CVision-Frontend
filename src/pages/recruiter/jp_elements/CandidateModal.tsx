@@ -20,40 +20,51 @@ const CandidateModal = ({
                         }: CandidateModalProps) => {
   if (!selectedCandidate) return null;
 
-  const selectedAnalysis = analysisResults.find((result) =>
-    result.name?.toLowerCase().trim() === selectedCandidate.fullName.toLowerCase().trim()
+  const selectedAnalysis = analysisResults.find(
+    (result) =>
+      result.name?.toLowerCase().trim() ===
+      selectedCandidate.fullName.toLowerCase().trim()
   );
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black opacity-30" />
-      <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl z-50">
-        <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-          onClick={onClose}
-        >
-          <XMarkIcon className="h-5 w-5" />
-        </button>
+    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl z-50">
 
-        <div className="grid grid-cols-[1fr_auto] items-center gap-4 mb-6">
-          <h2 className="text-xl font-bold text-gray-800">{selectedCandidate.fullName}</h2>
-          <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-xl font-bold">
-            {selectedCandidate.score}
+          {/* Botón cerrar visible arriba a la derecha del modal */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+
+          {/* Cabecera con nombre y puntaje centrado */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-800">{selectedCandidate.fullName}</h2>
+            <div className="flex flex-col items-center mr-4"> {/* agregado margen */}
+              <div className="bg-green-500 text-white rounded-full w-14 h-14 flex items-center justify-center text-xl font-bold shadow-md">
+                {selectedCandidate.score}
+              </div>
+              <span className="text-sm text-gray-600 mt-1">Puntaje</span>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <p className="font-semibold text-sm text-blue-600 mb-2">Observaciones:</p>
-          {selectedAnalysis?.reasons && selectedAnalysis.reasons.length > 0 ? (
-            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-              {selectedAnalysis.reasons.map((reason, index) => (
-                <li key={index}>{reason}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">Sin observaciones disponibles.</p>
-          )}
-        </div>
+          {/* Observaciones */}
+          <div>
+            <p className="font-semibold text-sm text-blue-600 mb-2">Observaciones:</p>
+            {selectedAnalysis?.reasons && selectedAnalysis.reasons.length > 0 ? (
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {selectedAnalysis.reasons.map((reason, index) => (
+                  <li key={index}>{reason}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">Sin observaciones disponibles.</p>
+            )}
+          </div>
+        </Dialog.Panel>
       </div>
     </Dialog>
   );

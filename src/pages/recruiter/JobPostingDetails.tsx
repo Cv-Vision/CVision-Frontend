@@ -15,7 +15,6 @@ import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequ
 import axios from 'axios';
 
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
-  name?: string;
   created_at?: string;
 }
 
@@ -53,9 +52,6 @@ const JobPostingDetails = () => {
 
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
   const {
-    candidates,
-    isLoading: candidatesLoading,
-    error: candidatesError,
     refetch: refetchCandidates
   } = useGetCandidatesByJobId(cleanJobId);
 
@@ -254,8 +250,7 @@ const JobPostingDetails = () => {
           <div className="flex-1 min-w-0 max-w-md">
             <h2 className="text-lg font-semibold mb-2">Candidatos</h2>
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-              <CandidateList jobId={cleanJobId} candidates={candidates} isLoading={candidatesLoading}
-                             error={candidatesError} />
+              <CandidateList jobId={cleanJobId} />
             </div>
           </div>
         </div>
