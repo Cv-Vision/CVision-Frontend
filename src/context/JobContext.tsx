@@ -6,7 +6,7 @@ export type Job = {
   description: string;
   company: string;
   questions: string[];
-  status: number;
+  status: string;
 };
 
 export type Application = {
@@ -36,7 +36,7 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
         '¿Qué experiencia tienes con React?',
         '¿Cómo resolverías un conflicto en un equipo de desarrollo?'
       ],
-      status: 1
+      status: "ACTIVE"
     },
     {
       pk: 'b',
@@ -48,7 +48,7 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
         '¿Cómo optimizarías una API REST?',
         '¿Qué experiencia tienes con bases de datos NoSQL?'
       ],
-      status: 1
+      status: "INACTIVE"
     }
   ]);
 

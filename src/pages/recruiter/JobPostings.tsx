@@ -6,6 +6,7 @@ import {BriefcaseIcon} from "@heroicons/react/24/solid";
 import {PlusIcon} from "@heroicons/react/16/solid";
 import BackButton from '@/components/BackButton';
 
+
 const JobPostings: React.FC = () => {
   const { jobs, isLoading, error } = useGetJobs();
   const nav = useNavigate();

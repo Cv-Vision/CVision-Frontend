@@ -1,173 +1,83 @@
-import React, { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon, DocumentArrowDownIcon } from '@heroicons/react/24/solid';
-import { useNavigate } from 'react-router-dom';
-
-interface Candidate {
-  id: string;
-  fullName: string;
-  score: number;
-  cvUrl: string;
-  analysis: {
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-    detailedFeedback: string;
-  };
-}
+import { useEffect, useState } from 'react';
+import { Table } from './dashboard/Table';
+import { TableCell } from './dashboard/TableCell';
+import { CandidateRatingDropdown } from './CandidateRatingDropdown';
+import CandidateModal from '../pages/recruiter/jp_elements/CandidateModal';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { GeminiAnalysisResult, getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
 
 interface CandidateListProps {
   jobId: string;
-  candidates: Candidate[];
-  isLoading?: boolean;
-  error?: string | null;
 }
 
-const CandidateList: React.FC<CandidateListProps> = ({
-  jobId,
-  candidates,
-  isLoading = false,
-  error = null,
-}) => {
-  const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
-  const navigate = useNavigate();
+const getScoreColorClass = (score: number) => {
+  if (score >= 70) return 'bg-green-100 text-green-800';
+  if (score >= 40) return 'bg-yellow-100 text-yellow-800';
+  return 'bg-red-100 text-red-800';
+};
 
-  const toggleCandidate = (candidateId: string) => {
-    setExpandedCandidate(expandedCandidate === candidateId ? null : candidateId);
-  };
+const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
+  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number }>(null);
+  const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResult[]>([]);
+  const { candidates, isLoading, error } = useGetCandidatesByJobId(jobId);
 
-  const handleDownloadCV = async (cvUrl: string, candidateName: string) => {
-    try {
-      const response = await fetch(cvUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `CV_${candidateName.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('Error downloading CV:', err);
-      alert('Error al descargar el CV. Por favor, intente nuevamente.');
-    }
-  };
+  useEffect(() => {
+    const fetchAnalysis = async () => {
+      try {
+        const results = await getGeminiAnalysisResults(jobId);
+        setAnalysisResults(results);
+      } catch (err) {
+        console.error('Error al obtener análisis de CVs:', err);
+      }
+    };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    fetchAnalysis();
+  }, [jobId]);
+
+  if (isLoading) return <div className="p-4">Cargando...</div>;
+  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+  if (!candidates.length) return <div className="p-4 text-gray-500">No hay candidatos</div>;
+
+  const headers = ['Candidato', 'Score'];
+  const rows = candidates.map((candidate) => [
+    <TableCell key={`name-${candidate.id}`}>
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md"
+        onClick={() =>
+          setSelectedCandidate({
+            fullName: candidate.fullName,
+            score: candidate.score,
+          })
+        }
+      >
+        <span className="font-semibold text-gray-900">{candidate.fullName}</span>
+        <div onClick={(e) => e.stopPropagation()}>
+          <CandidateRatingDropdown jobId={jobId} cvId={candidate.id} initialValue={candidate.rating || ''} />
+        </div>
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-        {error}
-      </div>
-    );
-  }
-
-  if (candidates.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        No hay candidatos para mostrar
-      </div>
-    );
-  }
+    </TableCell>,
+    <TableCell key={`score-${candidate.id}`} className="text-center">
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getScoreColorClass(
+          candidate.score
+        )}`}
+      >
+        {candidate.score}
+      </span>
+    </TableCell>,
+  ]);
 
   return (
     <div className="space-y-4">
-      {candidates.map((candidate) => (
-        <div
-          key={candidate.id}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-        >
-          <div className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {candidate.fullName}
-                </h3>
-                <div className="mt-1 flex items-center gap-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    Score: {candidate.score}
-                  </span>
-                  <button
-                    onClick={() => handleDownloadCV(candidate.cvUrl, candidate.fullName)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                  >
-                    <DocumentArrowDownIcon className="h-5 w-5" />
-                    Descargar CV
-                  </button>
-
-                  {/* Botón para ir a análisis */}
-                  <button
-                    onClick={() =>
-                      navigate(`/recruiter/job/${jobId}/analysis?highlight=${candidate.id}`)
-                    }
-                    className="mt-2 text-blue-600 hover:underline"
-                  >
-                    Ver análisis
-                  </button>
-
-                </div>
-              </div>
-              <button
-                onClick={() => toggleCandidate(candidate.id)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                {expandedCandidate === candidate.id ? (
-                  <ChevronUpIcon className="h-6 w-6" />
-                ) : (
-                  <ChevronDownIcon className="h-6 w-6" />
-                )}
-              </button>
-            </div>
-
-            {expandedCandidate === candidate.id && (
-              <div className="mt-4 space-y-4 border-t pt-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Fortalezas</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    {candidate.analysis.strengths.map((strength, index) => (
-                      <li key={index}>{strength}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Áreas de Mejora</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    {candidate.analysis.weaknesses.map((weakness, index) => (
-                      <li key={index}>{weakness}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Recomendaciones</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    {candidate.analysis.recommendations.map((recommendation, index) => (
-                      <li key={index}>{recommendation}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Análisis Detallado</h4>
-                  <p className="text-gray-600 whitespace-pre-wrap">
-                    {candidate.analysis.detailedFeedback}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
+      <Table headers={headers} rows={rows} />
+      <CandidateModal
+        isOpen={!!selectedCandidate}
+        onClose={() => setSelectedCandidate(null)}
+        selectedCandidate={selectedCandidate}
+        analysisResults={analysisResults}
+      />
     </div>
   );
 };
 
-export default CandidateList; 
+export default CandidateList;

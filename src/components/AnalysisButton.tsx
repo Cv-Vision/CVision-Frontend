@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import type { ExtraRequirements } from '@/components/ExtraRequirementsForm';
 
 interface AnalysisButtonProps {
   jobId: string;
   onSuccess?: () => void;
   onError?: (error: string) => void;
+  extraRequirements?: ExtraRequirements;
 }
 
 const AnalysisButton: React.FC<AnalysisButtonProps> = ({ 
   jobId, 
   onSuccess, 
-  onError 
+  onError,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,9 +25,11 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         throw new Error('No hay token de autenticación. Por favor, inicie sesión nuevamente.');
       }
 
+      const payload: Record<string, any> = { job_id: jobId };
+      // Ya no se envían requisitos adicionales
       const response = await axios.post(
         'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/call_cv_batch_invoker',
-        { job_id: jobId },
+        payload,
         {
           headers: {
             'Content-Type': 'application/json',

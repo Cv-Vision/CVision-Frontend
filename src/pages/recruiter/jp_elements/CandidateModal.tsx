@@ -1,59 +1,73 @@
-import React from 'react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
-interface CandidateDetailModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    name: string;
+interface CandidateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedCandidate: {
+    fullName: string;
     score: number;
-    reasons: string[];
+  } | null;
+  analysisResults: GeminiAnalysisResult[];
 }
 
-// This component displays detailed information about a candidate in a modal form
-// To use it a candidate's name, score, and reasons must be passed to it.
-const CandidateDetailModal: React.FC<CandidateDetailModalProps> = (
-    {
-       isOpen,
-       onClose,
-       name,
-       score,
-       reasons,
-    }) => {
-    if (!isOpen) return null;
+const CandidateModal = ({
+                          isOpen,
+                          onClose,
+                          selectedCandidate,
+                          analysisResults,
+                        }: CandidateModalProps) => {
+  if (!selectedCandidate) return null;
 
-    let scoreColor = 'bg-green-500';
-    if (score < 60) scoreColor = 'bg-red-500';
-    else if (score < 80) scoreColor = 'bg-yellow-400';
+  const selectedAnalysis = analysisResults.find(
+    (result) =>
+      result.name?.toLowerCase().trim() ===
+      selectedCandidate.fullName.toLowerCase().trim()
+  );
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
-            <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-xl relative">
-                <button
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                    onClick={onClose}
-                >
-                    <XMarkIcon className="h-6 w-6" />
-                </button>
+  return (
+    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl z-50">
 
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 text-left flex-1">{name}</h2>
-                    <div className="flex flex-col items-center ml-2 pr-14 pt-2 ">
-                        <div className={`w-20 h-20 flex items-center justify-center rounded-full text-white text-3xl font-bold shadow-lg border-4 border-white ${scoreColor}`}>
-                            {score}
-                        </div>
-                        <span className="text-gray-700 text-base mt-1 font-semibold">Puntaje</span>
-                    </div>
-                </div>
+          {/* Botón cerrar visible arriba a la derecha del modal */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
 
-                <h3 className="text-md font-semibold mb-2 text-blue-700">Observaciones:</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700 mb-2">
-                    {reasons.map((reason, idx) => (
-                        <li key={idx}>{reason}</li>
-                    ))}
-                </ul>
+          {/* Cabecera con nombre y puntaje centrado */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-800">{selectedCandidate.fullName}</h2>
+            <div className="flex flex-col items-center mr-4"> {/* agregado margen */}
+              <div className="bg-green-500 text-white rounded-full w-14 h-14 flex items-center justify-center text-xl font-bold shadow-md">
+                {selectedCandidate.score}
+              </div>
+              <span className="text-sm text-gray-600 mt-1">Puntaje</span>
             </div>
-        </div>
-    );
+          </div>
+
+          {/* Observaciones */}
+          <div>
+            <p className="font-semibold text-sm text-blue-600 mb-2">Observaciones:</p>
+            {selectedAnalysis?.reasons && selectedAnalysis.reasons.length > 0 ? (
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {selectedAnalysis.reasons.map((reason, index) => (
+                  <li key={index}>{reason}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">Sin observaciones disponibles.</p>
+            )}
+          </div>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
+  );
 };
 
-export default CandidateDetailModal;
+export default CandidateModal;

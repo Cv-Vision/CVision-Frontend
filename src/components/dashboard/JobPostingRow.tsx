@@ -10,7 +10,14 @@ interface JobRowProps {
     onDelete: (id: string) => void;
     isLoading: boolean;
 }
-// TODO: Eliminar el campo status del Job y usar un enum o algo similar para los estados de los trabajos asi no esta mas hardcodeado
+
+// Mapeo de status en inglés a español
+const statusMap: Record<string, string> = {
+    ACTIVE: 'Activo',
+    INACTIVE: 'Inactivo',
+    CANCELLED: 'Cancelado',
+    DELETED: 'Eliminado',
+};
 
 export function JobRow({ 
     job, 
@@ -33,7 +40,7 @@ export function JobRow({
 
         <TableCell key="status">
             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                {job.status}
+                {statusMap[String(job.status)] || job.status}
             </span>
         </TableCell>,
 
