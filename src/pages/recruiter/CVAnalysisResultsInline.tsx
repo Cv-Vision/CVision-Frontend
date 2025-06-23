@@ -150,7 +150,7 @@ const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
   return (
     <div>
       <div className="grid gap-6">
-        {results.map((result, idx) => (
+        {results.slice(0, 3).map((result, idx) => (
           <CVAnalysisResultCard key={idx} result={result} />
         ))}
       </div>

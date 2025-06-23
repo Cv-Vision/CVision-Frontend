@@ -40,7 +40,7 @@ export function JobRow({
 
         <TableCell key="status">
             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                {statusMap[String(job.status).toUpperCase()] || job.status}
+                {statusMap[String(job.status)] || job.status}
             </span>
         </TableCell>,
 
