@@ -7,7 +7,7 @@ interface CandidateModalProps {
   onClose: () => void;
   selectedCandidate: {
     fullName: string;
-    score: number;
+    score: number | null;
   } | null;
   analysisResults: GeminiAnalysisResult[];
 }
@@ -44,8 +44,12 @@ const CandidateModal = ({
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">{selectedCandidate.fullName}</h2>
             <div className="flex flex-col items-center mr-4"> {/* agregado margen */}
-              <div className="bg-green-500 text-white rounded-full w-14 h-14 flex items-center justify-center text-xl font-bold shadow-md">
-                {selectedCandidate.score}
+              <div className={`rounded-full w-14 h-14 flex items-center justify-center text-xl font-bold shadow-md ${
+                selectedCandidate.score !== null && selectedCandidate.score !== undefined 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-gray-400 text-white'
+              }`}>
+                {selectedCandidate.score !== null && selectedCandidate.score !== undefined ? selectedCandidate.score : 'N/A'}
               </div>
               <span className="text-sm text-gray-600 mt-1">Puntaje</span>
             </div>

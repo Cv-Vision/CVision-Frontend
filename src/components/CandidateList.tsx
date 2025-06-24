@@ -10,14 +10,15 @@ interface CandidateListProps {
   jobId: string;
 }
 
-const getScoreColorClass = (score: number) => {
+const getScoreColorClass = (score: number | null) => {
+  if (score === null || score === undefined) return 'bg-gray-100 text-gray-600';
   if (score >= 70) return 'bg-green-100 text-green-800';
   if (score >= 40) return 'bg-yellow-100 text-yellow-800';
   return 'bg-red-100 text-red-800';
 };
 
 const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
-  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number }>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null }>(null);
   const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResult[]>([]);
   const { candidates, isLoading, error } = useGetCandidatesByJobId(jobId);
 
@@ -62,7 +63,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
           candidate.score
         )}`}
       >
-        {candidate.score}
+        {candidate.score !== null && candidate.score !== undefined ? candidate.score : 'N/A'}
       </span>
     </TableCell>,
   ]);

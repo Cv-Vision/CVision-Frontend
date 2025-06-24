@@ -259,10 +259,15 @@ const JobPostingDetails = () => {
         {/* Resultados del análisis */}
         <div className="mt-8">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">Resultados del análisis</h2>
+            <h2 className="text-lg font-semibold">Top 3 resultados</h2>
             <button
               onClick={andaPaAllaBobo}
-              className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              disabled={analysisResults.length === 0}
+              className={`px-4 py-1 rounded text-sm transition-colors ${
+                analysisResults.length === 0
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
             >
               Ver Análisis Completo
             </button>
