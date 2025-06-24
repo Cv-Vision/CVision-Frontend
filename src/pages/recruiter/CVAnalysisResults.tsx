@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  getGeminiAnalysisResults,
-  GeminiAnalysisResult,
-} from '@/services/geminiAnalysisService';
 import { ArrowLeftIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import Toast from '@/components/Toast';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
+// Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   created_at?: string;
 }
 
 function formatDate(dateString?: string) {
   if (!dateString) return '-';
+  // Elimina microsegundos si existen (mantén solo hasta los milisegundos)
   const clean = dateString.replace(/\.(\d{3})\d*$/, '.$1');
   const date = new Date(clean);
   if (isNaN(date.getTime())) return dateString;
@@ -98,9 +98,6 @@ const CVAnalysisResultCard = ({
 
 export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
-  const [results, setResults] = useState<GeminiAnalysisResultWithCreatedAt[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -110,23 +107,7 @@ export default function CVAnalysisResults() {
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
   const { candidates } = useGetCandidatesByJobId(jobId || '');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!jobId) return;
-      try {
-        const data = await getGeminiAnalysisResults(jobId);
-        const sorted = [...data].sort((a, b) => b.score - a.score);
-        setResults(sorted);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [jobId]);
+  const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
 
   // Manejar éxito/error de eliminación
   useEffect(() => {
@@ -188,7 +169,7 @@ export default function CVAnalysisResults() {
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="p-6">Cargando...</div>;
   }
 

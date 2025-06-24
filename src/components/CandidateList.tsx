@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Table } from './dashboard/Table';
 import { TableCell } from './dashboard/TableCell';
 import { CandidateRatingDropdown } from './CandidateRatingDropdown';
 import CandidateModal from '../pages/recruiter/jp_elements/CandidateModal';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
-import { GeminiAnalysisResult, getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 
 interface CandidateListProps {
   jobId: string;
@@ -19,21 +19,8 @@ const getScoreColorClass = (score: number | null) => {
 
 const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
   const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null }>(null);
-  const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResult[]>([]);
   const { candidates, isLoading, error } = useGetCandidatesByJobId(jobId);
-
-  useEffect(() => {
-    const fetchAnalysis = async () => {
-      try {
-        const results = await getGeminiAnalysisResults(jobId);
-        setAnalysisResults(results);
-      } catch (err) {
-        console.error('Error al obtener análisis de CVs:', err);
-      }
-    };
-
-    fetchAnalysis();
-  }, [jobId]);
+  const { results: analysisResults } = useGetAnalysisResults(jobId);
 
   if (isLoading) return <div className="p-4">Cargando...</div>;
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
