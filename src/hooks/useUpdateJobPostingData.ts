@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 
-interface UpdatePayload {
+export interface UpdatePayload {
   description?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'CANCELLED';
+  status?: 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
   experience_level?: 'JUNIOR' | 'SEMISENIOR' | 'SENIOR';
   english_level?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED';
   industry_experience?: {

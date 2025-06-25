@@ -39,4 +39,23 @@ export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisRes
     soft_skills_reasons: item.soft_skills_reasons || [],
     position: item.position,
   }));
+};
+
+export const deleteCandidatesFromJob = async (jobId: string, cvIds: string[]): Promise<void> => {
+  const response = await fetchWithAuth(
+    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/delete_applications`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ cv_ids: cvIds }),
+    }
+  );
+
+  if (!response.ok) {
+    let errorMessage = 'Error al eliminar candidatos';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorData.message || errorMessage;
+    } catch {}
+    throw new Error(errorMessage);
+  }
 }; 
