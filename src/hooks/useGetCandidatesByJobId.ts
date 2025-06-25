@@ -72,10 +72,7 @@ export const useGetCandidatesByJobId = (jobId: string) => {
 
   useEffect(() => {
     if (!jobId) return;
-    // initial fetch shows loading, subsequent polls are silent
-    fetchCandidates();
-    const intervalId = setInterval(() => fetchCandidates(true), 4000);
-    return () => clearInterval(intervalId);
+    fetchCandidates(); // Solo fetch inicial, sin polling
   }, [jobId]);
 
   return { candidates, isLoading, error, refetch: fetchCandidates };

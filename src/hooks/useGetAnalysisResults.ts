@@ -31,10 +31,7 @@ export const useGetAnalysisResults = (jobId: string) => {
 
   useEffect(() => {
     if (!jobId) return;
-    // initial fetch shows loading, subsequent polls are silent
-    fetchResults();
-    const intervalId = setInterval(() => fetchResults(true), 4000);
-    return () => clearInterval(intervalId);
+    fetchResults(); // Solo fetch inicial, sin polling
   }, [jobId]);
 
   return { results, isLoading, error, refetch: fetchResults };

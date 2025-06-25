@@ -178,8 +178,8 @@ export default function CVAnalysisResults() {
   }
 
   const total = results.length;
-  const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
-  const maxResult = results[0];
+  const avg = total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
+  const maxResult = total > 0 ? results[0] : undefined;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -224,10 +224,10 @@ export default function CVAnalysisResults() {
           Total de CVs analizados: <span className="font-bold">{total}</span>
         </div>
         <div className="text-lg font-semibold text-gray-800">
-          Promedio de score: <span className="font-bold">{avg}%</span>
+          Promedio de score: <span className="font-bold">{total > 0 ? avg + '%' : 'N/A'}</span>
         </div>
         <div className="text-lg font-semibold text-gray-800">
-          Score más alto: <span className="font-bold">{maxResult.score}%</span>
+          Score más alto: <span className="font-bold">{maxResult ? maxResult.score + '%' : 'N/A'}</span>
         </div>
       </div>
 
