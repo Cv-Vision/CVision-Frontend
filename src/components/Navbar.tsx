@@ -28,7 +28,6 @@ const Navbar = () => {
     }
     navigate('/login');
   };
-  console.log('isAuthenticated:', isAuthenticated);
   const userRole = user?.role === 'candidate' ? 'Candidato' : 'Reclutador';
 
   return (

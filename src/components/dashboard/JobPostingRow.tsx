@@ -5,9 +5,19 @@ import {Job} from "@/context/JobContext.tsx";
 interface JobRowProps {
     job: Job;
     onRowClick: (id: string) => void;
+    onView: (id: number) => void;
+    onEdit: (id: number) => void;
     onDelete: (id: string) => void;
-    onStatusChange: (id: string, newStatus: string) => void; // Added prop
+    isLoading: boolean;
 }
+
+// Mapeo de status en inglés a español
+const statusMap: Record<string, string> = {
+    ACTIVE: 'Activo',
+    INACTIVE: 'Inactivo',
+    CANCELLED: 'Cancelado',
+    DELETED: 'Eliminado',
+};
 
 export function JobRow({ 
     job, 

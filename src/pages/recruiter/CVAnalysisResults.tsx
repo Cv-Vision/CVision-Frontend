@@ -1,272 +1,265 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getGeminiAnalysisResults, GeminiAnalysisResult } from '../../services/geminiAnalysisService';
-import AnalysisButton from '../../components/AnalysisButton';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
+import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import Toast from '@/components/Toast';
+import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
+// Extiendo el tipo para soportar created_at
+interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
+  created_at?: string;
 }
 
-const CVAnalysisResultCard = ({ result }: { result: GeminiAnalysisResult }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <div className="flex justify-between items-start mb-4">
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900">
-          {result.cv_name || result.participant_id}
-        </h3>
-        <p className="text-sm text-gray-500">
-          Analizado el {new Date(result.timestamp).toLocaleString()}
-        </p>
-        {result.position && (
-          <p className="text-sm text-gray-500">Puesto: <span className="font-semibold">{result.position}</span></p>
-        )}
-      </div>
-      <div className="flex items-center">
-        <div className="text-2xl font-bold text-blue-600">
-          {result.score}%
+function formatDate(dateString?: string) {
+  if (!dateString) return '-';
+  // Elimina microsegundos si existen (mantén solo hasta los milisegundos)
+  const clean = dateString.replace(/\.(\d{3})\d*$/, '.$1');
+  const date = new Date(clean);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleString();
+}
+
+const CVAnalysisResultCard = ({ 
+  result, 
+  isSelected, 
+  onSelect,
+  cvId
+}: { 
+  result: GeminiAnalysisResultWithCreatedAt;
+  isSelected: boolean;
+  onSelect: (id: string, selected: boolean) => void;
+  cvId: string;
+}) => {
+  return (
+    <div className="bg-white rounded-lg shadow p-6">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-start space-x-3 flex-1">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={(e) => onSelect(cvId, e.target.checked)}
+            className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold text-gray-900">
+              {result.name || result.cv_name || result.participant_id}
+            </h3>
+            <p className="text-sm text-gray-500">
+              Analizado el {formatDate(result.created_at || result.timestamp)}
+            </p>
+            {result.position && (
+              <p className="text-sm text-gray-500">Puesto: <span className="font-semibold">{result.position}</span></p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center">
+          <div className="text-2xl font-bold text-blue-600">
+            {result.score}%
+          </div>
         </div>
       </div>
-    </div>
-    <div className="mb-6">
-      <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones técnicas</h4>
-      <ul className="list-disc list-inside space-y-2">
-        {result.reasons.map((reason, idx) => (
-          <li key={idx} className="text-gray-700">{reason}</li>
-        ))}
-      </ul>
-    </div>
-    {result.soft_skills_reasons && result.soft_skills_reasons.length > 0 && (
+
       <div className="mb-6">
-        <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones de habilidades blandas</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones</h4>
         <ul className="list-disc list-inside space-y-2">
-          {result.soft_skills_reasons.map((reason, idx) => (
+          {result.reasons.map((reason, idx) => (
             <li key={idx} className="text-gray-700">{reason}</li>
           ))}
         </ul>
       </div>
-    )}
-    {result.soft_skills_questions && result.soft_skills_questions.length > 0 && (
-      <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-2">Preguntas sugeridas para entrevista</h4>
-        <ul className="list-disc list-inside space-y-2">
-          {result.soft_skills_questions.map((question, idx) => (
-            <li key={idx} className="text-gray-700">{question}</li>
-          ))}
-        </ul>
-      </div>
-    )}
-  </div>
-);
 
-const CVAnalysisSummary = ({ results, onSelectCandidate, selectedCandidateId, onShowAll, showPosition }: {
-  results: GeminiAnalysisResult[];
-  onSelectCandidate: (id: string) => void;
-  selectedCandidateId?: string;
-  onShowAll?: () => void;
-  showPosition?: string;
-}) => {
-  if (!results || results.length === 0) return null;
-  const total = results.length;
-  const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
-  const maxResult = results.reduce((prev, curr) => (curr.score > prev.score ? curr : prev), results[0]);
-
-  return (
-    <div>
-      <div className="bg-blue-50 rounded-lg p-4 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="text-lg font-semibold text-gray-800">Total de CVs analizados: <span className="font-bold">{total}</span></div>
-        <div className="text-lg font-semibold text-gray-800">Promedio de score: <span className="font-bold">{avg}%</span></div>
-        <div className="text-lg font-semibold text-gray-800">Score más alto: <span className="font-bold">{maxResult.score}%</span> ({maxResult.cv_name || maxResult.participant_id})</div>
-        {showPosition && (
-          <div className="text-lg font-semibold text-gray-800">Puesto: <span className="font-bold">{showPosition}</span></div>
-        )}
-      </div>
-      {selectedCandidateId && onShowAll && (
-        <button onClick={onShowAll} className="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded transition-colors">Ver todos los análisis</button>
-      )}
-      {!selectedCandidateId && (
-        <div className="grid gap-6">
-          {results.map((result, idx) => (
-            <div key={idx} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onSelectCandidate(result.participant_id || result.cv_name || String(idx))}>
-              <CVAnalysisResultCard result={result} />
-            </div>
-          ))}
+      {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
+        <div className="mb-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Razones de habilidades blandas</h4>
+          <ul className="list-disc list-inside space-y-2">
+            {result.soft_skills_reasons.map((reason, idx) => (
+              <li key={idx} className="text-gray-700">{reason}</li>
+            ))}
+          </ul>
         </div>
       )}
-      {selectedCandidateId && (
-        <CVAnalysisResultCard result={results[0]} />
+
+      {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
+        <div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Preguntas sugeridas para entrevista</h4>
+          <ul className="list-disc list-inside space-y-2">
+            {result.soft_skills_questions?.map((question, idx) => (
+              <li key={idx} className="text-gray-700">{question}</li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
 };
 
-const CVAnalysisResults = () => {
+export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
+  const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const navigate = useNavigate();
-  const query = useQuery();
-  const [results, setResults] = useState<GeminiAnalysisResult[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | undefined>(undefined);
-  const [selectedPosition, setSelectedPosition] = useState<string | undefined>(undefined);
+
+  const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
+  const { candidates } = useGetCandidatesByJobId(jobId || '');
+  const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
+
+  // Manejar éxito/error de eliminación
+  useEffect(() => {
+    if (deleteSuccess) {
+      setToastMessage('Análisis eliminado exitosamente');
+      setToastType('success');
+      setShowToast(true);
+      setSelectedCvIds(new Set());
+      resetState();
+      
+      // Redirigir al job posting después de un breve delay para mostrar el toast
+      setTimeout(() => {
+        navigate(`/recruiter/job/${jobId}`);
+      }, 1500);
+    }
+  }, [deleteSuccess, jobId, resetState, navigate]);
 
   useEffect(() => {
-    const fetchResults = async () => {
-      if (!jobId) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getGeminiAnalysisResults(jobId);
-        setResults(data);
-        // Si hay highlight en la URL, selecciona ese candidato
-        const highlight = query.get('highlight');
-        if (highlight) {
-          setSelectedCandidateId(highlight);
-          // Buscar el puesto del candidato seleccionado
-          const found = data.find(r => (r.participant_id || r.cv_name) === highlight);
-          setSelectedPosition(found?.position);
-        } else {
-          setSelectedCandidateId(undefined);
-          setSelectedPosition(undefined);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResults();
-    // eslint-disable-next-line
-  }, [jobId]);
+    if (deleteError) {
+      setToastMessage(deleteError);
+      setToastType('error');
+      setShowToast(true);
+      resetState();
+    }
+  }, [deleteError, resetState]);
 
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    if (jobId) {
-      getGeminiAnalysisResults(jobId)
-        .then(data => {
-          setResults(data);
-          setSelectedCandidateId(undefined);
-          setSelectedPosition(undefined);
-        })
-        .catch(err => setError(err instanceof Error ? err.message : 'An error occurred'))
-        .finally(() => setLoading(false));
+  const handleSelectCv = (cvId: string, selected: boolean) => {
+    const newSelected = new Set(selectedCvIds);
+    if (selected) {
+      newSelected.add(cvId);
+    } else {
+      newSelected.delete(cvId);
+    }
+    setSelectedCvIds(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedCvIds.size === results.length) {
+      setSelectedCvIds(new Set());
+    } else {
+      // Usar los cv_id reales de los candidatos
+      const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+      setSelectedCvIds(new Set(allCvIds));
     }
   };
 
-  const handleSelectCandidate = (id: string) => {
-    setSelectedCandidateId(id);
-    // Buscar el puesto del candidato seleccionado
-    const found = results.find(r => (r.participant_id || r.cv_name) === id);
-    setSelectedPosition(found?.position);
+  const handleDeleteSelected = async () => {
+    if (selectedCvIds.size === 0) return;
+    
+    const cvIdsArray = Array.from(selectedCvIds);
+    await deleteResults(jobId!, cvIdsArray);
+    setShowDeleteModal(false);
   };
 
-  const handleShowAll = () => {
-    setSelectedCandidateId(undefined);
-    // NO limpiar selectedPosition aquí, así el filtro por puesto se mantiene
+  // Función para verificar si todos están seleccionados
+  const areAllSelected = () => {
+    if (results.length === 0) return false;
+    const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+    return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
-  const handleAnalysisSuccess = () => {
-    // Refresh the results after successful analysis
-    handleRetry();
-  };
-
-  const handleAnalysisError = (error: string) => {
-    setError(error);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        </div>
-      </div>
-    );
+  if (isLoading) {
+    return <div className="p-6">Cargando...</div>;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-              <p className="text-gray-600 mb-4">{error}</p>
-              <button
-                onClick={handleRetry}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="p-6 text-red-600">Error: {error}</div>;
   }
 
-  if (results.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">No Results Found</h2>
-              <p className="text-gray-600 mb-4">No CV analysis results are available for this job posting.</p>
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-              >
-                Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Filtrar resultados
-  let filteredResults = results;
-  if (selectedCandidateId) {
-    filteredResults = results.filter(r => (r.participant_id || r.cv_name) === selectedCandidateId);
-  } else if (selectedPosition) {
-    filteredResults = results.filter(r => r.position === selectedPosition);
-  }
+  const total = results.length;
+  const avg = total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
+  const maxResult = total > 0 ? results[0] : undefined;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Resultados de Análisis de CVs</h1>
-            {jobId && (
-              <AnalysisButton
-                jobId={jobId}
-                onSuccess={handleAnalysisSuccess}
-                onError={handleAnalysisError}
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 hover:text-gray-800 mb-4">
+        <ArrowLeftIcon className="h-5 w-5 mr-1" />
+        <span>Volver</span>
+      </button>
+
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Resultados de Análisis de CVs</h1>
+        
+        {results.length > 0 && (
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={areAllSelected()}
+                onChange={handleSelectAll}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
+              <span className="text-sm text-gray-600">
+                Seleccionar todos ({selectedCvIds.size} de {results.length})
+              </span>
+            </div>
+            
+            {selectedCvIds.size > 0 && (
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                disabled={isDeleting}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <TrashIcon className="h-4 w-4" />
+                <span>Eliminar seleccionado{selectedCvIds.size !== 1 ? 's' : ''} ({selectedCvIds.size})</span>
+              </button>
             )}
           </div>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
-          >
-            Volver
-          </button>
-        </div>
-        <CVAnalysisSummary
-          results={filteredResults}
-          onSelectCandidate={handleSelectCandidate}
-          selectedCandidateId={selectedCandidateId}
-          onShowAll={selectedCandidateId ? handleShowAll : undefined}
-          showPosition={selectedPosition}
-        />
+        )}
       </div>
+
+      <div className="bg-blue-50 rounded-lg p-4 mb-6 flex flex-wrap gap-8 justify-start">
+        <div className="text-lg font-semibold text-gray-800">
+          Total de CVs analizados: <span className="font-bold">{total}</span>
+        </div>
+        <div className="text-lg font-semibold text-gray-800">
+          Promedio de score: <span className="font-bold">{total > 0 ? avg + '%' : 'N/A'}</span>
+        </div>
+        <div className="text-lg font-semibold text-gray-800">
+          Score más alto: <span className="font-bold">{maxResult ? maxResult.score + '%' : 'N/A'}</span>
+        </div>
+      </div>
+
+      <div className="grid gap-6">
+        {results.map((result, idx) => {
+          const uniqueId = result.cv_id || result.participant_id || `index_${idx}`;
+          return (
+            <CVAnalysisResultCard 
+              key={idx} 
+              result={result} 
+              isSelected={selectedCvIds.has(uniqueId)}
+              onSelect={handleSelectCv}
+              cvId={uniqueId}
+            />
+          );
+        })}
+      </div>
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteSelected}
+        selectedCount={selectedCvIds.size}
+        isLoading={isDeleting}
+      />
+
+      <Toast
+        type={toastType}
+        message={toastMessage}
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
-};
-
-export default CVAnalysisResults; 
+}

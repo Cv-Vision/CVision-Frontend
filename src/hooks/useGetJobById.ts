@@ -9,7 +9,6 @@ export function useGetJobById(jobId: string) {
 
   useEffect(() => {
     if (!jobId) return;
-    console.log('Job ID recibido por el hook:', jobId);
 
     const loadJob = async () => {
       setLoading(true);
@@ -23,9 +22,7 @@ export function useGetJobById(jobId: string) {
         );
         if (!res.ok) throw new Error('Error al cargar el job');
         const allJobs: Job[] = await res.json();
-        console.log('Todos los jobs traídos del backend:', allJobs);
         const selected = allJobs.find((j) => j.pk === `JD#${jobId}`);
-        console.log('Resultado de búsqueda:', selected);
         if (!selected) throw new Error('Job no encontrado');
         setJob(selected);
       } catch (err) {

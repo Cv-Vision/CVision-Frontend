@@ -5,17 +5,29 @@ import { useNavigate } from 'react-router-dom';
 import {BriefcaseIcon} from "@heroicons/react/24/solid";
 import {PlusIcon} from "@heroicons/react/16/solid";
 import BackButton from '@/components/BackButton';
+import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useMemo } from 'react';
 
 const JobPostings: React.FC = () => {
-  const { jobs, isLoading, error } = useGetJobs();
+  const { jobs, isLoading, error, refetch } = useGetJobs();
   const nav = useNavigate();
+  const { updateJobPostingData }  = useUpdateJobPostingData();
   // todo: Cambiar los valores de statusFilter a los que se usan en el backend, por ahora son los mismos que en el frontend (donde dice "all", "open", "closed")
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'closed' | 'archived'>('all');
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
 
   const handleRowClick = (id: string) => nav(`/recruiter/job/${id}`);
 
+  const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);
+  const handleEdit = (id: number) => nav(`/recruiter/edit-job/${id}`);
+  const handleDelete = async (id: string) => {
+    try {
+      await updateJobPostingData(id, { status: 'DELETED' });
+      refetch(true);
+    } catch (err) {
+      console.error('Error al eliminar:', err);
+    }
+  };
   const handleDelete = (id: string) => alert(`Falta implementar delete ${id}`);
 
   const handleStatusChange = (id: string, newStatus: string) => {

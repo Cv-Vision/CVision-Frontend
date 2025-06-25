@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import { useCreateJobForm } from '@/hooks/useCreateJobForm.ts';
@@ -19,6 +19,13 @@ export default function CreateJob() {
     e.preventDefault();
     await createJob({ title, description });
   };
+
+  // Navigate to job postings list when creation succeeds
+  useEffect(() => {
+    if (success) {
+      navigate('/recruiter/job-postings');
+    }
+  }, [success, navigate]);
 
   return (
     <div className="min-h-screen bg-blue-100 py-10">
@@ -50,7 +57,6 @@ export default function CreateJob() {
           </div>
 
           {error && <p className="text-red-500 mb-2">{error}</p>}
-          {success && <p className="text-green-600 mb-2">¡Puesto creado con éxito!</p>}
 
           <div className="flex justify-end space-x-2">
             <button

@@ -8,7 +8,7 @@ import { useCvsPerHour } from '@/hooks/useCvsPerHour';
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const { jobs } = useGetJobs();
-  const totalActiveJobs = jobs.filter(job => job.status === 1).length;
+  const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
   const cvsPerHour = useCvsPerHour();
 
   // Aquí puedes definir el jobId y apiUrl si es necesario para el botón de procesar CVs, mas abajo esta la explicacion de por qué está comentado
