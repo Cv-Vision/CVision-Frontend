@@ -5,18 +5,13 @@ import { CVDropzone } from "@/components/CVDropzone";
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/AnalysisButton';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
-import { getGeminiAnalysisResults } from '@/services/geminiAnalysisService';
-import type { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import BackButton from '@/components/BackButton';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import CandidateList from '@/components/CandidateList';
 import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
 import axios from 'axios';
-
-interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
-  created_at?: string;
-}
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
@@ -37,9 +32,6 @@ const JobPostingDetails = () => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [newDescription, setNewDescription] = useState('');
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(true);
-  const [analysisResults, setAnalysisResults] = useState<GeminiAnalysisResultWithCreatedAt[]>([]);
-  const [analysisLoading, setAnalysisLoading] = useState(true);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const [uploadedCvs, setUploadedCvs] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -55,27 +47,12 @@ const JobPostingDetails = () => {
     refetch: refetchCandidates
   } = useGetCandidatesByJobId(cleanJobId);
 
+  const { results: analysisResults, isLoading: analysisLoading, error: analysisError, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+
   const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
   const andaPaAllaBobo = () => {
     navigate(analysisDetailsPath);
   };
-
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!cleanJobId) return;
-      try {
-        setAnalysisLoading(true);
-        setAnalysisError(null);
-        const data = await getGeminiAnalysisResults(cleanJobId);
-        setAnalysisResults([...data].sort((a, b) => b.score - a.score));
-      } catch (err) {
-        setAnalysisError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setAnalysisLoading(false);
-      }
-    };
-    fetchResults();
-  }, [cleanJobId]);
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
@@ -86,7 +63,6 @@ const JobPostingDetails = () => {
       setTimeout(() => setShowSuccess(false), 2000);
     }
   };
-
 
   const handleEditClick = () => {
     setIsEditingDescription(true);
@@ -160,7 +136,6 @@ const JobPostingDetails = () => {
       setSelectedStatus(job?.status as 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED');
     }
   }, [job?.status]);
-
 
   if (isLoading) return <p className="p-4">Cargando datos del puesto...</p>;
   if (error) return <p className="p-4 text-red-600">{error}</p>;
@@ -259,10 +234,15 @@ const JobPostingDetails = () => {
         {/* Resultados del análisis */}
         <div className="mt-8">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">Resultados del análisis</h2>
+            <h2 className="text-lg font-semibold">Top 3 resultados</h2>
             <button
               onClick={andaPaAllaBobo}
-              className="px-4 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              disabled={analysisResults.length === 0}
+              className={`px-4 py-1 rounded text-sm transition-colors ${
+                analysisResults.length === 0
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
             >
               Ver Análisis Completo
             </button>
@@ -319,7 +299,12 @@ const JobPostingDetails = () => {
 
         <div className="mt-4">
           <AnalysisButton jobId={job.pk} extraRequirements={extraRequirements}
-                          onSuccess={() => setTimeout(refetchCandidates, 12000)} />
+                          onSuccess={() => {
+                            setTimeout(() => {
+                              refetchCandidates();
+                              refetchAnalysisResults();
+                            }, 12000);
+                          }} />
         </div>
 
         {uploadedCvs.length > 0 && (

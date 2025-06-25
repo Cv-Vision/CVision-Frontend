@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import { useState } from 'react';
+import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -98,29 +99,9 @@ const CVAnalysisResultCard = ({ result }: { result: GeminiAnalysisResultWithCrea
 );
 
 const CVAnalysisResultsInline = ({ jobId }: { jobId: string }) => {
-  const [results, setResults] = useState<GeminiAnalysisResultWithCreatedAt[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { results, isLoading, error } = useGetAnalysisResults(jobId);
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!jobId) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getGeminiAnalysisResults(jobId);
-        // Ordenar resultados de mayor a menor score
-        setResults([...data].sort((a, b) => b.score - a.score));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResults();
-  }, [jobId]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-32">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 export interface Candidate {
   id: string;
   fullName: string;
-  score: number;
+  score: number | null;
   cvUrl: string;
   rating?: string;
   analysis: {
@@ -46,7 +46,7 @@ export const useGetCandidatesByJobId = (jobId: string) => {
       const mappedCandidates: Candidate[] = (data.candidates || []).map((item: any) => ({
         id: item.cv_id,
         fullName: item.name || '',
-        score: item.score ?? 0,
+        score: item.score || null,
         cvUrl: item.cv_s3_key ? `${S3_BASE_URL}${item.cv_s3_key}` : '',
         rating: item.valoracion || '',
         analysis: {
@@ -56,7 +56,12 @@ export const useGetCandidatesByJobId = (jobId: string) => {
           detailedFeedback: '',
         },
       }));
-      mappedCandidates.sort((a, b) => b.score - a.score);
+      mappedCandidates.sort((a, b) => {
+        if (a.score === null && b.score === null) return 0;
+        if (a.score === null) return 1;
+        if (b.score === null) return -1;
+        return b.score - a.score;
+      });
       setCandidates(mappedCandidates);
     } catch (err: any) {
       setError(err.message);
