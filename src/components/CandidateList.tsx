@@ -7,7 +7,7 @@ import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import Toast from './Toast';
 import { deleteCandidatesFromJob } from '@/services/cvAnalysisService';
-import { TrashIcon, UserIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, UserIcon} from '@heroicons/react/24/outline';
 
 interface CandidateListProps {
   jobId: string;

@@ -5,7 +5,7 @@ import BackButton from '@/components/BackButton';
 
 export function RecruiterProfile() {
   const { user } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
+  const [, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');

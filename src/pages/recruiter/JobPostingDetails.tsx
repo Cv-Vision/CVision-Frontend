@@ -8,7 +8,7 @@ import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
 import BackButton from '@/components/BackButton';
-import { XMarkIcon, BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import CandidateList from '@/components/CandidateList';
 import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
 import axios from 'axios';
@@ -40,7 +40,6 @@ const JobPostingDetails = () => {
   const [showUploadNotification, setShowUploadNotification] = useState(false);
   const [recentlyUploadedCvs, setRecentlyUploadedCvs] = useState<string[]>([]);
 
-  const S3_BASE_URL = 'https://cv-bucket.s3.amazonaws.com/';
   const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
 
   const [showSuccess, setShowSuccess] = useState(false);

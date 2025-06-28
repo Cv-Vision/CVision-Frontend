@@ -1,6 +1,5 @@
 import { UserIcon, BriefcaseIcon, UsersIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
-import { DocumentCheckIcon } from '@heroicons/react/24/solid';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotalCandidates } from '@/hooks/useGetTotalCandidates';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
