@@ -159,18 +159,27 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
     <div className="w-full min-h-[200px] relative">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors min-h-[200px] flex flex-col items-center justify-center
-          ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
+        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm
+          ${isDragActive 
+            ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105' 
+            : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
+          }`}
       >
         <input {...getInputProps()} />
-        <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-600">
+        <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${
+          isDragActive 
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30' 
+            : 'bg-gradient-to-br from-blue-400 to-blue-500 shadow-md shadow-blue-400/20'
+        }`}>
+          <DocumentArrowUpIcon className="h-12 w-12 text-white" />
+        </div>
+        <p className="mt-2 text-base font-medium text-gray-700">
           {isDragActive
             ? 'Suelta los archivos aquí...'
             : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
-        <p className="mt-1 text-xs text-gray-500">
-          Solo PDF, máximo 5MB por archivo
+        <p className="mt-2 text-sm text-gray-500">
+          Solo PDF, PNG, JPG - máximo 5MB por archivo
         </p>
         <button
           type="button"
@@ -178,33 +187,42 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             e.stopPropagation();
             open();
           }}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
         >
           Seleccionar archivos
         </button>
       </div>
 
       {files.length > 0 && (
-        <div className="mt-4 space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Archivos seleccionados:</h4>
+        <div className="mt-6 space-y-3">
+          <h4 className="text-lg font-semibold text-gray-800 mb-4">Archivos seleccionados:</h4>
           {files.map((file, index) => (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-center justify-between bg-gray-50 p-2 rounded"
+              className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
             >
-              <div className="flex items-center space-x-2">
-                <DocumentArrowUpIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-600">{file.name}</span>
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200">
+                  <DocumentArrowUpIcon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-700">{file.name}</span>
+                  <span className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
                 {uploadProgress[file.name] === 100 && (
-                  <span className="text-green-500 text-xs">✓</span>
+                  <div className="p-1 rounded-full bg-green-100">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
                 )}
                 {uploadProgress[file.name] === -1 && (
-                  <span className="text-red-500 text-xs">✗</span>
+                  <div className="p-1 rounded-full bg-red-100">
+                    <span className="text-red-600 text-sm font-bold">✗</span>
+                  </div>
                 )}
               </div>
               <button
                 onClick={() => removeFile(index)}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
                 disabled={uploading}
               >
                 <XMarkIcon className="h-5 w-5" />
@@ -215,13 +233,20 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
           <button
             onClick={uploadFiles}
             disabled={uploading || files.length === 0}
-            className={`mt-4 w-full py-2 px-4 rounded-md text-white font-medium
+            className={`mt-6 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 shadow-md
               ${uploading || files.length === 0
-                ? 'bg-blue-300 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-gradient-to-r from-gray-300 to-gray-400 cursor-not-allowed shadow-none'
+                : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
               }`}
           >
-            {uploading ? 'Subiendo...' : 'Subir CVs'}
+            {uploading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Subiendo archivos...</span>
+              </div>
+            ) : (
+              `Subir ${files.length} CV${files.length > 1 ? 's' : ''}`
+            )}
           </button>
         </div>
       )}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CogIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export interface ExtraRequirements {
   freeText: string;
@@ -45,40 +46,53 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Requisitos adicionales</h3>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Requisitos personalizados</label>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <CogIcon className="h-6 w-6 text-blue-600" />
+        <h3 className="text-lg font-semibold text-blue-800">Requisitos adicionales</h3>
+      </div>
+
+      {/* Requisitos personalizados */}
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-blue-800">Requisitos personalizados</label>
         <textarea
-          className="mt-1 block w-full border border-gray-300 rounded p-2"
+          className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm resize-none"
           rows={3}
           value={freeText}
           onChange={e => setFreeText(e.target.value)}
           placeholder="Escribe requisitos adicionales aquí..."
         />
-        <p className="mt-1 text-xs text-yellow-600">El uso de texto libre puede afectar la precisión del modelo.</p>
+        <div className="flex items-center gap-2 text-amber-600 text-xs">
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <span>El uso de texto libre puede afectar la precisión del modelo.</span>
+        </div>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Seniority</label>
+
+      {/* Seniority */}
+      <div className="space-y-3">
+        <label className="block text-sm font-semibold text-blue-800">Seniority</label>
         <div className="flex gap-4">
           {['Junior', 'Mid', 'Senior'].map(level => (
-            <label key={level} className="inline-flex items-center">
+            <label key={level} className="inline-flex items-center cursor-pointer group">
               <input
                 type="checkbox"
                 value={level}
                 checked={seniority.includes(level)}
                 onChange={() => toggleSeniority(level)}
-                className="form-checkbox"
+                className="w-4 h-4 text-blue-600 bg-white border-2 border-blue-200 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-300"
               />
-              <span className="ml-2 text-gray-700">{level}</span>
+              <span className="ml-2 text-blue-700 font-medium group-hover:text-blue-800 transition-colors duration-300">{level}</span>
             </label>
           ))}
         </div>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Nivel de inglés</label>
+
+      {/* Nivel de inglés */}
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-blue-800">Nivel de inglés</label>
         <select
-          className="mt-1 block w-full border border-gray-300 rounded p-2"
+          className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
           value={englishLevel}
           onChange={e => setEnglishLevel(e.target.value)}
         >
@@ -88,55 +102,59 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
           <option value="Avanzado">Avanzado</option>
         </select>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Experiencia en industria específica</label>
-        <div className="flex items-center gap-4">
-          <label className="inline-flex items-center">
+
+      {/* Experiencia en industria */}
+      <div className="space-y-3">
+        <label className="block text-sm font-semibold text-blue-800">Experiencia en industria específica</label>
+        <div className="flex items-center gap-6">
+          <label className="inline-flex items-center cursor-pointer group">
             <input
               type="radio"
               name="industryRequired"
               value="yes"
               checked={industryRequired}
               onChange={() => setIndustryRequired(true)}
-              className="form-radio"
+              className="w-4 h-4 text-blue-600 bg-white border-2 border-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-300"
             />
-            <span className="ml-2 text-gray-700">Sí</span>
+            <span className="ml-2 text-blue-700 font-medium group-hover:text-blue-800 transition-colors duration-300">Sí</span>
           </label>
-          <label className="inline-flex items-center">
+          <label className="inline-flex items-center cursor-pointer group">
             <input
               type="radio"
               name="industryRequired"
               value="no"
               checked={!industryRequired}
               onChange={() => setIndustryRequired(false)}
-              className="form-radio"
+              className="w-4 h-4 text-blue-600 bg-white border-2 border-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-300"
             />
-            <span className="ml-2 text-gray-700">No</span>
+            <span className="ml-2 text-blue-700 font-medium group-hover:text-blue-800 transition-colors duration-300">No</span>
           </label>
         </div>
         {industryRequired && (
           <input
             type="text"
-            className="mt-2 block w-full border border-gray-300 rounded p-2"
-            placeholder="Ingrese industria"
+            className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+            placeholder="Ingrese industria específica"
             value={industryText}
             onChange={e => setIndustryText(e.target.value)}
           />
         )}
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato o disponibilidad</label>
-        <div className="flex flex-col gap-2">
+
+      {/* Tipo de contrato */}
+      <div className="space-y-3">
+        <label className="block text-sm font-semibold text-blue-800">Tipo de contrato o disponibilidad</label>
+        <div className="grid grid-cols-2 gap-3">
           {['Full-time', 'Part-time', 'Freelance', 'Temporal'].map(type => (
-            <label key={type} className="inline-flex items-center">
+            <label key={type} className="inline-flex items-center cursor-pointer group">
               <input
                 type="checkbox"
                 value={type}
                 checked={contractTypes.includes(type)}
                 onChange={() => toggleContractType(type)}
-                className="form-checkbox"
+                className="w-4 h-4 text-blue-600 bg-white border-2 border-blue-200 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-300"
               />
-              <span className="ml-2 text-gray-700">{type}</span>
+              <span className="ml-2 text-blue-700 font-medium group-hover:text-blue-800 transition-colors duration-300 text-sm">{type}</span>
             </label>
           ))}
         </div>
