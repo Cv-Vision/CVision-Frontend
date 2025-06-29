@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import { fetchWithAuth } from '../services/fetchWithAuth';
+import RejectedCVsModal from './RejectedCVsModal'; // asegúrate de que el path sea correcto
+import { useCVValidation } from '../hooks/useCVValidation';
+import { useFileUploader } from '../hooks/useFileUploader';
 
 interface CVDropzoneProps {
   jobId: string;
@@ -9,150 +11,57 @@ interface CVDropzoneProps {
   onError?: (error: string) => void;
 }
 
-interface PresignedUrlResponse {
-  job_id: string;
-  presigned_urls: Array<{
-    filename: string;
-    sanitized_filename: string;
-    upload_url: string;
-    s3_key: string;
-  }>;
-}
-
-// Allowed types and extensions for CVs
-const allowedTypes: { [key: string]: string[] } = {
-  'application/pdf': ['.pdf'],
-  'image/png': ['.png'],
-  'image/jpeg': ['.jpg', '.jpeg'],
-};
-
-const flatAllowedTypes = Object.keys(allowedTypes)
-
 export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete, onError }) => {
   const [files, setFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [showModal, setShowModal] = useState(false);
+
+  const { validateFile } = useCVValidation();
+  const {
+    uploading,
+    uploadProgress,
+    uploadFiles,
+    rejectedFiles,
+    setRejectedFiles
+  } = useFileUploader(jobId);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const validFiles = acceptedFiles.filter(file => {
-      return flatAllowedTypes.includes(file.type) && file.size <= 5 * 1024 * 1024; // Max 5MB
+    const validFiles: File[] = [];
+    const rejected: { name: string; reason: string }[] = [];
+
+    acceptedFiles.forEach(file => {
+      const { valid, reason } = validateFile(file);
+      if (valid) {
+        validFiles.push(file);
+      } else {
+        rejected.push({ name: file.name, reason: reason || 'Archivo inválido' });
+      }
     });
-    const rejected = acceptedFiles.filter(file => !flatAllowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024);
+
     if (rejected.length > 0) {
-      onError?.('Algunos archivos fueron rechazados (tipo no permitido o tamaño > 5MB)');
+      setRejectedFiles(prev => [...prev, ...rejected]);
+      setShowModal(true); // Solo se muestra modal, sin llamar onError
     }
 
-    setFiles(prevFiles => [...prevFiles, ...validFiles]);
-  }, [onError]);
+    setFiles(prev => [...prev, ...validFiles]);
+  }, [validateFile, setRejectedFiles, onError]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: allowedTypes,
     multiple: true,
     noClick: false,
     noKeyboard: false
   });
 
-  const removeFile = (index: number) => {
-    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-    setUploadProgress(prev => {
-      const newProgress = { ...prev };
-      delete newProgress[files[index].name];
-      return newProgress;
-    });
+  const handleRemove = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const uploadFiles = async () => {
+  const handleUpload = async () => {
     if (files.length === 0) return;
-
-    setUploading(true);
-    const uploadedUrls: string[] = [];
-    const errors: string[] = [];
-
-    try {
-      // Get presigned URLs for all files
-      const response = await fetchWithAuth(
-        'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/generate_presigned_url_handler',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Origin': window.location.origin
-          },
-          credentials: 'include',
-          mode: 'cors',
-          body: JSON.stringify({
-            job_id: jobId,
-            filenames: files.map(file => file.name)
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        let errorMessage = 'Error al obtener las URLs prefirmadas';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          // Silently handle JSON parse error
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data: PresignedUrlResponse = await response.json();
-
-      // Upload each file using its presigned URL
-      for (const file of files) {
-        try {
-          setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-          
-          // Find the presigned URL for this file
-          const presignedUrlData = data.presigned_urls.find(
-            url => url.filename === file.name
-          );
-
-          if (!presignedUrlData) {
-            throw new Error(`No se encontró URL prefirmada para ${file.name}`);
-          }
-
-          // Upload to S3
-          const uploadResponse = await fetch(presignedUrlData.upload_url, {
-            method: 'PUT',
-            body: file,
-            headers: {
-              'Content-Type': file.type,
-            },
-            mode: 'cors',
-          });
-
-          if (!uploadResponse.ok) {
-            throw new Error(`Error al subir ${file.name}`);
-          }
-
-          // Store the S3 key as the file URL
-          uploadedUrls.push(presignedUrlData.s3_key);
-          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-        } catch (error) {
-          errors.push(`Error al subir ${file.name}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-          setUploadProgress(prev => ({ ...prev, [file.name]: -1 }));
-        }
-      }
-
-      if (errors.length > 0) {
-        onError?.(errors.join('\n'));
-      }
-
-      if (uploadedUrls.length > 0) {
-        onUploadComplete?.(uploadedUrls);
-        setFiles([]);
-        setUploadProgress({});
-      }
-    } catch (error) {
-      onError?.(error instanceof Error ? error.message : 'Error desconocido en el proceso de subida');
-    } finally {
-      setUploading(false);
-    }
+    await uploadFiles(files, urls => {
+      onUploadComplete?.(urls);
+      setFiles([]);
+    }, onError || (() => {}));
   };
 
   return (
@@ -160,33 +69,26 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm
-          ${isDragActive 
-            ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105' 
-            : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
-          }`}
+          ${isDragActive
+          ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105'
+          : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
+        }`}
       >
         <input {...getInputProps()} />
         <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${
-          isDragActive 
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30' 
+          isDragActive
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30'
             : 'bg-gradient-to-br from-blue-400 to-blue-500 shadow-md shadow-blue-400/20'
         }`}>
           <DocumentArrowUpIcon className="h-12 w-12 text-white" />
         </div>
         <p className="mt-2 text-base font-medium text-gray-700">
-          {isDragActive
-            ? 'Suelta los archivos aquí...'
-            : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
+          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
-        <p className="mt-2 text-sm text-gray-500">
-          Solo PDF, PNG, JPG - máximo 5MB por archivo
-        </p>
+        <p className="mt-2 text-sm text-gray-500">Solo PDF, PNG, JPG - máximo 5MB por archivo</p>
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            open();
-          }}
+          onClick={(e) => { e.stopPropagation(); open(); }}
           className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
         >
           Seleccionar archivos
@@ -221,7 +123,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
                 )}
               </div>
               <button
-                onClick={() => removeFile(index)}
+                onClick={() => handleRemove(index)}
                 className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
                 disabled={uploading}
               >
@@ -231,13 +133,13 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
           ))}
 
           <button
-            onClick={uploadFiles}
+            onClick={handleUpload}
             disabled={uploading || files.length === 0}
             className={`mt-6 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 shadow-md
               ${uploading || files.length === 0
-                ? 'bg-gradient-to-r from-gray-300 to-gray-400 cursor-not-allowed shadow-none'
-                : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
-              }`}
+              ? 'bg-gradient-to-r from-gray-300 to-gray-400 cursor-not-allowed shadow-none'
+              : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
+            }`}
           >
             {uploading ? (
               <div className="flex items-center justify-center space-x-2">
@@ -250,6 +152,13 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
           </button>
         </div>
       )}
+
+      <RejectedCVsModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        rejectedFiles={rejectedFiles}
+        onClear={() => setRejectedFiles([])}
+      />
     </div>
   );
-}; 
+};
