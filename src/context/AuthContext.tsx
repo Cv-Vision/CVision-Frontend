@@ -1,12 +1,21 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface AuthContextType {
-  user: any | null;
-  isAuthenticated: boolean;
-  logout?: () => void;
-  login?: (userData: any) => void;
+interface User {
+  email?: string;
+  name?: string;
+  company?: string;
+  role?: string;
+  token?: string;
+  [key: string]: any;
 }
 
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  logout?: () => void;
+  login?: (userData: User) => void;
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -23,18 +32,27 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = sessionStorage.getItem('user');
     if (userData) {
-      setUser(JSON.parse(userData));
-      setIsAuthenticated(true);
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log('Loading user from sessionStorage:', parsedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error parsing user data from sessionStorage:', error);
+        // Limpiar datos corruptos
+        sessionStorage.removeItem('user');
+      }
     }
   }, []);
 
-  const login = (userData: any) => {
+  const login = (userData: User) => {
     const token = userData?.token ?? userData?.idToken ?? null;
 
     const userToStore = {
@@ -42,17 +60,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       token,
     };
 
+    console.log('Storing user data:', userToStore);
     sessionStorage.setItem('user', JSON.stringify(userToStore));
     setUser(userToStore);
     setIsAuthenticated(true);
   };
 
-
   const logout = () => {
+    console.log('Logging out user');
     sessionStorage.clear();
     setUser(null);
     setIsAuthenticated(false);
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   const authContextValue: AuthContextType = {

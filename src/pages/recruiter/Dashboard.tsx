@@ -1,15 +1,26 @@
 import { UserIcon, BriefcaseIcon, UsersIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
-import { DocumentCheckIcon } from '@heroicons/react/24/solid';
 import { useGetJobs } from '@/hooks/useGetJobs';
-import { useCvsPerHour } from '@/hooks/useCvsPerHour';
+import { useGetTotalCandidates } from '@/hooks/useGetTotalCandidates';
+import { useEffect } from 'react';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const { jobs } = useGetJobs();
   const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
-  const cvsPerHour = useCvsPerHour();
+  const { totalCandidates, isLoading: candidatesLoading } = useGetTotalCandidates();
+
+  // Prevenir scroll en toda la página
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    };
+  }, []);
 
   // Aquí puedes definir el jobId y apiUrl si es necesario para el botón de procesar CVs, mas abajo esta la explicacion de por qué está comentado
   // const jobId = '934b732b-ab9f-4fd3-97d9-6e41fbe2089b'; // PONÉ TU JOB_ID REAL DE PRUEBA
@@ -17,54 +28,68 @@ const RecruiterDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
-      <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-10 flex flex-col items-center">
-        <UserIcon className="h-12 w-12 text-green-400 mb-4" />
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">Panel de Reclutador</h1>
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2 overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full p-10 flex flex-col items-center">
+        <div className="relative mb-6">
+          <UserIcon className="h-16 w-16 text-blue-600 mb-4" />
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse"></div>
+        </div>
+        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-8 text-center">
+          Panel de Reclutador
+        </h1>
+        
         {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-8">
-          <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
-            <BriefcaseIcon className="h-8 w-8 text-green-400 mb-2" />
-            <p className="text-2xl font-bold text-gray-800">{totalActiveJobs}</p>
-            <p className="text-sm text-gray-500">Publicaciones Activas</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-10">
+          <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
+            <div className="relative mb-4">
+              <BriefcaseIcon className="h-10 w-10 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+            </div>
+            <p className="text-3xl font-bold text-blue-800 mb-2">{totalActiveJobs}</p>
+            <p className="text-sm text-blue-600 font-medium">Publicaciones Activas</p>
           </div>
-          <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
-            <DocumentCheckIcon className="h-8 w-8 text-green-400 mb-2" />
-            <p className="text-2xl font-bold text-gray-800">{cvsPerHour}</p>
-            <p className="text-sm text-gray-500">CVs Analizados / hora</p>
+          <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
+            <div className="relative mb-4">
+              <UsersIcon className="h-10 w-10 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full animate-pulse"></div>
+            </div>
+            <p className="text-3xl font-bold text-blue-800 mb-2">
+              {candidatesLoading ? '...' : totalCandidates}
+            </p>
+            <p className="text-sm text-blue-600 font-medium">Cantidad de Candidatos</p>
           </div>
         </div>
 
         {/* Acciones */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-          <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
-            <BriefcaseIcon className="h-8 w-8 text-green-400 mb-2" />
-            <h2 className="text-lg font-bold text-gray-800 mb-1">Crear Puesto</h2>
-            <p className="text-gray-600 text-sm mb-4 text-center">Publica una nueva oferta de trabajo</p>
+          <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
+            <BriefcaseIcon className="h-8 w-8 text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300" />
+            <h2 className="text-lg font-bold text-blue-800 mb-2 text-center">Crear Puesto</h2>
+            <p className="text-blue-600 text-sm mb-6 text-center">Publica una nueva oferta de trabajo</p>
             <button
-              className="bg-green-400 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-colors font-semibold"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
               onClick={() => navigate('/recruiter/create-job')}
             >
               Crear Puesto
             </button>
           </div>
-          <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
-            <UsersIcon className="h-8 w-8 text-green-400 mb-2" />
-            <h2 className="text-lg font-bold text-gray-800 mb-1 text-center">Ver Puestos de Trabajo</h2>
-            <p className="text-gray-600 text-sm mb-4 text-center">Revisa los puestos de trabajo que has publicado</p>
+          <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
+            <UsersIcon className="h-8 w-8 text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300" />
+            <h2 className="text-lg font-bold text-blue-800 mb-2 text-center">Ver Puestos de Trabajo</h2>
+            <p className="text-blue-600 text-sm mb-6 text-center">Revisa los puestos de trabajo que has publicado</p>
             <button
-              className="bg-green-400 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-colors font-semibold"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
               onClick={() => navigate('/recruiter/job-postings')}
             >
               Ver Puestos de Trabajo
             </button>
           </div>
-          <div className="flex flex-col items-center bg-green-50 rounded-xl p-6 shadow hover:shadow-md transition-shadow">
-            <UserIcon className="h-8 w-8 text-green-400 mb-2" />
-            <h2 className="text-lg font-bold text-gray-800 mb-1">Mi Perfil</h2>
-            <p className="text-gray-600 text-sm mb-4 text-center">Actualiza tu información personal y de empresa</p>
+          <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
+            <UserIcon className="h-8 w-8 text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300" />
+            <h2 className="text-lg font-bold text-blue-800 mb-2 text-center">Mi Perfil</h2>
+            <p className="text-blue-600 text-sm mb-6 text-center">Actualiza tu información personal y de empresa</p>
             <button
-              className="bg-green-400 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-colors font-semibold"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
               onClick={() => navigate('/perfil-reclutador')}
             >
               Ver Perfil
