@@ -10,6 +10,17 @@ export function RecruiterProfile() {
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
 
+  // Prevenir scroll en toda la página
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    };
+  }, []);
+
   // Inicializar los campos con datos del usuario o sessionStorage
   useEffect(() => {
     // Obtener datos del contexto de autenticación
@@ -54,7 +65,7 @@ export function RecruiterProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2">
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2 overflow-hidden">
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-2xl w-full p-10 flex flex-col items-center">
         <div className="w-full flex justify-start mb-6">
           <BackButton />

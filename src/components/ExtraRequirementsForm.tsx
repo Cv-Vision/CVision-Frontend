@@ -64,8 +64,8 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
           placeholder="Escribe requisitos adicionales aquí..."
         />
         <div className="flex items-center gap-2 text-amber-600 text-xs">
-          <ExclamationTriangleIcon className="h-4 w-4" />
-          <span>El uso de texto libre puede afectar la precisión del modelo.</span>
+          <ExclamationTriangleIcon className="h-5 w-5 text-amber-500" />
+          <span className="font-bold">El uso de texto libre puede afectar la precisión del modelo.</span>
         </div>
       </div>
 

@@ -65,9 +65,9 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
               <p className="text-xl font-bold text-gray-800">{maxResult.score}%</p>
               <button
                 className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                 </svg>
@@ -116,14 +116,14 @@ const CVAnalysisResultCard = ({ result }: { result: GeminiAnalysisResultWithCrea
             </svg>
             <span>Analizado el {formatDate(result.created_at || result.timestamp)}</span>
           </div>
-          {result.position && (
+        {result.position && (
             <div className="flex items-center space-x-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
               </svg>
               <span>Puesto: <span className="font-semibold text-gray-700">{result.position}</span></span>
             </div>
-          )}
+        )}
         </div>
       </div>
       <div className="flex items-center">

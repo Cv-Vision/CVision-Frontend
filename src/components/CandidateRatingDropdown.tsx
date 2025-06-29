@@ -12,10 +12,10 @@ type CandidateRatingDropdownProps = {
 const OPTIONS = ['Favorito', 'Visto', 'Bueno', 'Malo'];
 
 export const CandidateRatingDropdown = ({
-  jobId,
-  cvId,
-  initialValue = '',
-}: CandidateRatingDropdownProps) => {
+                                          jobId,
+                                          cvId,
+                                          initialValue = '',
+                                        }: CandidateRatingDropdownProps) => {
   const [selected, setSelected] = useState(initialValue);
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -141,7 +141,7 @@ export const CandidateRatingDropdown = ({
           <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 min-w-80 border border-green-400">
             <CheckCircleIcon className="h-6 w-6 flex-shrink-0 text-green-100" />
             <span className="flex-1 font-medium">Valoración guardada correctamente</span>
-          </div>
+        </div>
         </div>,
         document.body
       )}

@@ -1,4 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   email?: string;
@@ -33,6 +34,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = sessionStorage.getItem('user');
@@ -69,7 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sessionStorage.clear();
     setUser(null);
     setIsAuthenticated(false);
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   const authContextValue: AuthContextType = {

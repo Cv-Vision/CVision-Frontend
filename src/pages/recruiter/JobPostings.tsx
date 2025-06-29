@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { BriefcaseIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import BackButton from '@/components/BackButton';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
 type StatusFilter = 'all' | JobStatus;
@@ -18,6 +18,17 @@ const JobPostings: React.FC = () => {
   const {updateJobPostingData} = useUpdateJobPostingData();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Prevenir scroll en toda la página
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    };
+  }, []);
 
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
 
@@ -59,7 +70,7 @@ const JobPostings: React.FC = () => {
   }, [jobs, statusFilter, searchTerm]);
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4">
+      <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <BackButton/>

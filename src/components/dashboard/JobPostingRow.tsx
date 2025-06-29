@@ -63,8 +63,8 @@ export function JobRow({
         <TableCell key="status">
             <div className="flex items-center justify-center">
                 <span className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColorClass(String(job.status))}`}>
-                    {statusMap[String(job.status)] || job.status}
-                </span>
+                {statusMap[String(job.status)] || job.status}
+            </span>
             </div>
         </TableCell>,
 

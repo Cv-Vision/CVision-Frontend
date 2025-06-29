@@ -46,20 +46,20 @@ const CVAnalysisResultCard = ({
       <div className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-start space-x-4 flex-1">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={(e) => onSelect(cvId, e.target.checked)}
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={(e) => onSelect(cvId, e.target.checked)}
               className={`mt-1 h-6 w-6 text-blue-600 focus:ring-blue-500 border-2 rounded transition-all duration-200 ${
                 isSelected 
                   ? 'border-blue-600 bg-blue-600 shadow-lg' 
                   : 'border-gray-300 hover:border-blue-400'
               }`}
-            />
-            <div className="flex-1">
+          />
+          <div className="flex-1">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                {result.name || result.cv_name || result.participant_id}
-              </h3>
+              {result.name || result.cv_name || result.participant_id}
+            </h3>
               <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                 <div className="flex items-center space-x-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,23 +67,23 @@ const CVAnalysisResultCard = ({
                   </svg>
                   <span>Analizado el {formatDate(result.created_at || result.timestamp)}</span>
                 </div>
-                {result.position && (
+            {result.position && (
                   <div className="flex items-center space-x-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
                     </svg>
                     <span>Puesto: <span className="font-semibold text-gray-800">{result.position}</span></span>
                   </div>
-                )}
+            )}
               </div>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <div className={`text-3xl font-bold px-6 py-3 rounded-xl shadow-lg ${getScoreColorClass(result.score)}`}>
-              {result.score}%
-            </div>
           </div>
         </div>
+        <div className="flex items-center">
+            <div className={`text-3xl font-bold px-6 py-3 rounded-xl shadow-lg ${getScoreColorClass(result.score)}`}>
+            {result.score}%
+          </div>
+        </div>
+      </div>
 
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
@@ -92,48 +92,48 @@ const CVAnalysisResultCard = ({
               Razones del puntaje
             </h4>
             <ul className="space-y-2">
-              {result.reasons.map((reason, idx) => (
+          {result.reasons.map((reason, idx) => (
                 <li key={idx} className="text-gray-700 flex items-start">
                   <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   <span>{reason}</span>
                 </li>
-              ))}
-            </ul>
-          </div>
+          ))}
+        </ul>
+      </div>
 
-          {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
+      {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <UserGroupIcon className="h-5 w-5 text-green-600 mr-2" />
                 Razones de habilidades blandas
               </h4>
               <ul className="space-y-2">
-                {result.soft_skills_reasons.map((reason, idx) => (
+            {result.soft_skills_reasons.map((reason, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{reason}</span>
                   </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            ))}
+          </ul>
+        </div>
+      )}
 
-          {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
+      {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
             <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <TrophyIcon className="h-5 w-5 text-purple-600 mr-2" />
                 Preguntas sugeridas para entrevista
               </h4>
               <ul className="space-y-2">
-                {result.soft_skills_questions?.map((question, idx) => (
+            {result.soft_skills_questions?.map((question, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
                     <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{question}</span>
                   </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            ))}
+          </ul>
+        </div>
+      )}
         </div>
       </div>
     </div>
@@ -256,8 +256,8 @@ export default function CVAnalysisResults() {
           className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-700 bg-white hover:bg-blue-50 rounded-xl border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300 font-medium mb-6 group"
         >
           <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform duration-300" />
-          <span>Volver</span>
-        </button>
+        <span>Volver</span>
+      </button>
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
           <div className="flex justify-between items-center mb-8">
@@ -296,7 +296,7 @@ export default function CVAnalysisResults() {
             </div>
           </div>
         </div>
-
+        
         {results.length > 0 && (
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 mb-6">
             <div className="flex items-center space-x-3">
@@ -334,32 +334,32 @@ export default function CVAnalysisResults() {
             // Usar el ID del candidato si existe, sino el ID del resultado
             const uniqueId = correspondingCandidate?.id || result.cv_id || result.participant_id || `index_${idx}`;
             
-            return (
-              <CVAnalysisResultCard 
-                key={idx} 
-                result={result} 
-                isSelected={selectedCvIds.has(uniqueId)}
-                onSelect={handleSelectCv}
-                cvId={uniqueId}
-              />
-            );
-          })}
-        </div>
+          return (
+            <CVAnalysisResultCard 
+              key={idx} 
+              result={result} 
+              isSelected={selectedCvIds.has(uniqueId)}
+              onSelect={handleSelectCv}
+              cvId={uniqueId}
+            />
+          );
+        })}
+      </div>
 
-        <DeleteConfirmationModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDeleteSelected}
-          selectedCount={selectedCvIds.size}
-          isLoading={isDeleting}
-        />
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteSelected}
+        selectedCount={selectedCvIds.size}
+        isLoading={isDeleting}
+      />
 
-        <Toast
-          type={toastType}
-          message={toastMessage}
-          isVisible={showToast}
-          onClose={() => setShowToast(false)}
-        />
+      <Toast
+        type={toastType}
+        message={toastMessage}
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+      />
       </div>
     </div>
   );

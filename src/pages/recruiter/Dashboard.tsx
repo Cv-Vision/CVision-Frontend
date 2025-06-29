@@ -2,6 +2,7 @@ import { UserIcon, BriefcaseIcon, UsersIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotalCandidates } from '@/hooks/useGetTotalCandidates';
+import { useEffect } from 'react';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
 const RecruiterDashboard = () => {
@@ -10,13 +11,24 @@ const RecruiterDashboard = () => {
   const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
   const { totalCandidates, isLoading: candidatesLoading } = useGetTotalCandidates();
 
+  // Prevenir scroll en toda la página
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    };
+  }, []);
+
   // Aquí puedes definir el jobId y apiUrl si es necesario para el botón de procesar CVs, mas abajo esta la explicacion de por qué está comentado
   // const jobId = '934b732b-ab9f-4fd3-97d9-6e41fbe2089b'; // PONÉ TU JOB_ID REAL DE PRUEBA
   // const apiUrl = 'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/cv-processor'; // PONÉ TU URL REAL DEL API
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2">
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2 overflow-hidden">
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full p-10 flex flex-col items-center">
         <div className="relative mb-6">
           <UserIcon className="h-16 w-16 text-blue-600 mb-4" />
