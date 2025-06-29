@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom';
-import { UserIcon, ArrowRightOnRectangleIcon, SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import mockupImg from '../assets/homepage_job_posting.png';
 import resultsImg from '../assets/homepage_results.png';
 import candidatesImg from '../assets/homepage_candidates.png';
-import resultsPreciseImg from '../assets/homepage_results_precise.png';
 
 const Home = () => {
   return (
