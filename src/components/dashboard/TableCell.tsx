@@ -15,7 +15,7 @@ export interface TableCellProps {
  */
 export const TableCell: React.FC<TableCellProps> = ({ children, onClick, className }) => {
     return (
-      <td onClick={onClick} className={`p-2 ${onClick ? 'cursor-pointer' : ''} ${className ?? ''}`}>
+      <td onClick={onClick} className={`px-6 py-4 ${onClick ? 'cursor-pointer' : ''} ${className ?? ''}`}>
           {children}
       </td>
     );
