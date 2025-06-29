@@ -40,7 +40,7 @@ export const useFileUploader = (jobId: string) => {
           const err = await response.json();
           msg = err.error || msg;
         } catch {}
-        throw new Error(msg);
+        new Error(msg);
       }
 
       const data = await response.json();
@@ -50,7 +50,7 @@ export const useFileUploader = (jobId: string) => {
           setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
 
           const urlData = data.presigned_urls.find((u: any) => u.filename === file.name);
-          if (!urlData) throw new Error(`No URL prefirmada para ${file.name}`);
+          if (!urlData) new Error(`No URL prefirmada para ${file.name}`);
 
           const res = await fetch(urlData.upload_url, {
             method: 'PUT',
@@ -58,7 +58,7 @@ export const useFileUploader = (jobId: string) => {
             headers: { 'Content-Type': file.type },
           });
 
-          if (!res.ok) throw new Error(`Error al subir ${file.name}`);
+          if (!res.ok) new Error(`Error al subir ${file.name}`);
 
           uploadedUrls.push(urlData.s3_key);
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
