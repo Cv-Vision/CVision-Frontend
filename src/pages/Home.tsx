@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
-import { UserIcon, ArrowRightOnRectangleIcon, SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import mockupImg from '../assets/homepage_job_posting.png';
+import resultsImg from '../assets/homepage_results.png';
+import candidatesImg from '../assets/homepage_candidates.png';
 
 const Home = () => {
   return (
@@ -11,73 +13,109 @@ const Home = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      <div className="relative z-10 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl max-w-4xl w-full p-12 flex flex-col items-center border border-white/20">
-        {/* Header with animated icon */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-lg animate-bounce">
-            <SparklesIcon className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent text-center">
-            Bienvenido a CVision
-          </h1>
-        </div>
-        
-        <p className="text-xl text-gray-700 mb-10 text-center max-w-2xl leading-relaxed">
-          Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
-        </p>
-
-        {/* Feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-3xl">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg">
-                <ChartBarIcon className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-800">Análisis Inteligente</h3>
-            </div>
-            <p className="text-sm text-gray-600">Evaluación automática de CVs con IA avanzada</p>
-          </div>
-          
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
-                <UserGroupIcon className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-800">Gestión de Candidatos</h3>
-            </div>
-            <p className="text-sm text-gray-600">Organiza y evalúa candidatos de manera eficiente</p>
-          </div>
-          
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
-                <SparklesIcon className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-800">Resultados Precisos</h3>
-            </div>
-            <p className="text-sm text-gray-600">Evaluaciones detalladas y recomendaciones personalizadas</p>
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-0 overflow-visible">
+        {/* Left: Main message */}
+        <div className="flex-[1] flex flex-col items-start justify-center px-2 md:px-8 py-8 md:py-16 md:ml-24">
+          <div className="mb-6">
+            <SparklesIcon className="h-12 w-12 text-indigo-600 mb-4" />
+            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+              Bienvenido a <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">CVision</span>
+            </h1>
+            <p className="text-2xl md:text-3xl text-gray-700 font-medium max-w-xl">
+              Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
+            </p>
           </div>
         </div>
+        {/* Right: App mockup placeholder */}
+        <div className="flex-[3] flex items-center justify-center w-full h-full px-0 md:px-0 py-8 md:py-16 relative">
+          {/* Imagen de la app, protagonista y sobresaliendo visualmente */}
+          <img
+            src={mockupImg}
+            alt="Vista previa de la app"
+            className="object-contain drop-shadow-2xl"
+            style={{
+              width: '140%',
+              maxWidth: '1600px',
+              height: 'auto',
+              display: 'block',
+              margin: 0,
+              position: 'relative',
+              right: '-3vw',
+              boxShadow: '0 12px 48px 0 rgba(0,0,0,0.12)',
+              ...(window.innerWidth < 768 ? { width: '100%', right: 0, maxWidth: '100%' } : {})
+            }}
+          />
+        </div>
+      </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
-          <Link
-            to="/login"
-            className="group flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-lg min-w-[200px] relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <ArrowRightOnRectangleIcon className="h-6 w-6 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-            <span className="relative z-10">Iniciar Sesión</span>
-          </Link>
-          
-          <Link
-            to="/register"
-            className="group flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-lg min-w-[200px] relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <UserIcon className="h-6 w-6 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-            <span className="relative z-10">Registrarse</span>
-          </Link>
+      {/* Secciones informativas al hacer scroll */}
+      <div className="w-full flex flex-col items-center justify-center mt-24 space-y-16 px-4">
+        {/* Sección: Análisis inteligente con imagen a la izquierda y texto a la derecha */}
+        <div className="w-full flex flex-row items-center justify-start gap-6 ml-0 md:ml-16">
+          {/* Imagen a la izquierda */}
+          <div className="flex items-center justify-center">
+            <img
+              src={resultsImg}
+              alt="Resultados de análisis"
+              className="object-contain max-w-xl w-full h-auto drop-shadow-2xl"
+              style={{ background: 'none', border: 'none' }}
+            />
+          </div>
+          {/* Línea punteada horizontal centrada */}
+          <div className="flex items-center h-full transition-all duration-300 hover:drop-shadow-lg">
+            <div className="w-40 h-0 border-t-4 border-dashed border-blue-300 opacity-80 mx-2" />
+          </div>
+          {/* Rectángulo de texto a la derecha */}
+          <section className="inline-flex flex-col items-center justify-center gap-4 animate-fadein bg-gradient-to-br from-blue-100/90 via-indigo-100/80 to-purple-100/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-blue-200 px-10 py-10 ml-0 md:ml-16 transition-transform duration-300 hover:shadow-3xl hover:scale-105">
+            <ChartBarIcon className="h-20 w-20 text-blue-500 mb-6 drop-shadow" />
+            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Análisis inteligente</h2>
+            <p className="text-2xl text-gray-700 mb-2">Evaluación automática de CVs con IA avanzada.</p>
+          </section>
+          {/* Frase inspiradora a la derecha */}
+          <div className="hidden md:flex flex-col items-start justify-center flex-1 pl-8 mt-32">
+            <span className="text-3xl font-bold text-indigo-300 mb-2">Optimiza tu proceso de selección</span>
+            <span className="text-xl text-indigo-200 ml-2">con IA</span>
+          </div>
+        </div>
+        {/* Separador */}
+        <div className="w-32 h-1 bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300 rounded-full opacity-40 mb-6" />
+        {/* Sección: Gestión de candidatos con rectángulo, línea punteada e imagen */}
+        <div className="w-full flex flex-row items-center justify-end gap-6 mr-0 md:mr-16">
+          {/* Frase inspiradora a la izquierda */}
+          <div className="hidden md:flex flex-col items-end justify-start flex-1 pr-8 mt-20 mb-auto">
+            <span className="text-3xl font-bold text-indigo-300 mb-2">Encuentra el mejor talento</span>
+            <span className="text-xl text-indigo-200">en segundos</span>
+          </div>
+          <section className="inline-flex flex-col items-center justify-center gap-4 animate-fadein bg-gradient-to-br from-indigo-100/90 via-purple-100/80 to-blue-100/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-indigo-200 px-10 py-10 ml-0 md:ml-16 transition-transform duration-300 hover:shadow-3xl hover:scale-105">
+            <UserGroupIcon className="h-20 w-20 text-indigo-500 mb-6 drop-shadow" />
+            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Gestión de candidatos</h2>
+            <p className="text-2xl text-gray-700 mb-2">Organiza y evalúa candidatos de manera eficiente.</p>
+          </section>
+          {/* Línea punteada horizontal entre el rectángulo y la imagen */}
+          <div className="flex items-center h-full transition-all duration-300 hover:drop-shadow-lg">
+            <div className="w-40 h-0 border-t-4 border-dashed border-indigo-300 opacity-80 mx-2" />
+          </div>
+          {/* Imagen a la derecha del rectángulo y la línea */}
+          <div className="flex items-center justify-center">
+            <img
+              src={candidatesImg}
+              alt="Gestión de candidatos"
+              className="object-contain max-w-md w-full h-auto drop-shadow-2xl"
+              style={{ background: 'none', border: 'none' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Footer simple con línea y textos */}
+      <div className="w-full flex flex-col items-center mt-32 mb-8">
+        <div className="w-2/3 h-1 bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300 rounded-full opacity-40 mb-6" />
+        <div className="flex flex-wrap gap-8 justify-center text-gray-500 text-lg font-medium">
+          <span>Sobre nosotros</span>
+          <span>Centro de ayuda</span>
+          <span>Contacto</span>
+          <span>Términos y condiciones</span>
+          <span>Privacidad</span>
         </div>
       </div>
     </div>
