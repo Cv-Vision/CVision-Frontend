@@ -24,8 +24,19 @@ export function useGetCVDownloadUrl(
       setError(null);
 
       try {
+        const idToken = sessionStorage.getItem('idToken');
+        if (!idToken) {
+          throw new Error('No autenticado');
+        }
+
         const response = await fetchWithAuth(
-          `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/cv/${cvId}/download-url`
+          `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
+          {
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+              'Content-Type': 'application/json',
+            },
+          }
         );
 
         if (!response.ok) {

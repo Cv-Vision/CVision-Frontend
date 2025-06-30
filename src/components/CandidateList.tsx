@@ -122,6 +122,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
 
   const handleRowClick = (rowIndex: number) => {
     const candidate = candidates[rowIndex];
+    console.log("cvId limpio:", JSON.stringify(candidate.id));
     setSelectedCandidate({ fullName: candidate.fullName, score: candidate.score, cvId: candidate.id, });
   };
 

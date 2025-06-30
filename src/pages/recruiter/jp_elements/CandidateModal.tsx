@@ -90,21 +90,38 @@ const CandidateModal = ({
             ) : data?.url ? (
               <>
                 <p className="text-sm text-blue-600 mb-2 font-medium">CV Original:</p>
-                {data.url.endsWith('.pdf') ? (
-                  <iframe
-                    src={data.url}
-                    title="CV PDF"
-                    className="w-full h-[600px] border border-gray-300 rounded-md"
-                  />
-                ) : data.url.match(/\.(png|jpg|jpeg)$/i) ? (
-                  <img
-                    src={data.url}
-                    alt="CV Imagen"
-                    className="max-w-full max-h-[600px] border border-gray-300 rounded-md"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-500">Formato de archivo no soportado.</p>
-                )}
+                <a
+                  href={data.url}
+                  download={data.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-sm text-blue-700 underline hover:text-blue-900 mb-4"
+                >
+                  Descargar CV
+                </a>
+
+                {(() => {
+                  const baseUrl = data.url.split('?')[0];
+                  if (baseUrl.endsWith('.pdf')) {
+                    return (
+                      <iframe
+                        src={data.url}
+                        title="CV PDF"
+                        className="w-full h-[600px] border border-gray-300 rounded-md"
+                      />
+                    );
+                  } else if (baseUrl.match(/\.(png|jpg|jpeg)$/i)) {
+                    return (
+                      <img
+                        src={data.url}
+                        alt="CV Imagen"
+                        className="max-w-full max-h-[600px] border border-gray-300 rounded-md"
+                      />
+                    );
+                  } else {
+                    return <p className="text-sm text-gray-500">Formato de archivo no soportado.</p>;
+                  }
+                })()}
               </>
             ) : null}
           </div>
@@ -122,6 +139,7 @@ const CandidateModal = ({
               <p className="text-lg text-gray-500">Sin observaciones disponibles.</p>
             )}
           </div>
+
         </Dialog.Panel>
       </div>
     </Dialog>
