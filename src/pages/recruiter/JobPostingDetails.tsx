@@ -485,6 +485,20 @@ const JobPostingDetails = () => {
                   )}
 
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                  <div>
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                      <AnalysisButton
+                        jobId={job.pk}
+                        extraRequirements={extraRequirements}
+                        onSuccess={() => {
+                          setTimeout(() => {
+                            refetchCandidates();
+                            refetchAnalysisResults();
+                          }, 12000);
+                        }}
+                      />
+                    </div>
+                  </div>
                     <CVDropzone
                         jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`}
                         onUploadComplete={(keys) => {
@@ -519,21 +533,6 @@ const JobPostingDetails = () => {
             >
               Actualizar requisitos del puesto
             </button>
-          </div>
-
-          <div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-              <AnalysisButton
-                  jobId={job.pk}
-                  extraRequirements={extraRequirements}
-                  onSuccess={() => {
-                    setTimeout(() => {
-                      refetchCandidates();
-                      refetchAnalysisResults();
-                    }, 12000);
-                  }}
-              />
-            </div>
           </div>
         </div>
       </div>
