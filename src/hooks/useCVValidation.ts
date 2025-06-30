@@ -1,6 +1,6 @@
 export const useCVValidation = () => {
   const isValidType = (type: string) => {
-    return ['application/pdf', 'image/png', 'image/jpeg'].includes(type);
+    return ['application/pdf', 'image/png', 'image/jpeg', 'application/zip'].includes(type);
   };
 
   const validateFile = (file: File): { valid: boolean; reason?: string } => {
