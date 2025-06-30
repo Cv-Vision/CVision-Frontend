@@ -21,9 +21,55 @@ export default function CreateJob() {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     
+    // Primero completar el título, luego la descripción tras 1 segundo
+    const titleTimeout = setTimeout(() => {
+      setTitle("Diseñador Gráfico");
+      const descTimeout = setTimeout(() => {
+        setDescription(`Estamos buscando a un diseñador gráfico que cree gráficos cautivadores y alineados con los
+valores de la marca para diversos medios.
+¿Cuál es la función de un diseñador gráfico?
+La descripción del puesto de diseñador gráfico incluye todo el proceso de definir los requisitos,
+así como de visualizar y crear los gráficos, incluidos las ilustraciones, los logotipos, las
+composiciones y las fotos. Te encargarás de dar forma a los aspectos visuales de los sitios
+web, los libros, las revistas, los embalajes de los productos, las exposiciones y muchas cosas
+más. Tus gráficos deben captar la atención de quienes los vean y transmitir el mensaje
+adecuado. Para ello, debes tener un talento creativo y una sólida capacidad para transformar
+los requisitos en diseño. Si sabes comunicarte bien y trabajar metódicamente como parte de un
+equipo, nos gustaría conocerte. El objetivo consiste en inspirar al público objetivo y atraerlo.
+
+Responsabilidades:
+
+Estudio de los informes de diseño y determinación de los requisitos
+Programación de los proyectos y definición de las limitaciones presupuestarias
+Conceptualización de los elementos visuales sobre la base de los requisitos
+Preparación de borradores y presentación de ideas
+Desarrollo de ilustraciones, logotipos y otros diseños realizados con software o a mano
+Uso de los colores y las composiciones apropiados para cada gráfico
+Trabajo con redactores creativos y con el director creativo para producir el diseño final
+Probar los gráficos a través de diversos medios
+Modificar los diseños después de recibir opiniones
+Asegurar que los gráficos y las composiciones visuales sean visualmente atractivos y
+estén alineados con los valores de la marca
+
+Requisitos:
+
+Experiencia contrastada en diseño gráfico
+Un catálogo sólido de ilustraciones u otros gráficos
+Familiaridad con el software y las tecnologías de diseño (como InDesign, Illustrator,
+Dreamweaver o Photoshop)
+Buen ojo para la estética y los detalles
+Excelentes dotes de comunicación
+Capacidad para trabajar metódicamente y cumplir los plazos de entrega
+Se valorará un grado en Diseño, Bellas Artes o un campo relacionado`);
+      }, 1500);
+      // Limpiar el timeout de descripción si el componente se desmonta antes
+      return () => clearTimeout(descTimeout);
+    }, 2500);
+
     return () => {
       document.body.style.overflow = 'unset';
       document.documentElement.style.overflow = 'unset';
+      clearTimeout(titleTimeout);
     };
   }, []);
 
