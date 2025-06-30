@@ -1,5 +1,4 @@
 import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
-import mockupImg from '../assets/homepage_job_posting.png';
 import resultsImg from '../assets/homepage_results.png';
 import candidatesImg from '../assets/homepage_candidates.png';
 
@@ -13,38 +12,16 @@ const Home = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-0 overflow-visible">
-        {/* Left: Main message */}
-        <div className="flex-[1] flex flex-col items-start justify-center px-2 md:px-8 py-8 md:py-16 md:ml-24">
-          <div className="mb-6">
-            <SparklesIcon className="h-12 w-12 text-indigo-600 mb-4" />
-            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-              Bienvenido a <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">CVision</span>
-            </h1>
-            <p className="text-2xl md:text-3xl text-gray-700 font-medium max-w-xl">
-              Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
-            </p>
-          </div>
-        </div>
-        {/* Right: App mockup placeholder */}
-        <div className="flex-[3] flex items-center justify-center w-full h-full px-0 md:px-0 py-8 md:py-16 relative">
-          {/* Imagen de la app, protagonista y sobresaliendo visualmente */}
-          <img
-            src={mockupImg}
-            alt="Vista previa de la app"
-            className="object-contain drop-shadow-2xl"
-            style={{
-              width: '140%',
-              maxWidth: '1600px',
-              height: 'auto',
-              display: 'block',
-              margin: 0,
-              position: 'relative',
-              right: '-3vw',
-              boxShadow: '0 12px 48px 0 rgba(0,0,0,0.12)',
-              ...(window.innerWidth < 768 ? { width: '100%', right: 0, maxWidth: '100%' } : {})
-            }}
-          />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full gap-8 md:gap-0 overflow-visible">
+        {/* Main message centrado */}
+        <div className="flex flex-col items-center justify-center w-full px-2 md:px-8 py-16">
+          <SparklesIcon className="h-12 w-12 text-indigo-600 mb-4" />
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6 text-center">
+            Bienvenido a <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">CVision</span>
+          </h1>
+          <p className="text-2xl md:text-3xl text-gray-700 font-medium max-w-xl text-center">
+            Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
+          </p>
         </div>
       </div>
 
