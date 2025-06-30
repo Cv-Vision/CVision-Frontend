@@ -4,7 +4,7 @@ export interface Candidate {
   id: string;
   fullName: string;
   score: number | null;
-  cvUrl: string;
+  cvId: string;
   rating?: string;
   analysis: {
     strengths: string[];

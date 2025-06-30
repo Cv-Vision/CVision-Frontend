@@ -21,7 +21,7 @@ const getScoreColorClass = (score: number | null) => {
 };
 
 const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
-  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null }>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null, cvId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string; isVisible: boolean }>({ type: 'success', message: '', isVisible: false });
@@ -122,7 +122,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
 
   const handleRowClick = (rowIndex: number) => {
     const candidate = candidates[rowIndex];
-    setSelectedCandidate({ fullName: candidate.fullName, score: candidate.score });
+    setSelectedCandidate({ fullName: candidate.fullName, score: candidate.score, cvId: candidate.id, });
   };
 
   return (
