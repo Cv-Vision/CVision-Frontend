@@ -56,7 +56,6 @@ const Navbar = () => {
           >
             <div className="relative">
               <SparklesIcon className="h-8 w-8 text-white group-hover:text-yellow-300 transition-colors duration-300" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent group-hover:from-yellow-300 group-hover:to-white transition-all duration-300">
               CVision

@@ -48,7 +48,6 @@ export default function CreateJob() {
         <div className="flex items-center gap-6 mb-10">
           <div className="relative">
             <BriefcaseIcon className="h-12 w-12 text-blue-600" />
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
             Crear Nuevo Puesto

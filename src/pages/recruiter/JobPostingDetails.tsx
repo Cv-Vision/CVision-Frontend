@@ -215,7 +215,6 @@ const JobPostingDetails = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <BriefcaseIcon className="h-10 w-10 text-blue-600" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse"></div>
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
               {job.title}
