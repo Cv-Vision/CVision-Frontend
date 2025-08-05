@@ -21,6 +21,28 @@ export const contractTypeMap: Record<string, string> = {
   'Temporal': 'CONTRACT'
 };
 
+// Reverse mappings for display
+export const seniorityDisplayMap: Record<string, string> = {
+  'JUNIOR': 'Junior',
+  'SEMISENIOR': 'Mid', 
+  'SENIOR': 'Senior'
+};
+
+export const englishLevelDisplayMap: Record<string, string> = {
+  'NOT_REQUIRED': 'No requerido',
+  'BASIC': 'Básico',
+  'INTERMEDIATE': 'Intermedio',
+  'ADVANCED': 'Avanzado',
+  'NATIVE': 'Nativo'
+};
+
+export const contractTypeDisplayMap: Record<string, string> = {
+  'FULL_TIME': 'Full-time',
+  'PART_TIME': 'Part-time', 
+  'FREELANCE': 'Freelance',
+  'CONTRACT': 'Temporal'
+};
+
 // Helper function to map UI seniority to API experience_level
 export const mapSeniorityToExperienceLevel = (seniority: string): string | undefined => {
   return seniorityMap[seniority];
@@ -34,6 +56,21 @@ export const mapEnglishLevelToAPI = (englishLevel: string): string | undefined =
 // Helper function to map UI contract type to API contract_type
 export const mapContractTypeToAPI = (contractType: string): string | undefined => {
   return contractTypeMap[contractType];
+};
+
+// Helper function to map API experience_level to UI display
+export const mapExperienceLevelToDisplay = (experienceLevel: string): string | undefined => {
+  return seniorityDisplayMap[experienceLevel];
+};
+
+// Helper function to map API english_level to UI display
+export const mapEnglishLevelToDisplay = (englishLevel: string): string | undefined => {
+  return englishLevelDisplayMap[englishLevel];
+};
+
+// Helper function to map API contract_type to UI display
+export const mapContractTypeToDisplay = (contractType: string): string | undefined => {
+  return contractTypeDisplayMap[contractType];
 };
 
 // Helper function to map ExtraRequirements to API payload
