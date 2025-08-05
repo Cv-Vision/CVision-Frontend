@@ -8,6 +8,7 @@ export interface ExtraRequirements {
   industryRequired: boolean;
   industryText: string;
   contractTypes: string[];
+  location: string;
 }
 
 interface ExtraRequirementsFormProps {
@@ -21,6 +22,7 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
   const [industryRequired, setIndustryRequired] = useState(false);
   const [industryText, setIndustryText] = useState('');
   const [contractTypes, setContractTypes] = useState<string[]>([]);
+  const [location, setLocation] = useState('');
 
   useEffect(() => {
     onChange({
@@ -30,8 +32,9 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
       industryRequired,
       industryText: industryRequired ? industryText : '',
       contractTypes,
+      location,
     });
-  }, [freeText, seniority, englishLevel, industryRequired, industryText, contractTypes, onChange]);
+  }, [freeText, seniority, englishLevel, industryRequired, industryText, contractTypes, location, onChange]);
 
   const toggleSeniority = (level: string) => {
     setSeniority(prev =>
@@ -97,9 +100,11 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
           onChange={e => setEnglishLevel(e.target.value)}
         >
           <option value="">Seleccione nivel</option>
+          <option value="No requerido">No requerido</option>
           <option value="Básico">Básico</option>
           <option value="Intermedio">Intermedio</option>
           <option value="Avanzado">Avanzado</option>
+          <option value="Nativo">Nativo</option>
         </select>
       </div>
 
@@ -158,6 +163,18 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
             </label>
           ))}
         </div>
+      </div>
+
+      {/* Ubicación */}
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-blue-800">Ubicación</label>
+        <input
+          type="text"
+          className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+          placeholder="Ej: Buenos Aires,Madrid, Barcelona, Texas"
+          value={location}
+          onChange={e => setLocation(e.target.value)}
+        />
       </div>
     </div>
   );
