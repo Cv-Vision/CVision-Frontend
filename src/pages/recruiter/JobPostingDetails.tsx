@@ -12,11 +12,12 @@ import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outl
 import CandidateList from '@/components/CandidateList';
 import JobRequirementsDisplay from '@/components/JobRequirementsDisplay';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
+import type { Job } from '@/context/JobContext';
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { job, isLoading, error, refetch } = useGetJobById(jobId ?? '');
+  const { job, isLoading, error } = useGetJobById(jobId ?? '');
 
   const {
     updateJobPostingData,
@@ -39,12 +40,14 @@ const JobPostingDetails = () => {
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
   const [showUploadNotification, setShowUploadNotification] = useState(false);
   const [recentlyUploadedCvs, setRecentlyUploadedCvs] = useState<string[]>([]);
+  const [localJob, setLocalJob] = useState<Job | null>(null);
 
   const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
 
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
+  const jobToShow = localJob || job;
+  const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
   const { refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
   const { results: analysisResults, isLoading: analysisLoading, error: analysisError, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
 
@@ -54,10 +57,10 @@ const JobPostingDetails = () => {
 
   // Sync status from job
   useEffect(() => {
-    if (job && ['ACTIVE', 'INACTIVE', 'CANCELLED', 'DELETED'].includes(job.status as string)) {
-      setSelectedStatus(job.status as JobPostingStatus);
+    if (jobToShow && ['ACTIVE', 'INACTIVE', 'CANCELLED', 'DELETED'].includes(jobToShow.status as string)) {
+      setSelectedStatus(jobToShow.status as JobPostingStatus);
     }
-  }, [job?.status]);
+  }, [jobToShow?.status]);
 
   // Permissions based on current status
   const { canEditFields, canAddCVs, canChangeStatus } = getPermissionsByStatus(selectedStatus);
@@ -65,9 +68,9 @@ const JobPostingDetails = () => {
   // Handlers
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as JobPostingStatus;
-    if (job && newStatus) {
+    if (jobToShow && newStatus) {
       setSelectedStatus(newStatus);
-      await updateJobPostingData(job.pk, { status: newStatus });
+      await updateJobPostingData(jobToShow.pk, { status: newStatus });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
     }
@@ -76,18 +79,18 @@ const JobPostingDetails = () => {
   const handleEditClick = () => {
     if (canEditFields) {
       setIsEditingDescription(true);
-      setNewDescription(job?.description ?? '');
+      setNewDescription(jobToShow?.description ?? '');
       setIsDescriptionCollapsed(false);
     }
   };
 
   const handleSaveDescription = async () => {
-    if (job && canEditFields) {
+    if (jobToShow && canEditFields) {
       setIsSavingDescription(true);
       setDescriptionSaveError(null);
       setDescriptionSaveSuccess(false);
       try {
-        await updateJobPostingData(job.pk, { description: newDescription });
+        await updateJobPostingData(jobToShow.pk, { description: newDescription });
         setIsEditingDescription(false);
         setDescriptionSaveSuccess(true);
         setTimeout(() => setDescriptionSaveSuccess(false), 3000);
@@ -100,7 +103,7 @@ const JobPostingDetails = () => {
   };
 
   const handleUpdateJob = async (updates?: any) => {
-    if (!job) return;
+    if (!jobToShow) return;
 
     const payload: any = {};
 
@@ -112,9 +115,9 @@ const JobPostingDetails = () => {
     }
 
     try {
-      await updateJobPostingData(job.pk, payload);
-      // Refetch job data to get updated information
-      refetch();
+      await updateJobPostingData(jobToShow.pk, payload);
+      // Actualizar el estado local con los datos nuevos
+      setLocalJob({ ...jobToShow, ...payload });
       setExtraRequirements(undefined); // Clear the requirements after successful update
       // Show success message for requirements update
       setRequirementsUpdateSuccess('Requisitos del puesto actualizados correctamente');
@@ -198,7 +201,7 @@ const JobPostingDetails = () => {
     </div>
   );
   
-  if (!job) return (
+  if (!jobToShow) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex items-center justify-center">
       <div className="text-center text-blue-600 font-medium">No se encontró el puesto de trabajo.</div>
     </div>
@@ -236,7 +239,7 @@ const JobPostingDetails = () => {
               <BriefcaseIcon className="h-10 w-10 text-blue-600" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
-              {job.title}
+              {jobToShow.title}
             </h1>
           </div>
 
@@ -284,7 +287,7 @@ const JobPostingDetails = () => {
                     <button
                       onClick={() => {
                         setIsEditingDescription(false);
-                        setNewDescription(job?.description ?? '');
+                        setNewDescription(jobToShow?.description ?? '');
                         setDescriptionSaveError(null);
                       }}
                       disabled={!canEditFields || isSavingDescription}
@@ -345,10 +348,10 @@ const JobPostingDetails = () => {
                     }}
                 />
               ) : !isDescriptionCollapsed ? (
-                  <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line">{job.description}</p>
+                  <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line">{jobToShow.description}</p>
               ) : (
                   <div className="relative">
-                    <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line max-h-80 overflow-hidden">{job.description}</p>
+                    <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line max-h-80 overflow-hidden">{jobToShow.description}</p>
                     <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-8 rounded-b-2xl" style={{ background: 'linear-gradient(to bottom, rgba(239,246,255,0) 0%, rgba(239,246,255,1) 100%)' }} />
                   </div>
               )}
@@ -541,7 +544,7 @@ const JobPostingDetails = () => {
 
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone
-                        jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`}
+                        jobId={jobToShow.pk.startsWith('JD#') ? jobToShow.pk : `JD#${jobToShow.pk}`}
                         onUploadComplete={(keys) => {
                           setUploadError(null);
                           setUploadSuccessMessage('CVs subidos exitosamente');
@@ -560,9 +563,10 @@ const JobPostingDetails = () => {
           </div>
 
           {/* Requisitos del Puesto */}
+          <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del Puesto</h2>
           <div>
             <JobRequirementsDisplay 
-              job={job} 
+              job={jobToShow} 
               onUpdate={handleRequirementsUpdate}
               canEdit={canEditFields}
             />
@@ -571,7 +575,7 @@ const JobPostingDetails = () => {
           <div>
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
               <AnalysisButton
-                  jobId={job.pk}
+                  jobId={jobToShow.pk}
                   extraRequirements={extraRequirements}
                   onSuccess={() => {
                     setTimeout(() => {
