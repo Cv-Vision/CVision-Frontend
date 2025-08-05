@@ -10,15 +10,13 @@ import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisR
 import BackButton from '@/components/BackButton';
 import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import CandidateList from '@/components/CandidateList';
-import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
-import axios from 'axios';
+import JobRequirementsDisplay from '@/components/JobRequirementsDisplay';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
-import { mapExtraRequirementsToPayload } from '@/utils/jobPostingMappers';
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { job, isLoading, error } = useGetJobById(jobId ?? '');
+  const { job, isLoading, error, refetch } = useGetJobById(jobId ?? '');
 
   const {
     updateJobPostingData,
@@ -37,7 +35,8 @@ const JobPostingDetails = () => {
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
-  const [extraRequirements, setExtraRequirements] = useState<ExtraRequirements | undefined>(undefined);
+  const [requirementsUpdateSuccess, setRequirementsUpdateSuccess] = useState<string | null>(null);
+  const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
   const [showUploadNotification, setShowUploadNotification] = useState(false);
   const [recentlyUploadedCvs, setRecentlyUploadedCvs] = useState<string[]>([]);
 
@@ -100,28 +99,34 @@ const JobPostingDetails = () => {
     }
   };
 
-  const handleUpdateJob = async () => {
-    if (!job || !canEditFields) return;
-    setUploadError(null);
-    setUploadSuccessMessage(null);
-    try {
-      const token = sessionStorage.getItem('idToken');
-      if (!token) throw new Error('No hay token de autenticación.');
-      
-      const payload: Record<string, any> = { description: job.description };
-      
-      // Map ExtraRequirements to API payload format
-      if (extraRequirements) {
-        const mappedPayload = mapExtraRequirementsToPayload(extraRequirements);
-        Object.assign(payload, mappedPayload);
-      }
+  const handleUpdateJob = async (updates?: any) => {
+    if (!job) return;
 
-      const url = `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${job.pk.replace('JD#', '')}/update`;
-      await axios.put(url, payload, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } });
-      setUploadSuccessMessage('Requisitos actualizados correctamente.');
-    } catch (err: any) {
-      setUploadError(err?.response?.data?.message || err.message || 'Error al actualizar.');
+    const payload: any = {};
+
+    // Use the provided updates or fall back to extraRequirements
+    const updatesToUse = updates || extraRequirements;
+    
+    if (updatesToUse && Object.keys(updatesToUse).length > 0) {
+      Object.assign(payload, updatesToUse);
     }
+
+    try {
+      await updateJobPostingData(job.pk, payload);
+      // Refetch job data to get updated information
+      refetch();
+      setExtraRequirements(undefined); // Clear the requirements after successful update
+      // Show success message for requirements update
+      setRequirementsUpdateSuccess('Requisitos del puesto actualizados correctamente');
+    } catch (error) {
+      console.error('Error updating job posting:', error);
+    }
+  };
+
+  const handleRequirementsUpdate = (updates: any) => {
+    setExtraRequirements(updates);
+    // Pass the updates directly to handleUpdateJob
+    handleUpdateJob(updates);
   };
 
   // Auto-dismiss upload notifications
@@ -154,6 +159,16 @@ const JobPostingDetails = () => {
       return () => clearTimeout(timer);
     }
   }, [uploadError]);
+
+  // Auto-dismiss requirements update success message
+  useEffect(() => {
+    if (requirementsUpdateSuccess) {
+      const timer = setTimeout(() => {
+        setRequirementsUpdateSuccess(null);
+      }, 4000); // 4 seconds for success
+      return () => clearTimeout(timer);
+    }
+  }, [requirementsUpdateSuccess]);
 
   // Auto-adjust textarea height when editing starts
   useEffect(() => {
@@ -388,8 +403,22 @@ const JobPostingDetails = () => {
                 </div>
             ) : analysisError ? (
                 <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
-            ) : (
+            ) : analysisResults && analysisResults.length > 0 ? (
                 <CVAnalysisMetricsSummary results={analysisResults} />
+            ) : (
+                <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-gray-100 flex-shrink-0">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-700 font-medium">No hay métricas disponibles</p>
+                      <p className="text-gray-500 text-sm">Sube CVs y ejecuta análisis para ver métricas</p>
+                    </div>
+                  </div>
+                </div>
             )}
           </div>
 
@@ -487,6 +516,29 @@ const JobPostingDetails = () => {
                     </div>
                   )}
 
+                  {requirementsUpdateSuccess && (
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-green-800 font-semibold">{requirementsUpdateSuccess}</p>
+                        </div>
+                        <button 
+                          onClick={() => setRequirementsUpdateSuccess(null)}
+                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone
                         jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`}
@@ -507,21 +559,13 @@ const JobPostingDetails = () => {
             )}
           </div>
 
+          {/* Requisitos del Puesto */}
           <div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-              <ExtraRequirementsForm onChange={setExtraRequirements} />
-            </div>
-            <button
-                onClick={handleUpdateJob}
-                disabled={!canEditFields}
-                className={`w-full mt-4 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 ${
-                  !canEditFields 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105 shadow-lg hover:shadow-xl'
-                }`}
-            >
-              Actualizar requisitos del puesto
-            </button>
+            <JobRequirementsDisplay 
+              job={job} 
+              onUpdate={handleRequirementsUpdate}
+              canEdit={canEditFields}
+            />
           </div>
 
           <div>
