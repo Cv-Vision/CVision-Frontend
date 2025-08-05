@@ -13,6 +13,7 @@ import CandidateList from '@/components/CandidateList';
 import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
 import axios from 'axios';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
+import { mapExtraRequirementsToPayload } from '@/utils/jobPostingMappers';
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
@@ -106,12 +107,15 @@ const JobPostingDetails = () => {
     try {
       const token = sessionStorage.getItem('idToken');
       if (!token) throw new Error('No hay token de autenticación.');
+      
       const payload: Record<string, any> = { description: job.description };
-      // Extra requirements mapping...
+      
+      // Map ExtraRequirements to API payload format
       if (extraRequirements) {
-        // map experience_level, english_level, industry_experience, contract_type, additional_requirements
-        // (same as before)
+        const mappedPayload = mapExtraRequirementsToPayload(extraRequirements);
+        Object.assign(payload, mappedPayload);
       }
+
       const url = `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${job.pk.replace('JD#', '')}/update`;
       await axios.put(url, payload, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } });
       setUploadSuccessMessage('Requisitos actualizados correctamente.');
