@@ -11,6 +11,7 @@ import { TrashIcon, UserIcon} from '@heroicons/react/24/outline';
 
 interface CandidateListProps {
   jobId: string;
+  onCandidateDeleted?: () => void;
 }
 
 const getScoreColorClass = (score: number | null) => {
@@ -20,7 +21,7 @@ const getScoreColorClass = (score: number | null) => {
   return 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-red-300';
 };
 
-const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
+const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted }) => {
   const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null, cvId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -42,6 +43,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId }) => {
       setToast({ type: 'success', message: 'Candidatos eliminados correctamente.', isVisible: true });
       setSelectedIds([]);
       refetch();
+      if (onCandidateDeleted) onCandidateDeleted();
     } catch (err: any) {
       setToast({ type: 'error', message: err.message || 'Error al eliminar candidatos.', isVisible: true });
     }

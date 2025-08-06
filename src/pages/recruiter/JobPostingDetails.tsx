@@ -341,7 +341,7 @@ const JobPostingDetails = () => {
                 Candidatos
               </h2>
               <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden" style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                <CandidateList jobId={cleanJobId} />
+                <CandidateList jobId={cleanJobId} onCandidateDeleted={() => { refetchCandidates(); refetchAnalysisResults(); }} />
               </div>
             </div>
           </div>
