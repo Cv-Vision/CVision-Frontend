@@ -9,7 +9,6 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Origin': window.location.origin
   };
 
   const mergedHeaders = {

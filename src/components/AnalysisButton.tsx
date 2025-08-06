@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import type { ExtraRequirements } from '@/components/ExtraRequirementsForm';
+import { MagnifyingGlassIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface AnalysisButtonProps {
   jobId: string;
@@ -62,54 +63,36 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         onClick={handleAnalysis}
         disabled={isLoading}
         className={`
-          px-4 py-2 rounded-md text-white font-medium
+          w-full px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 flex items-center justify-center gap-2
           ${isLoading 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+            : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105 shadow-lg hover:shadow-xl'
           }
-          transition-colors duration-200
-          flex items-center justify-center
-          min-w-[120px]
         `}
       >
         {isLoading ? (
           <>
-            <svg 
-              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24"
-            >
-              <circle 
-                className="opacity-25" 
-                cx="12" 
-                cy="12" 
-                r="10" 
-                stroke="currentColor" 
-                strokeWidth="4"
-              />
-              <path 
-                className="opacity-75" 
-                fill="currentColor" 
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            Procesando...
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Procesando...</span>
           </>
         ) : (
-          'Analizar CVs'
+          <>
+            <MagnifyingGlassIcon className="h-5 w-5" />
+            <span>Analizar CVs</span>
+          </>
         )}
       </button>
       
       {showSuccess && (
-        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-center animate-fade-in-out">
           <div className="flex items-center justify-center text-green-800">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium">
-              Los CVs han sido exitosamente enviados a analizar. Por favor espere unos minutos.
-            </span>
+            <CheckCircleIcon className="w-6 h-6 mr-3 text-green-600" />
+            <div className="text-left">
+              <p className="text-sm font-semibold text-green-800">¡Análisis iniciado!</p>
+              <p className="text-xs text-green-600 mt-1">
+                Los CVs han sido enviados a analizar. Por favor espere unos minutos.
+              </p>
+            </div>
           </div>
         </div>
       )}
