@@ -12,6 +12,7 @@ export interface UpdatePayload {
   };
   contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
   additional_requirements?: string;
+  job_location?: string;
 }
 
 export const useUpdateJobPostingData = () => {
