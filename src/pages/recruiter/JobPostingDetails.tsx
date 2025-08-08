@@ -245,7 +245,7 @@ const JobPostingDetails = () => {
 
           {/* Descripción y Candidatos */}
           <div className="flex flex-row gap-8">
-            <div className="flex-[2] min-w-0">
+            <div className="flex-[2] min-w-0 w-full overflow-hidden">
               <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-800">
                 <BriefcaseIcon className="h-6 w-6" />
                 Descripción del Puesto
@@ -348,10 +348,10 @@ const JobPostingDetails = () => {
                     }}
                 />
               ) : !isDescriptionCollapsed ? (
-                  <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line">{jobToShow.description}</p>
+                  <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-wrap break-all w-full max-w-full overflow-hidden">{jobToShow.description}</p>
               ) : (
                   <div className="relative">
-                    <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-line max-h-80 overflow-hidden">{jobToShow.description}</p>
+                    <p className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 whitespace-pre-wrap break-all w-full max-w-full max-h-80 overflow-hidden">{jobToShow.description}</p>
                     <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-8 rounded-b-2xl" style={{ background: 'linear-gradient(to bottom, rgba(239,246,255,0) 0%, rgba(239,246,255,1) 100%)' }} />
                   </div>
               )}
