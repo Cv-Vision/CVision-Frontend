@@ -3,11 +3,10 @@ import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { signUp } from '@/services/AuthService.ts';
 
-const Register = () => {
+const RecruiterRegisterForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
-    const role: 'recruiter' = 'recruiter'; // Exclusively recruiter
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -29,7 +28,7 @@ const Register = () => {
         }
 
         try {
-            await signUp({ username, email, password, role }); // Pass recruiter role
+            await signUp({ username, email, password }); // Pass recruiter role
             navigate('/confirm', { state: { username } }); // Redirige y pasa username
         } catch (err: any) {
             setError(err.message);
@@ -135,4 +134,4 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default RecruiterRegisterForm;

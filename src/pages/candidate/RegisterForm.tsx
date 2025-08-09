@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { CandidateProfile } from "../../types/candidate.ts";
+import { CandidateProfile } from "@/types/candidate.ts";
 import BasicInfoSection from "../../components/candidate/BasicInfoSection.tsx";
 import WorkExperienceSection from "../../components/candidate/WorkExperienceSection.tsx";
 import EducationSection from "../../components/candidate/EducationSection.tsx";
 import { v4 as uuidv4 } from "uuid";
 
-const RegisterForm = () => {
+const CandidateRegisterForm = () => {
     const [profile, setProfile] = useState<CandidateProfile>({
         basicInfo: { email: "", password: "", fullName: "" },
         workExperience: [],
@@ -65,7 +65,7 @@ const RegisterForm = () => {
 
     const handleSubmit = () => {
         console.log("Perfil guardado:", profile);
-        // Aquí podrías hacer un POST al backend
+        // TODO: integrar con backend. Basarse en recruiter/RegisterForm.tsx
     };
 
     return (
@@ -86,4 +86,4 @@ const RegisterForm = () => {
     );
 };
 
-export default RegisterForm;
+export default CandidateRegisterForm;
