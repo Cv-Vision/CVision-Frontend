@@ -28,7 +28,7 @@ const RecruiterRegisterForm = () => {
         }
 
         try {
-            await signUp({ username, email, password }); // Pass recruiter role
+            await signUp({ username, email, password, userType: 'recruiter' });
             navigate('/confirm', { state: { username } }); // Redirige y pasa username
         } catch (err: any) {
             setError(err.message);
@@ -44,10 +44,10 @@ const RecruiterRegisterForm = () => {
                     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg mb-6">
                         <UserPlusIcon className="h-10 w-10 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-2">
-                        Crear Cuenta de Reclutador
+                    <h1 className="text-3xl font-extrabold text-gray-800 text-center mb-2">
+                        Crear cuenta de reclutador
                     </h1>
-                    <p className="text-gray-600 text-center text-sm">
+                    <p className="text-gray-600 text-center text-sm leading-relaxed">
                         Únete como reclutador a nuestra plataforma
                     </p>
                 </div>

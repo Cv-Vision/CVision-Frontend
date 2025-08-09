@@ -7,8 +7,8 @@ interface FormSectionProps {
 
 const FormSection: FC<FormSectionProps> = ({ title, children }) => {
     return (
-        <section className="bg-blue-50 p-6 rounded-xl shadow-sm w-full">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">{title}</h2>
+        <section className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 shadow-sm w-full">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{title}</h2>
             <div className="flex flex-col gap-4">{children}</div>
         </section>
     );

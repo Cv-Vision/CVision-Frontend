@@ -7,8 +7,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  // Ocultar navbar en login y register
-  if (location.pathname === '/login' || location.pathname === '/register') {
+  // Ocultar navbar solo en login
+  if (location.pathname === '/login') {
     return null;
   }
 
@@ -61,7 +61,7 @@ const Navbar = () => {
               CVision
             </h1>
           </div>
-          {isAuthenticated && user && (
+          {isAuthenticated && user && user.role === 'recruiter' && (
             <>
               <button onClick={() => navigate('/recruiter/create-job')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
                 Crear puesto
@@ -77,7 +77,7 @@ const Navbar = () => {
         {/* Botón Mi perfil a la derecha, antes de cerrar sesión */}
         {isAuthenticated && user && (
           <div className="flex items-center ml-4">
-            <button onClick={() => navigate('/perfil-reclutador')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
+            <button onClick={() => navigate(user.role === 'candidate' ? '/perfil-candidato' : '/perfil-reclutador')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
               Mi perfil
             </button>
           </div>

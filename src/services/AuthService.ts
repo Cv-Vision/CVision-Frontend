@@ -6,6 +6,7 @@ interface SignUpParams {
   username: string;
   password: string;
   email: string;
+  userType?: 'candidate' | 'recruiter';
 }
 
 interface ConfirmSignUpParams {
@@ -18,7 +19,7 @@ interface SignInParams {
   password: string;
 }
 
-export async function signUp({ username, password, email }: SignUpParams) {
+export async function signUp({ username, password, email, userType }: SignUpParams) {
   const response = await fetch(COGNITO_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -34,6 +35,14 @@ export async function signUp({ username, password, email }: SignUpParams) {
           Name: 'email',
           Value: email,
         },
+        ...(userType
+          ? [
+              {
+                Name: 'custom:userType',
+                Value: userType,
+              },
+            ]
+          : []),
       ],
     }),
   });

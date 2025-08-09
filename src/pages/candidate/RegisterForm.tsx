@@ -4,8 +4,11 @@ import BasicInfoSection from "../../components/candidate/BasicInfoSection.tsx";
 import WorkExperienceSection from "../../components/candidate/WorkExperienceSection.tsx";
 import EducationSection from "../../components/candidate/EducationSection.tsx";
 import { v4 as uuidv4 } from "uuid";
+import { signUp } from '@/services/AuthService.ts';
+import { useNavigate } from 'react-router-dom';
 
 const CandidateRegisterForm = () => {
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<CandidateProfile>({
         basicInfo: { email: "", password: "", fullName: "" },
         workExperience: [],
@@ -63,24 +66,32 @@ const CandidateRegisterForm = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Perfil guardado:", profile);
-        // TODO: integrar con backend. Basarse en recruiter/RegisterForm.tsx
+    const handleSubmit = async () => {
+        const { email, password } = profile.basicInfo;
+        const username = profile.basicInfo.fullName || email;
+        try {
+            await signUp({ username, email, password, userType: 'candidate' });
+            navigate('/confirm', { state: { username } });
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
-        <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10 px-4">
-            <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-8 flex flex-col gap-8">
-                <h1 className="text-3xl font-extrabold text-gray-800 text-center">Crear Perfil de Candidato</h1>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-200 flex flex-col items-center py-10 px-4">
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl max-w-4xl w-full p-8 border border-white/20 flex flex-col gap-8">
+                <h1 className="text-3xl font-extrabold text-gray-800 text-center">Crear perfil de candidato</h1>
                 <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-                <button
-                    onClick={handleSubmit}
-                    className="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition font-semibold text-lg"
-                >
-                    Guardar Perfil
-                </button>
+                <div className="flex justify-end">
+                    <button
+                        onClick={handleSubmit}
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 font-semibold text-base"
+                    >
+                        Crear cuenta
+                    </button>
+                </div>
             </div>
         </div>
     );

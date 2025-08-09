@@ -3,12 +3,13 @@ import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { useAuth } from "@/context/AuthContext.tsx";
+import { decodeJwtPayload, CognitoIdTokenPayload } from '@/utils/jwt.ts';
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
+  // El rol ahora se deriva del token de Cognito (custom:userType)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -28,15 +29,21 @@ const Login = () => {
         throw new Error("No se pudo obtener el token de sesión");
       }
 
-      const userData = { email, role, token };
+      const payload = decodeJwtPayload<CognitoIdTokenPayload>(token);
+      const derivedRole = (payload?.['custom:userType'] as 'candidate' | 'recruiter' | undefined) ?? undefined;
+
+      const userData = { email, role: derivedRole, token };
       if (login) {
         login(userData);
       }
 
-      if (role === 'candidate') {
+      if (derivedRole === 'candidate') {
         navigate('/candidate/dashboard');
-      } else {
+      } else if (derivedRole === 'recruiter') {
         navigate('/recruiter/dashboard');
+      } else {
+        // Sin rol válido, redirigimos a home o a una página neutra
+        navigate('/');
       }
     } catch (err: any) {
       console.error("Error al hacer login:", err);
@@ -62,26 +69,7 @@ const Login = () => {
         </div>
 
         <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 ml-1">
-              Tipo de usuario
-            </label>
-            <div className="relative">
-              <select
-                className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer pr-10"
-                value={role}
-                onChange={e => setRole(e.target.value as 'candidate' | 'recruiter')}
-              >
-                <option value="candidate" className="py-2">👤 Candidato</option>
-                <option value="recruiter" className="py-2">🏢 Reclutador</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          {/* El tipo de usuario ahora se infiere desde el token de Cognito */}
 
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700 ml-1">

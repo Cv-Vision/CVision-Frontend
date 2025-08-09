@@ -11,13 +11,13 @@ interface FormInputProps {
 const FormInput: FC<FormInputProps> = ({ label, type = "text", value, onChange, placeholder }) => {
     return (
         <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm font-semibold text-gray-700">{label}</label>
+            <label className="text-sm font-medium text-gray-700 ml-1">{label}</label>
             <input
                 type={type}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+                className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
             />
         </div>
     );

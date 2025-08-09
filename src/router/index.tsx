@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import Home from '../pages/Home';
+import Landing from '../pages/Landing';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import CandidateDashboard from '../pages/candidate/Dashboard';
@@ -22,7 +22,7 @@ import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />

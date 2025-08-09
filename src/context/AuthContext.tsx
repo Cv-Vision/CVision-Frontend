@@ -5,7 +5,7 @@ interface User {
   email?: string;
   name?: string;
   company?: string;
-  role?: string;
+  role?: 'candidate' | 'recruiter';
   token?: string;
   [key: string]: any;
 }
