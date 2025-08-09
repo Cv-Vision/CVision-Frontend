@@ -15,6 +15,7 @@ import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 //import JobDetailsPage from '../pages/recruiter/JobDetailsPage';
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
+import RegisterForm from '../pages/candidate/RegisterForm.tsx';
 
 
 export function AppRouter() {
@@ -22,8 +23,11 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+
       <Route path="/register" element={<Register />} />
+
       <Route path="/confirm" element={<ConfirmAccount />} />
+        <Route path="/candidateSignUp" element={<RegisterForm />} />
       <Route path="/candidate/dashboard" element={
         <ProtectedRoute requiredRole="candidate">
           <CandidateDashboard />
