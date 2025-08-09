@@ -1,12 +1,23 @@
 import { useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 
+export type CreateJobPayload = {
+  title: string;
+  description: string;
+  experience_level?: 'JUNIOR' | 'SEMISENIOR' | 'SENIOR';
+  english_level?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED';
+  industry_experience?: { required: boolean; industry?: string };
+  contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
+  additional_requirements?: string;
+  job_location?: string;
+};
+
 export function useCreateJobForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const createJob = async ({ title, description }: { title: string; description: string }) => {
+  const createJob = async (payload: CreateJobPayload) => {
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
@@ -17,8 +28,8 @@ export function useCreateJobForm() {
 
       const response = await fetchWithAuth('https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job', {
         method: 'POST',
-        body: JSON.stringify({ title, description }),
-        headers: { Authorization: `Bearer ${token}` }
+        body: JSON.stringify(payload),
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {

@@ -7,6 +7,15 @@ export type Job = {
   company: string;
   questions: string[];
   status: string;
+  experience_level?: string;
+  english_level?: string;
+  contract_type?: string;
+  location?: string;
+  industry_experience?: {
+    required: boolean;
+    industry?: string;
+  };
+  additional_requirements?: string;
 };
 
 export type Application = {
