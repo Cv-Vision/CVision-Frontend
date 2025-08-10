@@ -99,10 +99,10 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
   };
 
   return (
-    <div className="w-full min-h-[200px] relative">
+    <div className="w-full min-h-[150px] relative">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm
+        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center backdrop-blur-sm
           ${isDragActive
           ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105'
           : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
@@ -114,7 +114,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30'
             : 'bg-gradient-to-br from-blue-400 to-blue-500 shadow-md shadow-blue-400/20'
         }`}>
-          <DocumentArrowUpIcon className="h-12 w-12 text-white" />
+          <DocumentArrowUpIcon className="h-8 w-8 text-white" />
         </div>
         <p className="mt-2 text-base font-medium text-gray-700">
           {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
