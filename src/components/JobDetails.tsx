@@ -3,9 +3,10 @@ import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 interface JobRequirements {
   seniority: 'Junior' | 'Mid' | 'Senior';
-  englishLevel: 'Básico' | 'Intermedio' | 'Avanzado' | 'Nativo';
+  englishLevel: 'No requerido' | 'Básico' | 'Intermedio' | 'Avanzado' | 'Nativo';
   contractType: 'Full-time' | 'Part-time' | 'Freelance';
   additionalRequirements?: string;
+  location?: string;
 }
 
 interface JobDetailsProps {
@@ -171,6 +172,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
                 onChange={(e) => setRequirements(prev => ({ ...prev, englishLevel: e.target.value as JobRequirements['englishLevel'] }))}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
               >
+                <option value="No requerido">No requerido</option>
                 <option value="Básico">Básico</option>
                 <option value="Intermedio">Intermedio</option>
                 <option value="Avanzado">Avanzado</option>
@@ -207,6 +209,19 @@ const JobDetails: React.FC<JobDetailsProps> = ({
                 placeholder="Ingrese requisitos adicionales..."
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ubicación
+              </label>
+              <input
+                type="text"
+                value={requirements.location || ''}
+                onChange={(e) => setRequirements(prev => ({ ...prev, location: e.target.value }))}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                placeholder="Ingrese la ubicación del puesto..."
+              />
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -226,6 +241,12 @@ const JobDetails: React.FC<JobDetailsProps> = ({
               <div>
                 <span className="text-sm font-medium text-gray-700">Requisitos Adicionales:</span>
                 <p className="text-gray-900 whitespace-pre-wrap">{requirements.additionalRequirements}</p>
+              </div>
+            )}
+            {requirements.location && (
+              <div>
+                <span className="text-sm font-medium text-gray-700">Ubicación:</span>
+                <p className="text-gray-900">{requirements.location}</p>
               </div>
             )}
           </div>

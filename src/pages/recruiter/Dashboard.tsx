@@ -32,7 +32,6 @@ const RecruiterDashboard = () => {
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full p-10 flex flex-col items-center">
         <div className="relative mb-6">
           <UserIcon className="h-16 w-16 text-blue-600 mb-4" />
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse"></div>
         </div>
         <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-8 text-center">
           Panel de Reclutador
@@ -42,16 +41,12 @@ const RecruiterDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-10">
           <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
             <div className="relative mb-4">
-              <BriefcaseIcon className="h-10 w-10 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
             </div>
             <p className="text-3xl font-bold text-blue-800 mb-2">{totalActiveJobs}</p>
             <p className="text-sm text-blue-600 font-medium">Publicaciones Activas</p>
           </div>
           <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 hover:border-blue-200 group">
             <div className="relative mb-4">
-              <UsersIcon className="h-10 w-10 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full animate-pulse"></div>
             </div>
             <p className="text-3xl font-bold text-blue-800 mb-2">
               {candidatesLoading ? '...' : totalCandidates}

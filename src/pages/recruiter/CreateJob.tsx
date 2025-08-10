@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
-import { useCreateJobForm } from '@/hooks/useCreateJobForm.ts';
-import { BriefcaseIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts';
+import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
 
 export default function CreateJob() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [seniority, setSeniority] = useState<'Junior' | 'Mid' | 'Senior' | ''>('');
+  const [englishLevel, setEnglishLevel] = useState<'No requerido' | 'Básico' | 'Intermedio' | 'Avanzado' | 'Nativo' | ''>('');
+  const [industryRequired, setIndustryRequired] = useState(false);
+  const [industryText, setIndustryText] = useState('');
+  const [contractType, setContractType] = useState<'Full-time' | 'Part-time' | 'Freelance' | 'Temporal' | ''>('');
+  const [additionalRequirements, setAdditionalRequirements] = useState('');
+  const [jobLocation, setJobLocation] = useState('');
+
   const navigate = useNavigate();
 
   const {
@@ -16,20 +25,42 @@ export default function CreateJob() {
     success
   } = useCreateJobForm();
 
-  // Prevenir scroll en toda la página
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
-    };
-  }, []);
+  // Removed overflow blocking to allow vertical scrolling
+  // useEffect(() => {
+  //   document.body.style.overflow = 'hidden';
+  //   document.documentElement.style.overflow = 'hidden';
+  //   return () => {
+  //     document.body.style.overflow = 'unset';
+  //     document.documentElement.style.overflow = 'unset';
+  //   };
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createJob({ title, description });
+
+    const payload: CreateJobPayload = {
+      title,
+      description,
+    };
+
+    if (seniority) {
+      const mapped = mapSeniorityToExperienceLevel(seniority);
+      if (mapped) payload.experience_level = mapped as CreateJobPayload['experience_level'];
+    }
+    if (englishLevel) {
+      const mapped = mapEnglishLevelToAPI(englishLevel);
+      if (mapped) payload.english_level = mapped as CreateJobPayload['english_level'];
+    }
+    if (contractType) {
+      const mapped = mapContractTypeToAPI(contractType);
+      if (mapped) payload.contract_type = mapped as CreateJobPayload['contract_type'];
+    }
+
+    payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText : undefined };
+    if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
+    if (jobLocation.trim()) payload.job_location = jobLocation.trim();
+
+    await createJob(payload);
   };
 
   // Navigate to job postings list when creation succeeds
@@ -40,7 +71,7 @@ export default function CreateJob() {
   }, [success, navigate]);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
       <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
         <BackButton />
         
@@ -48,7 +79,6 @@ export default function CreateJob() {
         <div className="flex items-center gap-6 mb-10">
           <div className="relative">
             <BriefcaseIcon className="h-12 w-12 text-blue-600" />
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
             Crear Nuevo Puesto
@@ -84,6 +114,110 @@ export default function CreateJob() {
               placeholder="Describe las responsabilidades, requisitos y beneficios del puesto..."
               required
             />
+          </div>
+
+          {/* Nota sobre campos opcionales */}
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/60">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
+                <InformationCircleIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="text-sm text-blue-800">
+                <p className="font-semibold">Campos opcionales</p>
+                <p>Estos campos son opcionales, pero es recomendado completarlos para facilitar que los candidatos encuentren el puesto y mejorar la calidad de las coincidencias.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Requisitos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-blue-800 mb-1">Seniority</label>
+              <select
+                value={seniority}
+                onChange={e => setSeniority(e.target.value as any)}
+                className="w-full text-sm border-2 border-blue-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-blue-300"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Junior">Junior</option>
+                <option value="Mid">Mid</option>
+                <option value="Senior">Senior</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-green-800 mb-1">Nivel de Inglés</label>
+              <select
+                value={englishLevel}
+                onChange={e => setEnglishLevel(e.target.value as any)}
+                className="w-full text-sm border-2 border-green-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-green-400 focus:ring-2 focus:ring-green-100 focus:outline-none transition-all duration-200 hover:border-green-300"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="No requerido">No requerido</option>
+                <option value="Básico">Básico</option>
+                <option value="Intermedio">Intermedio</option>
+                <option value="Avanzado">Avanzado</option>
+                <option value="Nativo">Nativo</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-purple-800 mb-1">Tipo de Contrato</label>
+              <select
+                value={contractType}
+                onChange={e => setContractType(e.target.value as any)}
+                className="w-full text-sm border-2 border-purple-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all duration-200 hover:border-purple-300"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Temporal">Temporal</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-orange-800 mb-1">Ubicación del Puesto</label>
+              <input
+                type="text"
+                value={jobLocation}
+                onChange={e => setJobLocation(e.target.value)}
+                className="w-full text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
+                placeholder="Ej: Buenos Aires, Madrid..."
+              />
+            </div>
+          </div>
+
+          {/* Industria y adicionales */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-indigo-800 mb-1">Experiencia en Industria</label>
+              <div className="flex items-center gap-3 mb-2">
+                <input
+                  type="checkbox"
+                  checked={industryRequired}
+                  onChange={e => setIndustryRequired(e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-2 border-indigo-300 rounded focus:ring-2 focus:ring-indigo-100 focus:ring-offset-0"
+                />
+                <span className="text-sm text-indigo-900 font-medium">Requerida</span>
+              </div>
+              {industryRequired && (
+                <input
+                  type="text"
+                  value={industryText}
+                  onChange={e => setIndustryText(e.target.value)}
+                  className="w-full text-sm border-2 border-indigo-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all duration-200 hover:border-indigo-300"
+                  placeholder="Industria específica"
+                />
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-blue-800 mb-1">Requisitos Adicionales</label>
+              <textarea
+                value={additionalRequirements}
+                onChange={e => setAdditionalRequirements(e.target.value)}
+                className="w-full text-sm border-2 border-blue-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-blue-300 resize-none"
+                rows={3}
+                placeholder="Escribe requisitos adicionales..."
+              />
+            </div>
           </div>
 
           {/* Error Message */}
