@@ -18,6 +18,8 @@ const JobPostings: React.FC = () => {
   const {updateJobPostingData} = useUpdateJobPostingData();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
 
   // Prevenir scroll en toda la página
   useEffect(() => {
@@ -38,13 +40,21 @@ const JobPostings: React.FC = () => {
 
   const handleView = (id: number) => nav(`/recruiter/job/${id}/analysis`);
   const handleEdit = (id: number) => nav(`/recruiter/edit-job/${id}`);
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setJobToDelete(id);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!jobToDelete) return;
     try {
-      await updateJobPostingData(id, {status: 'DELETED'});
+      await updateJobPostingData(jobToDelete, { status: 'DELETED' });
       refetch(true);
     } catch (err) {
       console.error('Error al eliminar:', err);
     }
+    setShowConfirm(false);
+    setJobToDelete(null);
   };
 
   const filteredJobs = useMemo(() => {
@@ -261,6 +271,37 @@ const JobPostings: React.FC = () => {
                       })
                     )} />
                 </div>
+            )}
+            {showConfirm && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-gray-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="p-2 rounded-full bg-red-100">
+                      <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900">Confirmar eliminación</h3>
+                  </div>
+                  <p className="text-gray-600 mb-6">
+                    ¿Estás seguro de que quieres eliminar este puesto? Esta acción no se puede deshacer.
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 font-medium"
+                      onClick={() => setShowConfirm(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold flex items-center space-x-2"
+                      onClick={confirmDelete}
+                    >
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
