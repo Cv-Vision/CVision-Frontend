@@ -23,14 +23,18 @@ const JobPostings: React.FC = () => {
 
   // Prevenir scroll en toda la página
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
+    if (showConfirm) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    }
     return () => {
       document.body.style.overflow = 'unset';
       document.documentElement.style.overflow = 'unset';
     };
-  }, []);
+  }, [showConfirm]);
 
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
 
