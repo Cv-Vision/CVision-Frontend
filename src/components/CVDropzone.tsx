@@ -116,14 +116,14 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         }`}>
           <DocumentArrowUpIcon className="h-12 w-12 text-white" />
         </div>
-        <p className="mt-2 text-base font-medium text-gray-700">
-          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
+        <p className="text-sm font-medium text-gray-700">
+          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí'}
         </p>
-        <p className="mt-2 text-sm text-gray-500">Solo PDF, PNG, JPG, ZIP - máximo 5MB por archivo</p>
+        <p className="mt-1 text-xs text-gray-500">PDF, PNG, JPG, ZIP (máx. 5MB)</p>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); open(); }}
-          className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-sm"
         >
           Seleccionar archivos
         </button>
@@ -131,45 +131,52 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
 
       {files.length > 0 && (
         <div className="mt-6 space-y-3">
-          <h4 className="text-lg font-semibold text-gray-800 mb-4">Archivos seleccionados:</h4>
-          {files.map((file, index) => (
-            <div
-              key={`${file.name}-${index}`}
-              className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200">
-                  <DocumentArrowUpIcon className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700">{file.name}</span>
-                  <span className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-                {uploadProgress[file.name] === 100 && (
-                  <div className="p-1 rounded-full bg-green-100">
-                    <span className="text-green-600 text-sm font-bold">✓</span>
-                  </div>
-                )}
-                {uploadProgress[file.name] === -1 && (
-                  <div className="p-1 rounded-full bg-red-100">
-                    <span className="text-red-600 text-sm font-bold">✗</span>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => handleRemove(index)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
-                disabled={uploading}
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold text-gray-800">Archivos seleccionados:</h4>
+            <span className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              {files.length} archivo{files.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="max-h-[200px] overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
+            {files.map((file, index) => (
+              <div
+                key={`${file.name}-${index}`}
+                className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
               >
-                <XMarkIcon className="h-5 w-5" />
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex-shrink-0">
+                    <DocumentArrowUpIcon className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm font-medium text-gray-700 truncate">{file.name}</span>
+                    <span className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                  </div>
+                  {uploadProgress[file.name] === 100 && (
+                    <div className="p-1 rounded-full bg-green-100 flex-shrink-0">
+                      <span className="text-green-600 text-sm font-bold">✓</span>
+                    </div>
+                  )}
+                  {uploadProgress[file.name] === -1 && (
+                    <div className="p-1 rounded-full bg-red-100 flex-shrink-0">
+                      <span className="text-red-600 text-sm font-bold">✗</span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleRemove(index)}
+                  className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300 flex-shrink-0 ml-2"
+                  disabled={uploading}
+                >
+                  <XMarkIcon className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
 
           <button
             onClick={handleUpload}
             disabled={uploading || files.length === 0}
-            className={`mt-6 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 shadow-md
+            className={`mt-4 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 shadow-md
               ${uploading || files.length === 0
               ? 'bg-gradient-to-r from-gray-300 to-gray-400 cursor-not-allowed shadow-none'
               : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transform hover:scale-[1.02]'

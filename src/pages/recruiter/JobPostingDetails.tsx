@@ -8,7 +8,7 @@ import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
 import BackButton from '@/components/BackButton';
-import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CandidateList from '@/components/CandidateList';
 import ExtraRequirementsForm, { ExtraRequirements } from '@/components/ExtraRequirementsForm';
 import axios from 'axios';
@@ -43,6 +43,30 @@ const JobPostingDetails = () => {
   const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showExtraRequirements, setShowExtraRequirements] = useState(false);
+
+  // Funciones para manejar el estado de los filtros
+  const hasActiveFilters = () => {
+    if (!extraRequirements) return false;
+    return (
+      extraRequirements.freeText.trim() !== '' ||
+      extraRequirements.seniority.length > 0 ||
+      extraRequirements.englishLevel !== '' ||
+      (extraRequirements.industryRequired && extraRequirements.industryText.trim() !== '') ||
+      extraRequirements.contractTypes.length > 0
+    );
+  };
+
+  const getActiveFiltersCount = () => {
+    if (!extraRequirements) return 0;
+    let count = 0;
+    if (extraRequirements.freeText.trim() !== '') count++;
+    if (extraRequirements.seniority.length > 0) count++;
+    if (extraRequirements.englishLevel !== '') count++;
+    if (extraRequirements.industryRequired && extraRequirements.industryText.trim() !== '') count++;
+    if (extraRequirements.contractTypes.length > 0) count++;
+    return count;
+  };
 
   const cleanJobId = job?.pk?.replace(/^JD#/, '') || '';
   const { refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
@@ -341,7 +365,7 @@ const JobPostingDetails = () => {
                 <UsersIcon className="h-6 w-6" />
                 Candidatos
               </h2>
-              <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 overflow-hidden" style={{ maxHeight: '420px', overflowY: 'auto' }}>
                 <CandidateList jobId={cleanJobId} />
               </div>
             </div>
@@ -375,45 +399,46 @@ const JobPostingDetails = () => {
         {/* Panel derecho */}
         <div className="w-full max-w-xs bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-2xl border border-white/20 self-start space-y-6 min-h-fit">
           <div>
-            <h2 className="text-lg font-semibold mb-4 text-blue-800">Métricas de análisis</h2>
-            {analysisLoading ? (
-                <div className="flex justify-center items-center h-16">
-                  <div className="inline-flex items-center gap-3 text-blue-600">
-                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm">Cargando...</span>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-blue-800">Cargar CVs</h2>
+              <button
+                onClick={() => setShowExtraRequirements(true)}
+                className={`px-4 py-2 rounded-xl text-white font-medium transition-all duration-300 flex items-center gap-2 text-sm ${
+                  hasActiveFilters() 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                    : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
+                } hover:scale-105 shadow-md hover:shadow-lg`}
+              >
+                <AdjustmentsHorizontalIcon className={`h-4 w-4 ${hasActiveFilters() ? 'animate-pulse' : ''}`} />
+                {hasActiveFilters() ? (
+                  <div className="flex items-center gap-2">
+                    <span>Filtros</span>
+                    <span className="bg-green-400 text-white text-xs px-1.5 py-0.5 rounded-full">{getActiveFiltersCount()}</span>
                   </div>
-                </div>
-            ) : analysisError ? (
-                <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
-            ) : (
-                <CVAnalysisMetricsSummary results={analysisResults} />
-            )}
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold mb-4 text-blue-800">Cargar nuevos CVs</h2>
+                ) : (
+                  'Filtros'
+                )}
+              </button>
+            </div>
             {!canAddCVs ? (
                 <p className="text-blue-600 text-sm p-3 bg-blue-50 rounded-xl border border-blue-200">No se pueden agregar CVs en este estado.</p>
             ) : (
                 <div className="space-y-4">
                   {/* Notificación de éxito mejorada */}
                   {uploadSuccessMessage && (
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-green-100 flex-shrink-0">
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-green-800 font-semibold">{uploadSuccessMessage}</p>
-                          <p className="text-green-600 text-sm">Los archivos se han subido correctamente.</p>
-                        </div>
+                        <p className="text-green-800 text-sm font-medium flex-1">{uploadSuccessMessage}</p>
                         <button 
                           onClick={() => setUploadSuccessMessage(null)}
-                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
+                          className="text-green-400 hover:text-green-600 transition-colors duration-200"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
@@ -423,22 +448,19 @@ const JobPostingDetails = () => {
 
                   {/* Notificación de error mejorada */}
                   {uploadError && (
-                    <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-red-100 flex-shrink-0">
+                          <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-red-800 font-semibold">Error al subir archivos</p>
-                          <p className="text-red-600 text-sm break-words">{uploadError}</p>
-                        </div>
+                        <p className="text-red-800 text-sm font-medium flex-1">{uploadError}</p>
                         <button 
                           onClick={() => setUploadError(null)}
-                          className="text-red-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
+                          className="text-red-400 hover:text-red-600 transition-colors duration-200"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
@@ -489,7 +511,7 @@ const JobPostingDetails = () => {
                         jobId={job.pk.startsWith('JD#') ? job.pk : `JD#${job.pk}`}
                         onUploadComplete={(keys) => {
                           setUploadError(null);
-                          setUploadSuccessMessage('CVs subidos exitosamente');
+                          setUploadSuccessMessage('¡CVs subidos!');
                           setRecentlyUploadedCvs(keys);
                           setShowUploadNotification(true);
                         }}
@@ -506,23 +528,6 @@ const JobPostingDetails = () => {
 
           <div>
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-              <ExtraRequirementsForm onChange={setExtraRequirements} />
-            </div>
-            <button
-                onClick={handleUpdateJob}
-                disabled={!canEditFields}
-                className={`w-full mt-4 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 ${
-                  !canEditFields 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105 shadow-lg hover:shadow-xl'
-                }`}
-            >
-              Actualizar requisitos del puesto
-            </button>
-          </div>
-
-          <div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
               <AnalysisButton
                   jobId={job.pk}
                   extraRequirements={extraRequirements}
@@ -534,8 +539,83 @@ const JobPostingDetails = () => {
                   }}
               />
             </div>
+
+            <div className="mt-4">
+              <h2 className="text-lg font-semibold mb-4 text-blue-800">Métricas de análisis</h2>
+              {analysisLoading ? (
+                  <div className="flex justify-center items-center h-16">
+                    <div className="inline-flex items-center gap-3 text-blue-600">
+                      <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm">Cargando...</span>
+                    </div>
+                  </div>
+              ) : analysisError ? (
+                  <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
+              ) : analysisResults.length === 0 ? (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
+                    <div className="flex flex-col items-center text-center gap-3">
+                      <div className="p-3 rounded-full bg-blue-100">
+                        <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
+                        <p className="text-blue-600 text-sm">Para ver métricas, iniciá un análisis</p>
+                      </div>
+                    </div>
+                  </div>
+              ) : (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                    <CVAnalysisMetricsSummary results={analysisResults} />
+                  </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Panel deslizable de requisitos extra */}
+        <div className={`fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showExtraRequirements ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="h-full flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-blue-800">Requisitos Extra</h2>
+              <button
+                onClick={() => setShowExtraRequirements(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all duration-300"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              <ExtraRequirementsForm onChange={setExtraRequirements} />
+            </div>
+
+            <div className="p-6 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  handleUpdateJob();
+                  setShowExtraRequirements(false);
+                }}
+                disabled={!canEditFields}
+                className={`w-full px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 ${
+                  !canEditFields 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105 shadow-lg hover:shadow-xl'
+                }`}
+              >
+                Guardar Requisitos
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Overlay oscuro cuando el panel está abierto */}
+        {showExtraRequirements && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40"
+            onClick={() => setShowExtraRequirements(false)}
+          />
+        )}
       </div>
   );
 };
