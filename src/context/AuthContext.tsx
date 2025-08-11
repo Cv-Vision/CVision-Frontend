@@ -1,11 +1,12 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserRole } from '../types/auth';
 
 interface User {
   email?: string;
   name?: string;
   company?: string;
-  role?: string;
+  role?: UserRole;
   token?: string;
   [key: string]: any;
 }
