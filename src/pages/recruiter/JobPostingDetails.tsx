@@ -226,24 +226,34 @@ const JobPostingDetails = () => {
         )}
         
         <div className="flex-1 w-full bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 space-y-4 relative">
-          {/* Status Selector - ABSOLUTE */}
-          <div className="absolute top-8 right-8 z-10">
+          {/* Status Selector con estilos */}
+          <div className="absolute top-8 right-8 z-10 flex flex-col items-end gap-2">
             <select
-                value={selectedStatus}
-                onChange={handleStatusChange}
-                disabled={!canChangeStatus || statusLoading}
-                className="border-2 border-blue-200 rounded-xl px-4 py-2 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+              value={selectedStatus}
+              onChange={handleStatusChange}
+              disabled={!canChangeStatus || statusLoading}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-lg border-2 transition-all duration-300 cursor-pointer
+      ${
+                selectedStatus === 'ACTIVE'
+                  ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                  : selectedStatus === 'INACTIVE'
+                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                    : selectedStatus === 'CANCELLED'
+                      ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              <option value="ACTIVE">Activo</option>
-              <option value="INACTIVE">Inactivo</option>
-              <option value="CANCELLED">Cancelado</option>
-              <option value="DELETED">Eliminado</option>
+              <option value="ACTIVE" className="text-green-700 font-semibold">Activo</option>
+              <option value="INACTIVE" className="text-yellow-700 font-semibold">Inactivo</option>
+              <option value="CANCELLED" className="text-red-700 font-semibold">Cancelado</option>
+              <option value="DELETED" className="text-gray-700 font-semibold">Eliminado</option>
             </select>
-            {statusError && <span className="text-red-500 text-xs mt-1">{statusError}</span>}
+
+            {statusError && <span className="text-red-500 text-xs">{statusError}</span>}
             {showSuccess && (
-                <div className="absolute top-12 right-0 bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-xl shadow-lg text-sm animate-fade-in-out z-50">
-                  Estado actualizado correctamente.
-                </div>
+              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-xl shadow-lg text-sm animate-fade-in-out">
+                Estado actualizado correctamente.
+              </div>
             )}
           </div>
 
