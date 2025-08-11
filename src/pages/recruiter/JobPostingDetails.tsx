@@ -13,6 +13,7 @@ import CandidateList from '@/components/CandidateList';
 import JobRequirementsDisplay from '@/components/JobRequirementsDisplay';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
+import ToastNotification from "@/components/ToastNotification.tsx";
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
@@ -38,12 +39,8 @@ const JobPostingDetails = () => {
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
   const [requirementsUpdateSuccess, setRequirementsUpdateSuccess] = useState<string | null>(null);
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
-  const [showUploadNotification, setShowUploadNotification] = useState(false);
-  const [recentlyUploadedCvs, setRecentlyUploadedCvs] = useState<string[]>([]);
+  const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
-
-  const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
-
   const [showSuccess, setShowSuccess] = useState(false);
   const [showExtraRequirements, setShowExtraRequirements] = useState(false);
 
@@ -138,30 +135,33 @@ const JobPostingDetails = () => {
     handleUpdateJob(updates);
   };
 
-  // Auto-dismiss upload notifications
-  useEffect(() => {
-    if (showUploadNotification) {
-      const timer = setTimeout(() => {
-        setShowUploadNotification(false);
-        setRecentlyUploadedCvs([]);
-      }, 5000); // 5 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [showUploadNotification]);
 
   // Auto-dismiss success message
   useEffect(() => {
     if (uploadSuccessMessage) {
+      setShowToast(true);
       const timer = setTimeout(() => {
         setUploadSuccessMessage(null);
       }, 4000); // 4 seconds
       return () => clearTimeout(timer);
     }
   }, [uploadSuccessMessage]);
+  
+  // Handle toast notification
+  useEffect(() => {
+    if (!showToast) return;
+    
+    const timer = setTimeout(() => {
+      setShowToast(false);
+    }, 2000); // 2 seconds as per requirements
+    
+    return () => clearTimeout(timer);
+  }, [showToast]);
 
   // Auto-dismiss error message
   useEffect(() => {
     if (uploadError) {
+      setShowToast(true);
       const timer = setTimeout(() => {
         setUploadError(null);
       }, 6000); // 6 seconds for errors
@@ -213,8 +213,18 @@ const JobPostingDetails = () => {
     </div>
   );
 
+
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 flex flex-row gap-8 items-start">
+        {/* Toast Notification for CV uploads */}
+        {showToast && (uploadSuccessMessage || uploadError) && (
+          <ToastNotification 
+            message={uploadSuccessMessage || uploadError || ""}
+            type={uploadSuccessMessage ? "success" : "error"}
+            onClose={() => setShowToast(false)}
+          />
+        )}
+        
         <div className="flex-1 w-full bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 space-y-4 relative">
           {/* Status Selector - ABSOLUTE */}
           <div className="absolute top-8 right-8 z-10">
@@ -450,93 +460,7 @@ const JobPostingDetails = () => {
                 <p className="text-blue-600 text-sm p-3 bg-blue-50 rounded-xl border border-blue-200">No se pueden agregar CVs en este estado.</p>
             ) : (
                 <div className="space-y-4">
-                  {/* Notificación de éxito mejorada */}
-                  {uploadSuccessMessage && (
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-green-800 font-semibold">{uploadSuccessMessage}</p>
-                          <p className="text-green-600 text-sm">Los archivos se han subido correctamente.</p>
-                        </div>
-                        <button 
-                          onClick={() => setUploadSuccessMessage(null)}
-                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Notificación de error mejorada */}
-                  {uploadError && (
-                    <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-red-800 font-semibold">Error al subir archivos</p>
-                          <p className="text-red-600 text-sm break-words">{uploadError}</p>
-                        </div>
-                        <button 
-                          onClick={() => setUploadError(null)}
-                          className="text-red-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notificación de CVs recién subidos */}
-                  {showUploadNotification && recentlyUploadedCvs.length > 0 && (
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm animate-fade-in-out">
-                      <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-blue-800 font-semibold mb-3">
-                            {recentlyUploadedCvs.length} CV{recentlyUploadedCvs.length > 1 ? 's' : ''} subido{recentlyUploadedCvs.length > 1 ? 's' : ''} recientemente:
-                          </p>
-                          <div className="space-y-2 max-h-40 overflow-y-auto">
-                            {recentlyUploadedCvs.map((key, index) => (
-                              <div key={key} className="flex items-center justify-between bg-white/70 rounded-lg p-3 border border-blue-100">
-                                <span className="text-blue-700 text-sm font-medium truncate flex-1 mr-2">
-                                  {getFileNameFromKey(key)}
-                                </span>
-                                <span className="text-blue-500 text-xs bg-blue-100 px-2 py-1 rounded-full flex-shrink-0">
-                                  #{index + 1}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => setShowUploadNotification(false)}
-                          className="text-blue-400 hover:text-blue-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
                   {requirementsUpdateSuccess && (
                     <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
@@ -564,16 +488,13 @@ const JobPostingDetails = () => {
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone
                         jobId={jobToShow.pk.startsWith('JD#') ? jobToShow.pk : `JD#${jobToShow.pk}`}
-                        onUploadComplete={(keys) => {
+                        onUploadComplete={() => {
                           setUploadError(null);
                           setUploadSuccessMessage('CVs subidos exitosamente');
-                          setRecentlyUploadedCvs(keys);
-                          setShowUploadNotification(true);
                         }}
                         onError={(errorMsg) => {
                           setUploadError(errorMsg);
                           setUploadSuccessMessage(null);
-                          setShowUploadNotification(false);
                         }}
                     />
                   </div>
