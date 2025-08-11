@@ -87,7 +87,7 @@ const JobPostings: React.FC = () => {
       <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
-            <BackButton/>
+            <BackButton to="/recruiter/dashboard" />
             
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
