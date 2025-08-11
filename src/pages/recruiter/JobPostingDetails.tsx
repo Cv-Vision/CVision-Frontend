@@ -440,7 +440,7 @@ const JobPostingDetails = () => {
                     </div>
                     <div>
                       <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
-                      <p className="text-blue-600 text-sm">Para ver métricas, hacé un análisis</p>
+                      <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
                     </div>
                   </div>
                 </div>
