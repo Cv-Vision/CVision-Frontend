@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Job, useJobs } from '../context/JobContext';
+import { Job, useJobs } from '../../context/JobContext.tsx';
 import { ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 interface ChatBoxProps {

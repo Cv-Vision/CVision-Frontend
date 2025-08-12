@@ -3,7 +3,7 @@ import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useNavigate } from 'react-router-dom';
 import { BriefcaseIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useMemo, useEffect } from 'react';
 

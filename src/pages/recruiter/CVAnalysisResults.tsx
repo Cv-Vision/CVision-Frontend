@@ -4,8 +4,8 @@ import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon } fro
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
-import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import Toast from '@/components/Toast';
+import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
+import Toast from '@/components/other/Toast.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
 // Extiendo el tipo para soportar created_at

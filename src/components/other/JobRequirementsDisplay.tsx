@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserIcon, LanguageIcon, BriefcaseIcon, MapPinIcon, BuildingOfficeIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { mapExperienceLevelToDisplay, mapEnglishLevelToDisplay, mapContractTypeToDisplay, mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
+import { mapExperienceLevelToDisplay, mapEnglishLevelToDisplay, mapContractTypeToDisplay, mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers.ts';
 
 interface JobRequirementsDisplayProps {
   job: {

@@ -7,7 +7,7 @@ import RecruiterDashboard from '../pages/recruiter/Dashboard';
 import { UploadCV } from '../pages/candidate/UploadCV';
 import { CandidateProfile } from '../pages/candidate/Profile';
 import { RecruiterProfile } from '../pages/recruiter/Profile';
-import { ProtectedRoute } from '../components/ProtectedRoute';
+import { ProtectedRoute } from '../components/other/ProtectedRoute.tsx';
 import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";

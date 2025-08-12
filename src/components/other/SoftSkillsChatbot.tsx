@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
-import { chatbotService } from '../services/chatbotService';
+import { chatbotService } from '../../services/chatbotService.ts';
 // import { useParams } from 'react-router-dom';
 
 interface Message {

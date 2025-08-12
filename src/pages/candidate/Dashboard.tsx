@@ -1,17 +1,8 @@
-import { UserIcon, BriefcaseIcon, ClipboardDocumentListIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
+import { UserIcon, BriefcaseIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import SoftSkillsChatbot from '../../components/SoftSkillsChatbot';
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
-  const [showChatbot, setShowChatbot] = useState(false);
-
-  const handleChatbotSubmit = (answers: string[]) => {
-    // TODO: Send answers to backend
-    console.log('Chatbot answers:', answers);
-    setShowChatbot(false);
-  };
 
   return (
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-2">
@@ -56,33 +47,9 @@ const CandidateDashboard = () => {
             </button>
           </div>
         </div>
-
-        <div className="flex flex-col gap-4 w-full max-w-md">
-          <button
-            className="bg-blue-500 text-white font-semibold px-8 py-3 rounded-xl shadow hover:bg-blue-700 transition-colors text-lg"
-            onClick={() => navigate('/candidate/positions')}
-          >
-            Ver posiciones disponibles
-          </button>
-
-          <button
-            className="bg-green-500 text-white font-semibold px-8 py-3 rounded-xl shadow hover:bg-green-700 transition-colors text-lg flex items-center justify-center gap-2"
-            onClick={() => setShowChatbot(true)}
-          >
-            <ChatBubbleLeftRightIcon className="h-6 w-6" />
-            Evaluar Habilidades Blandas
-          </button>
-        </div>
       </div>
-
-      {showChatbot && (
-        <SoftSkillsChatbot
-          onClose={() => setShowChatbot(false)}
-          onSubmit={handleChatbotSubmit}
-        />
-      )}
     </div>
   );
 };
 
-export default CandidateDashboard; 
+export default CandidateDashboard;

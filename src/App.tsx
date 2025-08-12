@@ -1,6 +1,6 @@
 import { AuthProvider } from './context/AuthContext.tsx';
 import { AppRouter } from './router';
-import { NavbarComponent } from './components/Navbar';
+import { NavbarComponent } from './components/other/Navbar.tsx';
 import { BrowserRouter } from 'react-router-dom';
 
 export function App() {

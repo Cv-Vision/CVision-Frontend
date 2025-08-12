@@ -1,19 +1,19 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
-import { CVDropzone } from '@/components/CVDropzone';
+import { CVDropzone } from '@/components/other/CVDropzone.tsx';
 import { useState, useEffect } from 'react';
-import AnalysisButton from '@/components/AnalysisButton';
+import AnalysisButton from '@/components/other/AnalysisButton.tsx';
 import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import CandidateList from '@/components/CandidateList';
-import JobRequirementsDisplay from '@/components/JobRequirementsDisplay';
+import CandidateList from '@/components/other/CandidateList.tsx';
+import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
-import ToastNotification from "@/components/ToastNotification.tsx";
+import ToastNotification from "@/components/other/ToastNotification.tsx";
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
