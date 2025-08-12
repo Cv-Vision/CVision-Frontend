@@ -8,11 +8,12 @@ import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
 import BackButton from '@/components/BackButton';
-import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CandidateList from '@/components/CandidateList';
 import JobRequirementsDisplay from '@/components/JobRequirementsDisplay';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
+import ToastNotification from "@/components/ToastNotification.tsx";
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
@@ -38,13 +39,15 @@ const JobPostingDetails = () => {
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
   const [requirementsUpdateSuccess, setRequirementsUpdateSuccess] = useState<string | null>(null);
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
-  const [showUploadNotification, setShowUploadNotification] = useState(false);
-  const [recentlyUploadedCvs, setRecentlyUploadedCvs] = useState<string[]>([]);
+  const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
-
-  const getFileNameFromKey = (key: string) => key.split('/').pop() || key;
-
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showExtraRequirements, setShowExtraRequirements] = useState(false);
+
+  const hasActiveRequirements = () => {
+    if (!extraRequirements) return false;
+    return Object.keys(extraRequirements).length > 0;
+  };
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
@@ -132,30 +135,33 @@ const JobPostingDetails = () => {
     handleUpdateJob(updates);
   };
 
-  // Auto-dismiss upload notifications
-  useEffect(() => {
-    if (showUploadNotification) {
-      const timer = setTimeout(() => {
-        setShowUploadNotification(false);
-        setRecentlyUploadedCvs([]);
-      }, 5000); // 5 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [showUploadNotification]);
 
   // Auto-dismiss success message
   useEffect(() => {
     if (uploadSuccessMessage) {
+      setShowToast(true);
       const timer = setTimeout(() => {
         setUploadSuccessMessage(null);
       }, 4000); // 4 seconds
       return () => clearTimeout(timer);
     }
   }, [uploadSuccessMessage]);
+  
+  // Handle toast notification
+  useEffect(() => {
+    if (!showToast) return;
+    
+    const timer = setTimeout(() => {
+      setShowToast(false);
+    }, 2000); // 2 seconds as per requirements
+    
+    return () => clearTimeout(timer);
+  }, [showToast]);
 
   // Auto-dismiss error message
   useEffect(() => {
     if (uploadError) {
+      setShowToast(true);
       const timer = setTimeout(() => {
         setUploadError(null);
       }, 6000); // 6 seconds for errors
@@ -207,27 +213,47 @@ const JobPostingDetails = () => {
     </div>
   );
 
+
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 flex flex-row gap-8 items-start">
+        {/* Toast Notification for CV uploads */}
+        {showToast && (uploadSuccessMessage || uploadError) && (
+          <ToastNotification 
+            message={uploadSuccessMessage || uploadError || ""}
+            type={uploadSuccessMessage ? "success" : "error"}
+            onClose={() => setShowToast(false)}
+          />
+        )}
+        
         <div className="flex-1 w-full bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 space-y-4 relative">
-          {/* Status Selector - ABSOLUTE */}
-          <div className="absolute top-8 right-8 z-10">
+          {/* Status Selector con estilos */}
+          <div className="absolute top-8 right-8 z-10 flex flex-col items-end gap-2">
             <select
-                value={selectedStatus}
-                onChange={handleStatusChange}
-                disabled={!canChangeStatus || statusLoading}
-                className="border-2 border-blue-200 rounded-xl px-4 py-2 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+              value={selectedStatus}
+              onChange={handleStatusChange}
+              disabled={!canChangeStatus || statusLoading}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-lg border-2 transition-all duration-300 cursor-pointer
+      ${
+                selectedStatus === 'ACTIVE'
+                  ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                  : selectedStatus === 'INACTIVE'
+                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                    : selectedStatus === 'CANCELLED'
+                      ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              <option value="ACTIVE">Activo</option>
-              <option value="INACTIVE">Inactivo</option>
-              <option value="CANCELLED">Cancelado</option>
-              <option value="DELETED">Eliminado</option>
+              <option value="ACTIVE" className="text-green-700 font-semibold">Activo</option>
+              <option value="INACTIVE" className="text-yellow-700 font-semibold">Inactivo</option>
+              <option value="CANCELLED" className="text-red-700 font-semibold">Cancelado</option>
+              <option value="DELETED" className="text-gray-700 font-semibold">Eliminado</option>
             </select>
-            {statusError && <span className="text-red-500 text-xs mt-1">{statusError}</span>}
+
+            {statusError && <span className="text-red-500 text-xs">{statusError}</span>}
             {showSuccess && (
-                <div className="absolute top-12 right-0 bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-xl shadow-lg text-sm animate-fade-in-out z-50">
-                  Estado actualizado correctamente.
-                </div>
+              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-xl shadow-lg text-sm animate-fade-in-out">
+                Estado actualizado correctamente.
+              </div>
             )}
           </div>
 
@@ -406,118 +432,45 @@ const JobPostingDetails = () => {
                 </div>
             ) : analysisError ? (
                 <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
-            ) : analysisResults && analysisResults.length > 0 ? (
-                <CVAnalysisMetricsSummary results={analysisResults} />
-            ) : (
-                <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-full bg-gray-100 flex-shrink-0">
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
+            ) : analysisResults.length === 0 ? (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
+                  <div className="flex flex-col items-center text-center gap-3">
+                    <div className="p-3 rounded-full bg-blue-100">
+                      <ChartBarIcon className="h-6 w-6 text-blue-600" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-700 font-medium">No hay métricas disponibles</p>
-                      <p className="text-gray-500 text-sm">Sube CVs y ejecuta análisis para ver métricas</p>
+                    <div>
+                      <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
+                      <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
                     </div>
                   </div>
+                </div>
+            ) : (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                  <CVAnalysisMetricsSummary results={analysisResults} />
                 </div>
             )}
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold mb-4 text-blue-800">Cargar nuevos CVs</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-blue-800">Cargar CVs</h2>
+              <button
+                onClick={() => setShowExtraRequirements(true)}
+                className={`px-4 py-2 rounded-xl text-white font-medium transition-all duration-300 flex items-center gap-2 text-sm ${
+                  hasActiveRequirements() 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                    : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
+                } hover:scale-105 shadow-md hover:shadow-lg`}
+              >
+                <AdjustmentsHorizontalIcon className={`h-4 w-4 ${hasActiveRequirements() ? 'animate-pulse' : ''}`} />
+                Requisitos
+              </button>
+            </div>
             {!canAddCVs ? (
                 <p className="text-blue-600 text-sm p-3 bg-blue-50 rounded-xl border border-blue-200">No se pueden agregar CVs en este estado.</p>
             ) : (
                 <div className="space-y-4">
-                  {/* Notificación de éxito mejorada */}
-                  {uploadSuccessMessage && (
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-green-800 font-semibold">{uploadSuccessMessage}</p>
-                          <p className="text-green-600 text-sm">Los archivos se han subido correctamente.</p>
-                        </div>
-                        <button 
-                          onClick={() => setUploadSuccessMessage(null)}
-                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Notificación de error mejorada */}
-                  {uploadError && (
-                    <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-red-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-red-800 font-semibold">Error al subir archivos</p>
-                          <p className="text-red-600 text-sm break-words">{uploadError}</p>
-                        </div>
-                        <button 
-                          onClick={() => setUploadError(null)}
-                          className="text-red-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notificación de CVs recién subidos */}
-                  {showUploadNotification && recentlyUploadedCvs.length > 0 && (
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm animate-fade-in-out">
-                      <div className="flex items-start space-x-3">
-                        <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-blue-800 font-semibold mb-3">
-                            {recentlyUploadedCvs.length} CV{recentlyUploadedCvs.length > 1 ? 's' : ''} subido{recentlyUploadedCvs.length > 1 ? 's' : ''} recientemente:
-                          </p>
-                          <div className="space-y-2 max-h-40 overflow-y-auto">
-                            {recentlyUploadedCvs.map((key, index) => (
-                              <div key={key} className="flex items-center justify-between bg-white/70 rounded-lg p-3 border border-blue-100">
-                                <span className="text-blue-700 text-sm font-medium truncate flex-1 mr-2">
-                                  {getFileNameFromKey(key)}
-                                </span>
-                                <span className="text-blue-500 text-xs bg-blue-100 px-2 py-1 rounded-full flex-shrink-0">
-                                  #{index + 1}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => setShowUploadNotification(false)}
-                          className="text-blue-400 hover:text-blue-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
                   {requirementsUpdateSuccess && (
                     <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
@@ -545,16 +498,13 @@ const JobPostingDetails = () => {
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone
                         jobId={jobToShow.pk.startsWith('JD#') ? jobToShow.pk : `JD#${jobToShow.pk}`}
-                        onUploadComplete={(keys) => {
+                        onUploadComplete={() => {
                           setUploadError(null);
                           setUploadSuccessMessage('CVs subidos exitosamente');
-                          setRecentlyUploadedCvs(keys);
-                          setShowUploadNotification(true);
                         }}
                         onError={(errorMsg) => {
                           setUploadError(errorMsg);
                           setUploadSuccessMessage(null);
-                          setShowUploadNotification(false);
                         }}
                     />
                   </div>
@@ -562,32 +512,56 @@ const JobPostingDetails = () => {
             )}
           </div>
 
-          {/* Requisitos del Puesto */}
-          <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del Puesto</h2>
           <div>
-            <JobRequirementsDisplay 
-              job={jobToShow} 
-              onUpdate={handleRequirementsUpdate}
-              canEdit={canEditFields}
-            />
-          </div>
 
-          <div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-              <AnalysisButton
-                  jobId={jobToShow.pk}
-                  extraRequirements={extraRequirements}
-                  onSuccess={() => {
-                    setTimeout(() => {
-                      refetchCandidates();
-                      refetchAnalysisResults();
-                    }, 12000);
-                  }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+               <AnalysisButton
+                   jobId={jobToShow.pk}
+                   extraRequirements={extraRequirements}
+                   onSuccess={() => {
+                     setTimeout(() => {
+                       refetchCandidates();
+                       refetchAnalysisResults();
+                     }, 12000);
+                   }}
+               />
+             </div>
+
+
+           </div>
+
+           {/* Panel deslizable de requisitos */}
+           <div className={`fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showExtraRequirements ? 'translate-x-0' : 'translate-x-full'}`}>
+             <div className="h-full flex flex-col">
+               <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                 <h2 className="text-xl font-semibold text-blue-800">Requisitos del Puesto</h2>
+                 <button
+                   onClick={() => setShowExtraRequirements(false)}
+                   className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all duration-300"
+                 >
+                   <XMarkIcon className="h-6 w-6" />
+                 </button>
+               </div>
+               
+               <div className="flex-1 overflow-y-auto p-6">
+                 <JobRequirementsDisplay 
+                   job={jobToShow} 
+                   onUpdate={handleRequirementsUpdate}
+                   canEdit={canEditFields}
+                 />
+               </div>
+             </div>
+           </div>
+
+           {/* Overlay oscuro cuando el panel está abierto */}
+           {showExtraRequirements && (
+             <div
+               className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40"
+               onClick={() => setShowExtraRequirements(false)}
+             />
+           )}
+         </div>
+       </div>
   );
 };
 

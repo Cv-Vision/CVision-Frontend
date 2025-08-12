@@ -72,7 +72,7 @@ const CandidateRegisterForm = () => {
         <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10 px-4">
             <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-8 flex flex-col gap-8">
                 <h1 className="text-3xl font-extrabold text-gray-800 text-center">Crear Perfil de Candidato</h1>
-                <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
+                <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
                 <button
