@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import RejectedCVsModal from './RejectedCVsModal'; // asegúrate de que el path sea correcto
+import { DocumentArrowUpIcon } from '@heroicons/react/24/solid';
+import RejectedCVsModal from './RejectedCVsModal';
+import CVFilesModal from './CVFilesModal';
 import { useCVValidation } from '../hooks/useCVValidation';
 import JSZip from 'jszip';
 import { useFileUploader } from '../hooks/useFileUploader';
@@ -14,7 +15,8 @@ interface CVDropzoneProps {
 
 export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete, onError }) => {
   const [files, setFiles] = useState<File[]>([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showRejectedModal, setShowRejectedModal] = useState(false);
+  const [showFilesModal, setShowFilesModal] = useState(false);
 
   const { validateFile } = useCVValidation();
   const {
@@ -38,7 +40,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             if (entry.dir) continue;
             const name = entry.name;
             const ext = name.split('.').pop()?.toLowerCase() || '';
-            const mimeTypeMap: { [ext: string]: string } = {
+            const mimeTypeMap: Record<string, string> = {
               pdf: 'application/pdf',
               png: 'image/png',
               jpg: 'image/jpeg',
@@ -68,7 +70,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
 
     if (rejected.length > 0) {
       setRejectedFiles(prev => [...prev, ...rejected]);
-      setShowModal(true);
+      setShowRejectedModal(true);
     }
     setFiles(prev => [...prev, ...validFiles]);
   }, [validateFile, setRejectedFiles]);
@@ -90,19 +92,26 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpload = async () => {
+  const handleUploadAll = async () => {
     if (files.length === 0) return;
-    await uploadFiles(files, urls => {
-      onUploadComplete?.(urls);
-      setFiles([]);
-    }, onError || (() => {}));
+    await uploadFiles(
+      files,
+      (urls) => {
+        onUploadComplete?.(urls);
+        setFiles([]); // limpiar al terminar
+        setShowFilesModal(false);
+      },
+      onError || (() => {})
+    );
   };
 
+  const doneCount = files.filter(f => uploadProgress[f.name] === 100).length;
+
   return (
-    <div className="w-full min-h-[200px] relative">
+    <div className="w-full min-h-[150px] relative">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm
+        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center backdrop-blur-sm
           ${isDragActive
           ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105'
           : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
@@ -114,7 +123,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
             ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30'
             : 'bg-gradient-to-br from-blue-400 to-blue-500 shadow-md shadow-blue-400/20'
         }`}>
-          <DocumentArrowUpIcon className="h-12 w-12 text-white" />
+          <DocumentArrowUpIcon className="h-8 w-8 text-white" />
         </div>
         <p className="mt-2 text-base font-medium text-gray-700">
           {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
@@ -129,67 +138,37 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         </button>
       </div>
 
+      {/* Vista comprimida: no más lista inline */}
       {files.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <h4 className="text-lg font-semibold text-gray-800 mb-4">Archivos seleccionados:</h4>
-          {files.map((file, index) => (
-            <div
-              key={`${file.name}-${index}`}
-              className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200">
-                  <DocumentArrowUpIcon className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700">{file.name}</span>
-                  <span className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-                {uploadProgress[file.name] === 100 && (
-                  <div className="p-1 rounded-full bg-green-100">
-                    <span className="text-green-600 text-sm font-bold">✓</span>
-                  </div>
-                )}
-                {uploadProgress[file.name] === -1 && (
-                  <div className="p-1 rounded-full bg-red-100">
-                    <span className="text-red-600 text-sm font-bold">✗</span>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => handleRemove(index)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
-                disabled={uploading}
-              >
-                <XMarkIcon className="h-5 w-5" />
-              </button>
-            </div>
-          ))}
-
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50 px-4 py-2">
+          <span className="text-sm text-blue-800 font-medium">
+            {files.length} archivo{files.length !== 1 ? 's' : ''} seleccionado{files.length !== 1 ? 's' : ''} · {doneCount} subido{doneCount !== 1 ? 's' : ''}
+          </span>
           <button
-            onClick={handleUpload}
-            disabled={uploading || files.length === 0}
-            className={`mt-6 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 shadow-md
-              ${uploading || files.length === 0
-              ? 'bg-gradient-to-r from-gray-300 to-gray-400 cursor-not-allowed shadow-none'
-              : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
-            }`}
+            type="button"
+            onClick={() => setShowFilesModal(true)}
+            className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
           >
-            {uploading ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Subiendo archivos...</span>
-              </div>
-            ) : (
-              `Subir ${files.length} CV${files.length > 1 ? 's' : ''}`
-            )}
+            Ver archivos
           </button>
         </div>
       )}
 
+      {/* Modal de archivos */}
+      <CVFilesModal
+        open={showFilesModal}
+        files={files}
+        uploadProgress={uploadProgress}
+        uploading={uploading}
+        onClose={() => setShowFilesModal(false)}
+        onRemove={handleRemove}
+        onUploadAll={handleUploadAll}
+      />
+
+      {/* Modal de rechazados (tu flujo actual) */}
       <RejectedCVsModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={showRejectedModal}
+        onClose={() => setShowRejectedModal(false)}
         rejectedFiles={rejectedFiles}
         onClear={() => setRejectedFiles([])}
       />
