@@ -1,0 +1,49 @@
+import React from 'react';
+
+interface ToastNotificationProps {
+  message: string;
+  type?: 'success' | 'error';
+  onClose: () => void;
+}
+
+const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = 'success', onClose }) => {
+  return (
+    <div
+      className={`
+        fixed top-8 left-1/2 z-50
+        transform -translate-x-1/2
+        px-6 py-4 rounded-2xl shadow-2xl
+        flex items-center gap-3
+        text-base font-semibold
+        animate-fade-in-out
+        ${type === 'success'
+          ? 'bg-green-50 border border-green-200 text-green-800'
+          : 'bg-red-50 border border-red-200 text-red-800'}
+      `}
+      style={{ minWidth: 280, maxWidth: '90vw' }}
+      role="alert"
+    >
+      <span>
+        {type === 'success' ? (
+          <svg className="w-5 h-5 text-green-600 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5 text-red-600 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
+      </span>
+      <span className="flex-1">{message}</span>
+      <button
+        onClick={onClose}
+        className="ml-2 text-lg text-gray-400 hover:text-gray-700 transition"
+        aria-label="Cerrar notificación"
+      >
+        &times;
+      </button>
+    </div>
+  );
+};
+
+export default ToastNotification;
