@@ -6,7 +6,7 @@ interface User {
   email?: string;
   name?: string;
   company?: string;
-  role?: UserRole;      //TODO cambiar de UserRole a string
+  role?: UserRole;
   token?: string;      // idToken o accessToken
   username?: string;   // <- la agregamos en memoria, NO se persiste
   [key: string]: any;
