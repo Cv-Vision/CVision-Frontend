@@ -26,3 +26,14 @@ export interface CandidateProfile {
     workExperience: WorkExperience[];
     education: Education[];
 }
+
+export interface JobSearchFilters {
+    title: string;
+    company?: string;
+    jobType?: string;
+    region?: string;
+    contractType?: string;
+    seniorityLevel?: string;
+    industry?: string;
+    modality?: string;
+}

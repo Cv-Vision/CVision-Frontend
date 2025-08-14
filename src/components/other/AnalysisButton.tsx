@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import type { ExtraRequirements } from '@/components/ExtraRequirementsForm';
+import type { ExtraRequirements } from '@/components/other/ExtraRequirementsForm.tsx';
 import { MagnifyingGlassIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface AnalysisButtonProps {

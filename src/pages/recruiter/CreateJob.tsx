@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts';
 import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';

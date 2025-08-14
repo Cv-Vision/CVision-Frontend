@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 
 export function UploadCV() {
   const [file, setFile] = useState<File | null>(null);

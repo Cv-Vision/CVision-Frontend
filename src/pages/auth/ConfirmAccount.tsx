@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { confirmSignUp, resendConfirmationCode } from '@/services/AuthService.ts';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 
 const ConfirmAccount = () => {
   const location = useLocation();
