@@ -79,20 +79,29 @@ export function CandidateProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10 px-4">
-      <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-8 flex flex-col gap-8">
-        <div className="w-full flex justify-start mb-4">
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2 overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-2xl w-full p-10 flex flex-col items-center">
+        <div className="w-full flex justify-start mb-6">
           <BackButton />
         </div>
-        <UserIcon className="h-12 w-12 text-blue-400 mb-4 self-center" />
-        <h1 className="text-3xl font-extrabold text-gray-800 text-center">Editar Perfil de Candidato</h1>
-        <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative">
+            <UserIcon className="h-12 w-12 text-blue-600" />
+          </div>
+          <span className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+            Candidato
+          </span>
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
+          Editar Perfil de Candidato
+        </h1>
+        <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
           <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
           <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
           <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
           <button
             type="submit"
-            className="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition font-semibold text-lg"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 hover:scale-105"
           >
             Guardar Cambios
           </button>
