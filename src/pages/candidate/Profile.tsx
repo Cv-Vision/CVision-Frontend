@@ -6,7 +6,7 @@ import BasicInfoSection from '../../components/candidate/BasicInfoSection.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon } from '@heroicons/react/24/solid';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 
 export function CandidateProfile() {
   const { user } = useAuth();

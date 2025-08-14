@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import BackButton from '@/components/BackButton';
+import BackButton from '@/components/other/BackButton.tsx';
 
 export function RecruiterProfile() {
   const { user } = useAuth();

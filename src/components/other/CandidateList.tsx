@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Table } from './dashboard/Table';
-import { TableCell } from './dashboard/TableCell';
-import { CandidateRatingDropdown } from './CandidateRatingDropdown';
-import CandidateModal from '../pages/recruiter/jp_elements/CandidateModal';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
-import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
-import Toast from './Toast';
-import { deleteCandidatesFromJob } from '@/services/cvAnalysisService';
+import { Table } from '../dashboard/Table.tsx';
+import { TableCell } from '../dashboard/TableCell.tsx';
+import { CandidateRatingDropdown } from './CandidateRatingDropdown.tsx';
+import CandidateModal from '../../pages/recruiter/jp_elements/CandidateModal.tsx';
+import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId.ts';
+import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults.ts';
+import Toast from './Toast.tsx';
+import { deleteCandidatesFromJob } from '@/services/cvAnalysisService.ts';
 import { TrashIcon, UserIcon} from '@heroicons/react/24/outline';
 
 interface CandidateListProps {

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon, ArrowRightOnRectangleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 const Navbar = () => {
