@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CandidateProfile as CandidateProfileType } from '@/types/candidate.ts';
 import WorkExperienceSection from '../../components/candidate/WorkExperienceSection.tsx';
 import EducationSection from '../../components/candidate/EducationSection.tsx';
+import BasicInfoSection from '../../components/candidate/BasicInfoSection.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon } from '@heroicons/react/24/solid';
@@ -33,6 +34,12 @@ export function CandidateProfile() {
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, education: updated };
     });
+  };
+  const handleBasicInfoChange = (field: keyof CandidateProfileType['basicInfo'], value: string) => {
+    setProfile(prev => ({
+      ...prev,
+      basicInfo: { ...prev.basicInfo, [field]: value }
+    }));
   };
 
   const addWork = () => {
@@ -77,10 +84,10 @@ export function CandidateProfile() {
         <div className="w-full flex justify-start mb-4">
           <BackButton />
         </div>
-        <UserIcon className="h-12 w-12 text-blue-400 mb-4" />
+        <UserIcon className="h-12 w-12 text-blue-400 mb-4 self-center" />
         <h1 className="text-3xl font-extrabold text-gray-800 text-center">Editar Perfil de Candidato</h1>
         <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-
+          <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
           <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
           <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
           <button

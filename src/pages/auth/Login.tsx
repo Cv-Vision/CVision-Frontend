@@ -3,12 +3,13 @@ import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { useAuth } from "@/context/AuthContext.tsx";
+import { UserRole } from '@/types/auth.ts';
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'candidate' | 'recruiter'>('candidate');
+  const [role, setRole] = useState<UserRole>('candidate');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ const Login = () => {
               <select
                 className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer pr-10"
                 value={role}
-                onChange={e => setRole(e.target.value as 'candidate' | 'recruiter')}
+                onChange={e => setRole(e.target.value as UserRole)}
               >
                 <option value="candidate" className="py-2">👤 Candidato</option>
                 <option value="recruiter" className="py-2">🏢 Reclutador</option>
