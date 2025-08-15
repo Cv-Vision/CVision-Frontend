@@ -88,12 +88,13 @@ const JobSearch = () => {
             onConfirm={handleConfirmApply}
             isLoading={isApplying}
           />
-          <ToastNotification
-            message={toastMessage}
-            type={toastType}
-            isVisible={showToast}
-            onClose={() => setShowToast(false)}
-          />
+          {showToast && (
+            <ToastNotification
+              message={toastMessage}
+              type={toastType}
+              onClose={() => setShowToast(false)}
+            />
+          )}
         </div>
       </div>
   );
