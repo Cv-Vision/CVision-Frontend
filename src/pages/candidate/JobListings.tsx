@@ -1,14 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JobSearchBar from "../../components/candidate/JobSearchBar.tsx";
 import JobSearchAdvancedFilters from "../../components/candidate/JobSearchAdvancedFilters";
 import JobSearchResults from "../../components/candidate/JobSearchResults";
 import { JobSearchFilters } from "@/types/candidate.ts";
+import { useApplyToJob } from '@/hooks/useApplyToJob';
+import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
+import ToastNotification from '@/components/other/ToastNotification';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasResults, setHasResults] = useState(true);
+  const { apply, isLoading: isApplying, success, error } = useApplyToJob();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+
+  useEffect(() => {
+    if (success) {
+      setIsModalOpen(false);
+      setToastMessage("Te postulaste con éxito");
+      setToastType("success");
+      setShowToast(true);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      setToastMessage(error);
+      setToastType("error");
+      setShowToast(true);
+    }
+  }, [error]);
 
   const handleChange = (field: keyof JobSearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -22,6 +48,15 @@ const JobSearch = () => {
       setIsLoading(false);
       setHasResults(true); // Cambia a false si la API no devuelve nada
     }, 1000);
+  };
+
+  const handleApplyClick = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmApply = () => {
+    apply(selectedJobId);
   };
 
   return (
@@ -46,7 +81,20 @@ const JobSearch = () => {
             </button>
           </div>
 
-          <JobSearchResults isLoading={isLoading} hasResults={hasResults} />
+          <JobSearchResults isLoading={isLoading} hasResults={hasResults} onApply={handleApplyClick} />
+          <ApplyConfirmationModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleConfirmApply}
+            isLoading={isApplying}
+          />
+          {showToast && (
+            <ToastNotification
+              message={toastMessage}
+              type={toastType}
+              onClose={() => setShowToast(false)}
+            />
+          )}
         </div>
       </div>
   );
