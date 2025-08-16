@@ -6,6 +6,7 @@ import { JobSearchFilters } from "@/types/candidate.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import ToastNotification from '@/components/other/ToastNotification';
+import { useAuth } from '@/context/AuthContext';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
@@ -18,6 +19,8 @@ const JobSearch = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
+  const { user, isAuthenticated } = useAuth();
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
 
   useEffect(() => {
     if (success) {
@@ -25,6 +28,7 @@ const JobSearch = () => {
       setToastMessage("Te postulaste con éxito");
       setToastType("success");
       setShowToast(true);
+      setAppliedJobs(prev => [...prev, selectedJobId]);
     }
   }, [success]);
 
@@ -81,7 +85,16 @@ const JobSearch = () => {
             </button>
           </div>
 
-          <JobSearchResults isLoading={isLoading} hasResults={hasResults} onApply={handleApplyClick} />
+          <JobSearchResults
+            isLoading={isLoading}
+            hasResults={hasResults}
+            onApply={handleApplyClick}
+            appliedJobs={appliedJobs}
+            isApplying={isApplying}
+            applyingJobId={selectedJobId}
+            isAuthenticated={isAuthenticated}
+            userRole={user?.role}
+          />
           <ApplyConfirmationModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
