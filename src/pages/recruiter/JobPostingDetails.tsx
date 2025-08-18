@@ -326,9 +326,16 @@ const JobPostingDetails = () => {
                         await updateJobPostingData(jobToShow.pk, {
                           experience_level: newSeniority || undefined,
                           contract_type: newTipoContrato || undefined,
-                          // Removed company as it is not part of UpdatePayload
+                          location: newUbicacion || undefined,
+                          company: newEmpresa || undefined, // Added company to the update payload
                         });
-                        setLocalJob({ ...jobToShow, experience_level: newSeniority, contract_type: newTipoContrato });
+                        setLocalJob({
+                          ...jobToShow,
+                          experience_level: newSeniority,
+                          contract_type: newTipoContrato,
+                          location: newUbicacion,
+                          company: newEmpresa, // Ensure local state reflects the updated company
+                        });
                         setIsEditingFields(false);
                         setFieldsSaveSuccess(true);
                         setTimeout(() => setFieldsSaveSuccess(false), 3000);
