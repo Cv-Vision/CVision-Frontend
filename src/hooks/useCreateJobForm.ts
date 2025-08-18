@@ -26,7 +26,8 @@ export function useCreateJobForm() {
       const token = sessionStorage.getItem('idToken');
       if (!token) throw new Error('No hay token de sesión');
 
-      const response = await fetchWithAuth('https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job', {
+      const response = await fetchWithAuth(
+        `${process.env.REACT_APP_API_URL}/recruiter/job-postings/create`, {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { Authorization: `Bearer ${token}` },

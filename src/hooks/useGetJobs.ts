@@ -18,7 +18,7 @@ export function useGetJobs() {
             const token = sessionStorage.getItem('idToken');
             if (!token) throw new Error('Necesitas iniciar sesión');
             const res = await fetchWithAuth(
-                'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings',
+                `${process.env.REACT_APP_API_URL}/recruiter/job-postings`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (!res.ok) throw new Error('Error cargando puestos');

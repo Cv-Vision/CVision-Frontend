@@ -30,7 +30,7 @@ export function useGetCandidates(jobId: string) {
                 const token = sessionStorage.getItem('idToken');
                 if (!token) throw new Error('No autenticado');
                 const res = await fetchWithAuth(
-                    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/candidates`,
+                    `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/candidates`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (!res.ok) {

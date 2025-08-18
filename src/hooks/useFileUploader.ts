@@ -17,7 +17,7 @@ export const useFileUploader = (jobId: string) => {
 
     try {
       const response = await fetchWithAuth(
-        'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/generate_presigned_url_handler',
+        `${process.env.REACT_APP_API_URL}/cv/generate-presigned-url`,
         {
           method: 'POST',
           headers: {
