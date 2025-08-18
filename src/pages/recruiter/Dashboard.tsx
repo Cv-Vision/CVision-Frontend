@@ -22,11 +22,6 @@ const RecruiterDashboard = () => {
     };
   }, []);
 
-  // Aquí puedes definir el jobId y apiUrl si es necesario para el botón de procesar CVs, mas abajo esta la explicacion de por qué está comentado
-  // const jobId = '934b732b-ab9f-4fd3-97d9-6e41fbe2089b'; // PONÉ TU JOB_ID REAL DE PRUEBA
-  // const apiUrl = 'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/cv-processor'; // PONÉ TU URL REAL DEL API
-
-
   return (
     <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-2 overflow-hidden">
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full p-10 flex flex-col items-center">
