@@ -16,7 +16,7 @@ export function useGetJobById(jobId: string) {
       const token = sessionStorage.getItem('idToken');
       if (!token) throw new Error('No autorizado');
       const res = await fetchWithAuth(
-        `${process.env.REACT_APP_API_URL}/recruiter/job-postings`,
+        `${process.env.VITE_API_URL}/recruiter/job-postings`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error('Error al cargar el job');

@@ -1,5 +1,5 @@
-const CLIENT_ID = `${process.env.REACT_APP_CLIENT_ID}`;
-const COGNITO_ENDPOINT = `${process.env.REACT_APP_COGNITO_ENDPOINT}`;
+const CLIENT_ID = `${process.env.VITE_CLIENT_ID}`;
+const COGNITO_ENDPOINT = `${process.env.VITE_COGNITO_ENDPOINT}`;
 
 interface SignUpParams {
   username: string;

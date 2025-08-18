@@ -15,7 +15,7 @@ export interface GeminiAnalysisResult {
 
 export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAnalysisResult[]> => {
   const response = await fetchWithAuth(
-    `${process.env.REACT_APP_API_URL}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
+    `${process.env.VITE_API_URL}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
   );
 
   if (!response.ok) {
@@ -35,7 +35,7 @@ export const deleteAnalysisResults = async (jobId: string, cvIds: string[]): Pro
   console.log('📦 Payload:', payload);
   
   const response = await fetchWithAuth(
-    `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/delete-analysis-results`,
+    `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/delete-analysis-results`,
     {
       method: 'POST',
       body: JSON.stringify(payload),

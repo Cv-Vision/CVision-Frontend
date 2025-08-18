@@ -17,7 +17,7 @@ export const useFileUploader = (jobId: string) => {
 
     try {
       const response = await fetchWithAuth(
-        `${process.env.REACT_APP_API_URL}/cv/generate-presigned-url`,
+        `${process.env.VITE_API_URL}/cv/generate-presigned-url`,
         {
           method: 'POST',
           headers: {

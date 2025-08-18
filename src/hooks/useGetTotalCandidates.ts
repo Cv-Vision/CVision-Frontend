@@ -27,7 +27,7 @@ export const useGetTotalCandidates = () => {
 
         // Obtener todos los puestos de trabajo primero
         const jobsResponse = await fetchWithAuth(
-          `${process.env.REACT_APP_API_URL}/recruiter/job-postings`,
+          `${process.env.VITE_API_URL}/recruiter/job-postings`,
           { headers: { Authorization: `Bearer ${idToken}` } }
         );
 
@@ -50,7 +50,7 @@ export const useGetTotalCandidates = () => {
             console.log(`Obteniendo candidatos para puesto: ${job.title} (ID: ${jobId})`);
             
             const candidatesResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/candidates`,
+              `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/candidates`,
               { headers: { Authorization: `Bearer ${idToken}` } }
             );
             

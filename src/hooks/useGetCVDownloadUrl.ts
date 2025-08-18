@@ -30,7 +30,7 @@ export function useGetCVDownloadUrl(
         }
 
         const response = await fetchWithAuth(
-          `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
+          `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
           {
             headers: {
               Authorization: `Bearer ${idToken}`,

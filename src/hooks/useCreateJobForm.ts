@@ -32,7 +32,7 @@ export function useCreateJobForm() {
       if (!token) throw new Error('No hay token de sesión');
 
       const response = await fetchWithAuth(
-        `${process.env.REACT_APP_API_URL}/recruiter/job-postings/create`, {
+        `${process.env.VITE_API_URL}/recruiter/job-postings/create`, {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { Authorization: `Bearer ${token}` },

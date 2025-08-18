@@ -14,7 +14,7 @@ export interface Candidate {
   };
 }
 
-const S3_BASE_URL = `${process.env.REACT_APP_BUCKET_URL}`;
+const S3_BASE_URL = `${process.env.VITE_BUCKET_URL}`;
 
 export const useGetCandidatesByJobId = (jobId: string) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -36,7 +36,7 @@ export const useGetCandidatesByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/candidates`, {
+        `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/candidates`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },

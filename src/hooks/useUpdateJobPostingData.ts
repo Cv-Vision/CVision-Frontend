@@ -30,7 +30,7 @@ export const useUpdateJobPostingData = () => {
 
     try {
       const cleanId = jobId.replace('JD#', '');
-      const url = `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${cleanId}/update`;
+      const url = `${process.env.VITE_API_URL}/recruiter/job-postings/${cleanId}/update`;
 
       const response = await fetchWithAuth(url, {
         method: 'PUT',
