@@ -15,6 +15,26 @@ import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elemen
 import type { Job } from '@/context/JobContext';
 import ToastNotification from "@/components/other/ToastNotification.tsx";
 
+// Helpers for displaying enum labels
+function seniorityLabel(level?: string) {
+  switch (level) {
+    case 'JUNIOR': return 'Junior';
+    case 'SEMISENIOR': return 'SemiSenior';
+    case 'SENIOR': return 'Senior';
+    default: return level || '';
+  }
+}
+function contractTypeLabel(type?: string) {
+  switch (type) {
+    case 'FULL_TIME': return 'Full-Time';
+    case 'PART_TIME': return 'Part-Time';
+    case 'CONTRACT': return 'Contract';
+    case 'FREELANCE': return 'Freelance';
+    case 'INTERNSHIP': return 'Internship';
+    default: return type || '';
+  }
+}
+
 const JobPostingDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
@@ -34,6 +54,15 @@ const JobPostingDetails = () => {
   const [isSavingDescription, setIsSavingDescription] = useState(false);
   const [descriptionSaveSuccess, setDescriptionSaveSuccess] = useState(false);
   const [descriptionSaveError, setDescriptionSaveError] = useState<string | null>(null);
+
+  // New editable fields state
+  const [isEditingFields, setIsEditingFields] = useState(false);
+  const [newSeniority, setNewSeniority] = useState<'JUNIOR' | 'SEMISENIOR' | 'SENIOR' | ''>('');
+  const [newTipoContrato, setNewTipoContrato] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | ''>('');
+  const [newUbicacion, setNewUbicacion] = useState('');
+  const [newEmpresa, setNewEmpresa] = useState('');
+  const [fieldsSaveSuccess, setFieldsSaveSuccess] = useState(false);
+  const [fieldsSaveError, setFieldsSaveError] = useState<string | null>(null);
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
@@ -267,6 +296,134 @@ const JobPostingDetails = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
               {jobToShow.title}
             </h1>
+          </div>
+
+          {/* Editable Job Fields */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-800">
+              <BriefcaseIcon className="h-6 w-6" />
+              Detalles del Puesto
+              {!isEditingFields ? (
+                <button
+                  onClick={() => {
+                    setIsEditingFields(true);
+                    setNewSeniority((jobToShow.experience_level as 'JUNIOR' | 'SEMISENIOR' | 'SENIOR') || '');
+                    setNewTipoContrato((jobToShow.contract_type as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP') || '');
+                    setNewUbicacion(jobToShow.location || '');
+                    setNewEmpresa(jobToShow.company || '');
+                  }}
+                  disabled={!canEditFields}
+                  className="ml-2 px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
+                >
+                  Editar
+                </button>
+              ) : (
+                <div className="ml-2 flex gap-2">
+                  <button
+                    onClick={async () => {
+                      setFieldsSaveError(null);
+                      try {
+                        await updateJobPostingData(jobToShow.pk, {
+                          experience_level: newSeniority || undefined,
+                          contract_type: newTipoContrato || undefined,
+                          // Removed company as it is not part of UpdatePayload
+                        });
+                        setLocalJob({ ...jobToShow, experience_level: newSeniority, contract_type: newTipoContrato });
+                        setIsEditingFields(false);
+                        setFieldsSaveSuccess(true);
+                        setTimeout(() => setFieldsSaveSuccess(false), 3000);
+                      } catch (err: any) {
+                        setFieldsSaveError(err?.response?.data?.message || err.message || 'Error al actualizar los campos.');
+                      }
+                    }}
+                    disabled={!canEditFields}
+                    className="px-4 py-1 text-sm bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingFields(false);
+                      setFieldsSaveError(null);
+                    }}
+                    disabled={!canEditFields}
+                    className="px-4 py-1 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
+            </h2>
+            {fieldsSaveSuccess && (
+              <div className="mb-2 p-2 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm">Campos actualizados correctamente</div>
+            )}
+            {fieldsSaveError && (
+              <div className="mb-2 p-2 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm">{fieldsSaveError}</div>
+            )}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-2">
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Seniority</label>
+                {isEditingFields ? (
+                  <select
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newSeniority}
+                    onChange={e => setNewSeniority(e.target.value as 'JUNIOR' | 'SEMISENIOR' | 'SENIOR' | '')}
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="JUNIOR">Junior</option>
+                    <option value="SEMISENIOR">SemiSenior</option>
+                    <option value="SENIOR">Senior</option>
+                  </select>
+                ) : (
+                  <div className="text-blue-900">{seniorityLabel(jobToShow.experience_level) || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Tipo de Contrato</label>
+                {isEditingFields ? (
+                  <select
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newTipoContrato}
+                    onChange={e => setNewTipoContrato(e.target.value as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | '')}
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="FULL_TIME">Full-Time</option>
+                    <option value="PART_TIME">Part-Time</option>
+                    <option value="CONTRACT">Contract</option>
+                    <option value="FREELANCE">Freelance</option>
+                    <option value="INTERNSHIP">Internship</option>
+                  </select>
+                ) : (
+                  <div className="text-blue-900">{contractTypeLabel(jobToShow.contract_type) || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Ubicación del Puesto</label>
+                {isEditingFields ? (
+                  <input
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newUbicacion}
+                    onChange={e => setNewUbicacion(e.target.value)}
+                    placeholder="Ej: Remoto, Buenos Aires, etc."
+                  />
+                ) : (
+                  <div className="text-blue-900">{jobToShow.location || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Empresa</label>
+                {isEditingFields ? (
+                  <input
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newEmpresa}
+                    onChange={e => setNewEmpresa(e.target.value)}
+                    placeholder="Nombre de la empresa"
+                  />
+                ) : (
+                  <div className="text-blue-900">{jobToShow.company || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Descripción y Candidatos */}
