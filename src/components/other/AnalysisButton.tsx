@@ -31,7 +31,7 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
       const payload: Record<string, any> = { job_id: jobId };
       // Ya no se envían requisitos adicionales
       const response = await axios.post(
-        'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/call_cv_batch_invoker',
+        `${process.env.REACT_APP_API_URL}/recruiter/call-cv-batch-invoker`,
         payload,
         {
           headers: {

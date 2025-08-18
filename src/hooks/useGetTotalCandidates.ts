@@ -27,7 +27,7 @@ export const useGetTotalCandidates = () => {
 
         // Obtener todos los puestos de trabajo primero
         const jobsResponse = await fetchWithAuth(
-          'https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings',
+          `${process.env.REACT_APP_API_URL}/recruiter/job-postings`,
           { headers: { Authorization: `Bearer ${idToken}` } }
         );
 
@@ -50,7 +50,7 @@ export const useGetTotalCandidates = () => {
             console.log(`Obteniendo candidatos para puesto: ${job.title} (ID: ${jobId})`);
             
             const candidatesResponse = await fetch(
-              `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/candidates`,
+              `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/candidates`,
               { headers: { Authorization: `Bearer ${idToken}` } }
             );
             

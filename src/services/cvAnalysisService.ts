@@ -13,7 +13,7 @@ export interface CVAnalysisResult {
 
 export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisResult[]> => {
   const response = await fetchWithAuth(
-    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/get-cvs-analysis-results?job_id=${jobId}`
+    `${process.env.REACT_APP_API_URL}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
   );
 
   if (!response.ok) {
@@ -43,7 +43,7 @@ export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisRes
 
 export const deleteCandidatesFromJob = async (jobId: string, cvIds: string[]): Promise<void> => {
   const response = await fetchWithAuth(
-    `https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/delete_applications`,
+    `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/delete-applications`,
     {
       method: 'POST',
       body: JSON.stringify({ cv_ids: cvIds }),

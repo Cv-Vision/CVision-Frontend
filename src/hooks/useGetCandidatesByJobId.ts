@@ -14,8 +14,7 @@ export interface Candidate {
   };
 }
 
-const S3_BUCKET = 'cv-bucket';
-const S3_BASE_URL = `https://${S3_BUCKET}.s3.amazonaws.com/`;
+const S3_BASE_URL = `${process.env.REACT_APP_BUCKET_URL}`;
 
 export const useGetCandidatesByJobId = (jobId: string) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -36,7 +35,8 @@ export const useGetCandidatesByJobId = (jobId: string) => {
     }
 
     try {
-      const res = await fetch(`https://vx1fi1v2v7.execute-api.us-east-2.amazonaws.com/dev/recruiter/job-postings/${jobId}/candidates`, {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/candidates`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },

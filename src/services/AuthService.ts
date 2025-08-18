@@ -1,6 +1,5 @@
-const CLIENT_ID = '7q9u97f4vklogma8e8vipfvb0d';
-const REGION = 'us-east-2';
-const COGNITO_ENDPOINT = `https://cognito-idp.${REGION}.amazonaws.com/`;
+const CLIENT_ID = `${process.env.REACT_APP_CLIENT_ID}`;
+const COGNITO_ENDPOINT = `${process.env.REACT_APP_COGNITO_ENDPOINT}`;
 
 interface SignUpParams {
   username: string;
