@@ -1,3 +1,4 @@
+import { CONFIG } from '@/config';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export interface CVAnalysisResult {
@@ -13,7 +14,7 @@ export interface CVAnalysisResult {
 
 export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisResult[]> => {
   const response = await fetchWithAuth(
-    `${process.env.VITE_API_URL}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
+    `${CONFIG.apiUrl}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
   );
 
   if (!response.ok) {
@@ -43,7 +44,7 @@ export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisRes
 
 export const deleteCandidatesFromJob = async (jobId: string, cvIds: string[]): Promise<void> => {
   const response = await fetchWithAuth(
-    `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/delete-applications`,
+    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/delete-applications`,
     {
       method: 'POST',
       body: JSON.stringify({ cv_ids: cvIds }),

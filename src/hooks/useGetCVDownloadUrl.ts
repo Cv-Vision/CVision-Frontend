@@ -1,6 +1,7 @@
 // src/hooks/useGetCVDownloadUrl.ts
 import { useEffect, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 interface CVDownloadUrlResponse {
   url: string;
@@ -30,7 +31,7 @@ export function useGetCVDownloadUrl(
         }
 
         const response = await fetchWithAuth(
-          `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
+          `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
           {
             headers: {
               Authorization: `Bearer ${idToken}`,

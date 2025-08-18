@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 export interface Candidate {
     cv_id: string;
@@ -30,7 +31,7 @@ export function useGetCandidates(jobId: string) {
                 const token = sessionStorage.getItem('idToken');
                 if (!token) throw new Error('No autenticado');
                 const res = await fetchWithAuth(
-                    `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/candidates`,
+                    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (!res.ok) {

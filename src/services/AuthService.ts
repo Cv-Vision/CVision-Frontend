@@ -1,5 +1,7 @@
-const CLIENT_ID = `${process.env.VITE_CLIENT_ID}`;
-const COGNITO_ENDPOINT = `${process.env.VITE_COGNITO_ENDPOINT}`;
+import { CONFIG } from "@/config";
+
+const CLIENT_ID = `${CONFIG.clientId}`;
+const COGNITO_ENDPOINT = `${CONFIG.cognitoEndpoint}`;
 
 interface SignUpParams {
   username: string;

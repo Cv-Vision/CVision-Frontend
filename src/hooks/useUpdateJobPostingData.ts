@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 export interface UpdatePayload {
   description?: string;
@@ -30,7 +31,7 @@ export const useUpdateJobPostingData = () => {
 
     try {
       const cleanId = jobId.replace('JD#', '');
-      const url = `${process.env.VITE_API_URL}/recruiter/job-postings/${cleanId}/update`;
+      const url = `${CONFIG.apiUrl}/recruiter/job-postings/${cleanId}/update`;
 
       const response = await fetchWithAuth(url, {
         method: 'PUT',

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import type { ExtraRequirements } from '@/components/other/ExtraRequirementsForm.tsx';
 import { MagnifyingGlassIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CONFIG } from '@/config';
 
 interface AnalysisButtonProps {
   jobId: string;
@@ -31,7 +32,7 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
       const payload: Record<string, any> = { job_id: jobId };
       // Ya no se envían requisitos adicionales
       const response = await axios.post(
-        `${process.env.VITE_API_URL}/recruiter/call-cv-batch-invoker`,
+        `${CONFIG.apiUrl}/recruiter/call-cv-batch-invoker`,
         payload,
         {
           headers: {

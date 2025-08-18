@@ -1,3 +1,4 @@
+import { CONFIG } from '@/config';
 import { useEffect, useState } from 'react';
 
 export interface Candidate {
@@ -14,7 +15,7 @@ export interface Candidate {
   };
 }
 
-const S3_BASE_URL = `${process.env.VITE_BUCKET_URL}`;
+const S3_BASE_URL = `${CONFIG.bucketUrl}`;
 
 export const useGetCandidatesByJobId = (jobId: string) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -36,7 +37,7 @@ export const useGetCandidatesByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/candidates`, {
+        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },

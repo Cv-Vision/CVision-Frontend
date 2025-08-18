@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 import { Job } from '@/context/JobContext';
+import { CONFIG } from '@/config';
 
 export function useGetJobById(jobId: string) {
   const [job, setJob] = useState<Job | null>(null);
@@ -16,7 +17,7 @@ export function useGetJobById(jobId: string) {
       const token = sessionStorage.getItem('idToken');
       if (!token) throw new Error('No autorizado');
       const res = await fetchWithAuth(
-        `${process.env.VITE_API_URL}/recruiter/job-postings`,
+        `${CONFIG.apiUrl}/recruiter/job-postings`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error('Error al cargar el job');

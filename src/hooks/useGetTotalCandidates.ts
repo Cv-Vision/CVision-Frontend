@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 interface Job {
   pk: string;
@@ -27,7 +28,7 @@ export const useGetTotalCandidates = () => {
 
         // Obtener todos los puestos de trabajo primero
         const jobsResponse = await fetchWithAuth(
-          `${process.env.VITE_API_URL}/recruiter/job-postings`,
+          `${CONFIG.apiUrl}/recruiter/job-postings`,
           { headers: { Authorization: `Bearer ${idToken}` } }
         );
 
@@ -50,7 +51,7 @@ export const useGetTotalCandidates = () => {
             console.log(`Obteniendo candidatos para puesto: ${job.title} (ID: ${jobId})`);
             
             const candidatesResponse = await fetch(
-              `${process.env.VITE_API_URL}/recruiter/job-postings/${jobId}/candidates`,
+              `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`,
               { headers: { Authorization: `Bearer ${idToken}` } }
             );
             
