@@ -104,13 +104,22 @@ const JobSearch = () => {
     filterJobs();
   };
 
-  const handleApplyClick = (jobId: string) => {
-    setSelectedJobId(jobId);
-    setIsModalOpen(true);
-  };
-
   const handleConfirmApply = () => {
     apply(selectedJobId);
+  };
+
+  const handleApply = (jobId: string) => {
+    if (!isAuthenticated) {
+      setToastMessage("Debes iniciar sesión para postularte a un trabajo");
+      setToastType("error");
+      setShowToast(true);
+      // Redirect to login page, can register from there
+      window.location.href = "/login";
+      return;
+    }
+
+    setSelectedJobId(jobId);
+    setIsModalOpen(true);
   };
 
   return (
@@ -139,7 +148,7 @@ const JobSearch = () => {
             isLoading={isLoadingJobs}
             hasResults={filteredJobs.length > 0}
             jobs={filteredJobs}
-            onApply={handleApplyClick}
+            onApply={handleApply} // Pass the new handleApply function
             appliedJobs={appliedJobs}
             isApplying={isApplying}
             applyingJobId={selectedJobId}

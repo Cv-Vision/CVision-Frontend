@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { useAuth } from "@/context/AuthContext.tsx";
 import { UserRole } from '@/types/auth.ts';
@@ -14,6 +14,19 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const location = useLocation();
+  const fromJobListings = location.state?.fromJobListings;
+
+  useEffect(() => {
+    if (fromJobListings) {
+      setRole('candidate');
+      // Disable role switching
+      const roleSelectElement = document.getElementById('role-select') as HTMLSelectElement;
+      if (roleSelectElement) {
+        roleSelectElement.disabled = true;
+      }
+    }
+  }, [fromJobListings]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +82,7 @@ const Login = () => {
             </label>
             <div className="relative">
               <select
+                id="role-select"
                 className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer pr-10"
                 value={role}
                 onChange={e => setRole(e.target.value as UserRole)}
@@ -138,7 +152,7 @@ const Login = () => {
           <p className="text-gray-600 text-center text-sm">
             ¿No tienes cuenta?{' '}
             <Link 
-              to="/register" 
+              to={fromJobListings ? "/candidate-register" : "/register"}
               className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200 hover:underline"
             >
               Regístrate aquí
