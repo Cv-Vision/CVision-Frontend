@@ -19,7 +19,7 @@ export function useGetJobs() {
             const token = sessionStorage.getItem('idToken');
             if (!token) throw new Error('Necesitas iniciar sesión');
             const res = await fetchWithAuth(
-                `${CONFIG.apiUrl}/recruiter/job-postings`,
+                `${CONFIG.apiUrl}/candidate/job-postings`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (!res.ok) throw new Error('Error cargando puestos');
