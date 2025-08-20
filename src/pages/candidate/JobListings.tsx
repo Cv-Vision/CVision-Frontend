@@ -113,8 +113,8 @@ const JobSearch = () => {
       setToastMessage("Debes iniciar sesión para postularte a un trabajo");
       setToastType("error");
       setShowToast(true);
-      // Redirect to login page, can register from there
-      window.location.href = "/login";
+      // Redirect to login page with state
+      window.location.href = "/login?fromJobListings=true";
       return;
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { useAuth } from "@/context/AuthContext.tsx";
 import { UserRole } from '@/types/auth.ts';
@@ -14,8 +14,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
-  const location = useLocation();
-  const fromJobListings = location.state?.fromJobListings;
+  const [searchParams] = useSearchParams();
+
+  const fromJobListings = searchParams.get('fromJobListings') === 'true';
 
   useEffect(() => {
     if (fromJobListings) {
