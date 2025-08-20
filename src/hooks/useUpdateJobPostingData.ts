@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 export interface UpdatePayload {
   description?: string;
@@ -12,7 +13,8 @@ export interface UpdatePayload {
   };
   contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
   additional_requirements?: string;
-  job_location?: string;
+  location?: string;
+  company?: string;
 }
 
 export const useUpdateJobPostingData = () => {
@@ -29,7 +31,7 @@ export const useUpdateJobPostingData = () => {
 
     try {
       const cleanId = jobId.replace('JD#', '');
-      const url = `${process.env.REACT_APP_API_URL}/recruiter/job-postings/${cleanId}/update`;
+      const url = `${CONFIG.apiUrl}/recruiter/job-postings/${cleanId}/update`;
 
       const response = await fetchWithAuth(url, {
         method: 'PUT',

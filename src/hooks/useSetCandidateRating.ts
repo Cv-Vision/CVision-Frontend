@@ -1,3 +1,4 @@
+import { CONFIG } from '@/config';
 import { useState } from 'react';
 export function useSetCandidateRating() {
   const [isLoading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ export function useSetCandidateRating() {
       console.log('📤 Enviando request a Lambda con payload:', payload);
 
       const res = await fetch(
-        `htt${process.env.REACT_APP_API_URL}/recruiter/job-postings/${jobId}/set-candidate-rating`,
+        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/set-candidate-rating`,
         {
           method: 'POST',
           headers: {

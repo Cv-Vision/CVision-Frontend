@@ -1,4 +1,5 @@
 import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import { Link } from 'react-router-dom';
 import resultsImg from '../assets/homepage_results.png';
 import candidatesImg from '../assets/homepage_candidates.png';
 
@@ -22,6 +23,12 @@ const Home = () => {
           <p className="text-2xl md:text-3xl text-gray-700 font-medium max-w-xl text-center">
             Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
           </p>
+          <Link
+            to="/candidate/positions"
+            className="mt-6 bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition text-lg"
+          >
+            Explorar Trabajos
+          </Link>
         </div>
       </div>
 

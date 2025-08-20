@@ -3,6 +3,7 @@ import { CandidateProfile } from "@/types/candidate.ts";
 import BasicInfoSection from "../../components/candidate/BasicInfoSection.tsx";
 import WorkExperienceSection from "../../components/candidate/WorkExperienceSection.tsx";
 import EducationSection from "../../components/candidate/EducationSection.tsx";
+import CandidateCVDropzone from "../../components/candidate/CandidateCVDropzone.tsx";
 import { v4 as uuidv4 } from "uuid";
 
 const CandidateRegisterForm = () => {
@@ -63,6 +64,19 @@ const CandidateRegisterForm = () => {
         }));
     };
 
+    const handleCVProcessed = (cvData: any) => {
+        setProfile(prev => ({
+            ...prev,
+            basicInfo: {
+                ...prev.basicInfo,
+                fullName: cvData.fullName || prev.basicInfo.fullName,
+                // Puedes agregar otros campos si el backend los provee
+            },
+            workExperience: cvData.workExperience || prev.workExperience,
+            education: cvData.education || prev.education,
+        }));
+    };
+
     const handleSubmit = () => {
         console.log("Perfil guardado:", profile);
         // TODO: integrar con backend. Basarse en recruiter/RegisterForm.tsx
@@ -73,6 +87,8 @@ const CandidateRegisterForm = () => {
             <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-8 flex flex-col gap-8">
                 <h1 className="text-3xl font-extrabold text-gray-800 text-center">Crear Perfil de Candidato</h1>
                 <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
+                {/* Adjuntar CV debajo de la información básica */}
+                <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
                 <button

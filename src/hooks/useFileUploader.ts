@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fetchWithAuth } from '../services/fetchWithAuth';
+import { CONFIG } from '@/config';
 
 export const useFileUploader = (jobId: string) => {
   const [uploading, setUploading] = useState(false);
@@ -17,7 +18,7 @@ export const useFileUploader = (jobId: string) => {
 
     try {
       const response = await fetchWithAuth(
-        `${process.env.REACT_APP_API_URL}/cv/generate-presigned-url`,
+        `${CONFIG.apiUrl}/cv/generate-presigned-url`,
         {
           method: 'POST',
           headers: {

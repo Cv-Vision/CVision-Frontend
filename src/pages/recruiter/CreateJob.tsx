@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '@/components/other/BackButton.tsx';
+import BackButton from '@/components//other/BackButton.tsx';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts';
 import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
+
+type QuestionType = 'YES_NO' | 'OPEN';
+interface ApplicantQuestion {
+  id: string;
+  text: string;
+  type: QuestionType;
+}
 
 export default function CreateJob() {
   const [title, setTitle] = useState('');
@@ -16,6 +23,9 @@ export default function CreateJob() {
   const [additionalRequirements, setAdditionalRequirements] = useState('');
   const [jobLocation, setJobLocation] = useState('');
 
+  // Preguntas para aplicantes
+  const [questions, setQuestions] = useState<ApplicantQuestion[]>([]);
+
   const navigate = useNavigate();
 
   const {
@@ -24,16 +34,6 @@ export default function CreateJob() {
     error,
     success
   } = useCreateJobForm();
-
-  // Removed overflow blocking to allow vertical scrolling
-  // useEffect(() => {
-  //   document.body.style.overflow = 'hidden';
-  //   document.documentElement.style.overflow = 'hidden';
-  //   return () => {
-  //     document.body.style.overflow = 'unset';
-  //     document.documentElement.style.overflow = 'unset';
-  //   };
-  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,15 +60,35 @@ export default function CreateJob() {
     if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
     if (jobLocation.trim()) payload.job_location = jobLocation.trim();
 
+    //incluir applicant_questions solo si hay válidas
+    const validQs = questions
+      .map(q => ({ ...q, text: q.text.trim() }))
+      .filter(q => q.text.length > 0 && (q.type === 'YES_NO' || q.type === 'OPEN'));
+    if (validQs.length > 0) {
+      payload.applicant_questions = validQs.map(q => ({
+        id: q.id,
+        text: q.text,
+        type: q.type
+      }));
+    }
+
     await createJob(payload);
   };
 
-  // Navigate to job postings list when creation succeeds
   useEffect(() => {
     if (success) {
       navigate('/recruiter/job-postings');
     }
   }, [success, navigate]);
+
+  const addQuestion = () =>
+    setQuestions(prev => [...prev, { id: crypto.randomUUID(), text: '', type: 'YES_NO' }]);
+
+  const removeQuestion = (id: string) =>
+    setQuestions(prev => prev.filter(q => q.id !== id));
+
+  const updateQuestion = (id: string, patch: Partial<ApplicantQuestion>) =>
+    setQuestions(prev => prev.map(q => (q.id === id ? { ...q, ...patch } : q)));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
@@ -217,6 +237,57 @@ export default function CreateJob() {
                 rows={3}
                 placeholder="Escribe requisitos adicionales..."
               />
+            </div>
+          </div>
+
+          {/* NUEVA SECCIÓN: Preguntas para aplicantes (opcional) */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Preguntas para aplicantes (opcional)</h3>
+              <button
+                type="button"
+                onClick={addQuestion}
+                className="rounded-xl border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+              >
+                + Agregar pregunta
+              </button>
+            </div>
+
+            {questions.length === 0 && (
+              <p className="text-sm text-gray-500">No agregaste preguntas.</p>
+            )}
+
+            <div className="space-y-4">
+              {questions.map((q, idx) => (
+                <div key={q.id} className="border rounded-lg p-4 space-y-3 hover:border-gray-300">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">Pregunta #{idx + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeQuestion(q.id)}
+                      className="text-red-600 text-sm hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={q.text}
+                    onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
+                    placeholder="Ej: ¿Tenés disponibilidad full-time?"
+                    className="w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <label className="text-sm font-medium text-gray-700">Tipo</label>
+                  <select
+                    value={q.type}
+                    onChange={(e) => updateQuestion(q.id, { type: e.target.value as QuestionType })}
+                    className="w-full border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="YES_NO">Sí / No</option>
+                    <option value="OPEN">Desarrollo (respuesta libre)</option>
+                  </select>
+                </div>
+              ))}
             </div>
           </div>
 

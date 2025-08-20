@@ -1,5 +1,7 @@
-const CLIENT_ID = `${process.env.REACT_APP_CLIENT_ID}`;
-const COGNITO_ENDPOINT = `${process.env.REACT_APP_COGNITO_ENDPOINT}`;
+import { CONFIG } from "@/config";
+
+const CLIENT_ID = `${CONFIG.clientId}`;
+const COGNITO_ENDPOINT = `${CONFIG.cognitoEndpoint}`;
 
 interface SignUpParams {
   username: string;

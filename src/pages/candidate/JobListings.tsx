@@ -1,27 +1,125 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JobSearchBar from "../../components/candidate/JobSearchBar.tsx";
 import JobSearchAdvancedFilters from "../../components/candidate/JobSearchAdvancedFilters";
 import JobSearchResults from "../../components/candidate/JobSearchResults";
 import { JobSearchFilters } from "@/types/candidate.ts";
+import { useApplyToJob } from '@/hooks/useApplyToJob';
+import { useGetJobs } from '@/hooks/useGetJobs';
+import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
+import ToastNotification from '@/components/other/ToastNotification';
+import { useAuth } from '@/context/AuthContext';
+import { Job } from '@/context/JobContext';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasResults, setHasResults] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [jobsPerPage] = useState(10);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const { jobs, isLoading: isLoadingJobs, error: jobsError } = useGetJobs();
+  const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const { user, isAuthenticated } = useAuth();
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (success) {
+      setIsModalOpen(false);
+      setToastMessage("Te postulaste con éxito");
+      setToastType("success");
+      setShowToast(true);
+      setAppliedJobs(prev => [...prev, selectedJobId]);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (applyError) {
+      setToastMessage(applyError);
+      setToastType("error");
+      setShowToast(true);
+    }
+  }, [applyError]);
+  
+  useEffect(() => {
+    if (jobsError) {
+      setToastMessage(jobsError);
+      setToastType("error");
+      setShowToast(true);
+    }
+  }, [jobsError]);
 
   const handleChange = (field: keyof JobSearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Filtrar trabajos basados en los filtros aplicados
+  useEffect(() => {
+    filterJobs();
+  }, [jobs]);
+
+  const filterJobs = () => {
+    if (jobs.length === 0) return;
+    
+    let results = [...jobs];
+    
+    if (filters.title) {
+      results = results.filter(job => 
+        job.title.toLowerCase().includes(filters.title.toLowerCase())
+      );
+    }
+    
+    if (filters.company) {
+      results = results.filter(job => 
+        job.company.toLowerCase().includes(filters.company!.toLowerCase())
+      );
+    }
+
+    if (filters.industry) {
+      results = results.filter(job => 
+        job.industry_experience?.industry?.toLowerCase().includes(filters.industry!.toLowerCase())
+      );
+    }
+
+    if (filters.contractType) {
+      results = results.filter(job => 
+        job.contract_type?.toLowerCase() === filters.contractType!.toLowerCase()
+      );
+    }
+
+    if (filters.seniorityLevel) {
+      results = results.filter(job => 
+        job.experience_level?.toLowerCase() === filters.seniorityLevel!.toLowerCase()
+      );
+    }
+    
+    setFilteredJobs(results);
+    setCurrentPage(1);
+  };
+
   const handleSearch = () => {
-    setIsLoading(true);
-    console.log("Filtros enviados al backend:", filters);
-    // TODO: Llamada real a la API
-    setTimeout(() => {
-      setIsLoading(false);
-      setHasResults(true); // Cambia a false si la API no devuelve nada
-    }, 1000);
+    filterJobs();
+  };
+
+  const handleConfirmApply = () => {
+    apply(selectedJobId);
+  };
+
+  const handleApply = (jobId: string) => {
+    if (!isAuthenticated) {
+      setToastMessage("Debes iniciar sesión para postularte a un trabajo");
+      setToastType("error");
+      setShowToast(true);
+      // Redirect to login page with state
+      window.location.href = "/login?fromJobListings=true";
+      return;
+    }
+
+    setSelectedJobId(jobId);
+    setIsModalOpen(true);
   };
 
   return (
@@ -46,7 +144,34 @@ const JobSearch = () => {
             </button>
           </div>
 
-          <JobSearchResults isLoading={isLoading} hasResults={hasResults} />
+          <JobSearchResults
+            isLoading={isLoadingJobs}
+            hasResults={filteredJobs.length > 0}
+            jobs={filteredJobs}
+            onApply={handleApply} // Pass the new handleApply function
+            appliedJobs={appliedJobs}
+            isApplying={isApplying}
+            applyingJobId={selectedJobId}
+            isAuthenticated={isAuthenticated}
+            userRole={user?.role}
+            currentPage={currentPage}
+            jobsPerPage={jobsPerPage}
+            onPageChange={setCurrentPage}
+            totalJobs={filteredJobs.length}
+          />
+          <ApplyConfirmationModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleConfirmApply}
+            isLoading={isApplying}
+          />
+          {showToast && (
+            <ToastNotification
+              message={toastMessage}
+              type={toastType}
+              onClose={() => setShowToast(false)}
+            />
+          )}
         </div>
       </div>
   );
