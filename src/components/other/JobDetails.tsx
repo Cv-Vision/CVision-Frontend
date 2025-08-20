@@ -217,7 +217,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
               <input
                 type="text"
                 value={requirements.location || ''}
-                onChange={(e) => setRequirements(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => setRequirements(prev => ({ ...prev, job_location: e.target.value }))}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                 placeholder="Ingrese la ubicación del puesto..."
               />

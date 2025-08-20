@@ -205,7 +205,7 @@ const JobRequirementsDisplay: React.FC<JobRequirementsDisplayProps> = ({ job, on
               <input
                 type="text"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, job_location: e.target.value }))}
                 className="w-full text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
                 placeholder="Ej: Buenos Aires, Madrid..."
               />

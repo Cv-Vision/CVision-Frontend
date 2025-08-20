@@ -32,7 +32,7 @@ const ExtraRequirementsForm: React.FC<ExtraRequirementsFormProps> = ({ onChange 
       industryRequired,
       industryText: industryRequired ? industryText : '',
       contractTypes,
-      location,
+      location: location,
     });
   }, [freeText, seniority, englishLevel, industryRequired, industryText, contractTypes, location, onChange]);
 
