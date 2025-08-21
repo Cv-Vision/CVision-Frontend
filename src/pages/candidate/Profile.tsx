@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CandidateProfile as CandidateProfileType } from '@/types/candidate.ts';
 import WorkExperienceSection from '../../components/candidate/WorkExperienceSection.tsx';
 import EducationSection from '../../components/candidate/EducationSection.tsx';
@@ -6,8 +6,10 @@ import BasicInfoSection from '../../components/candidate/BasicInfoSection.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import BackButton from '@/components/other/BackButton.tsx';
 import CandidateCVDropzone from '../../components/candidate/CandidateCVDropzone.tsx';
+import { updateProfile } from '@/services/candidateService';
 
 export function CandidateProfile() {
   const { user } = useAuth();
@@ -20,6 +22,19 @@ export function CandidateProfile() {
     workExperience: user?.workExperience || [],
     education: user?.education || []
   });
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [cvFile, setCvFile] = useState<string | null>(null);
+
+  // Reset status messages when form changes
+  useEffect(() => {
+    if (error || success) {
+      setError(null);
+      setSuccess(null);
+    }
+  }, [profile, cvFile]);
 
   const handleWorkChange = (index: number, field: keyof CandidateProfileType['workExperience'][0], value: string) => {
     setProfile(prev => {
@@ -36,6 +51,7 @@ export function CandidateProfile() {
       return { ...prev, education: updated };
     });
   };
+  
   const handleBasicInfoChange = (field: keyof CandidateProfileType['basicInfo'], value: string) => {
     setProfile(prev => ({
       ...prev,
@@ -73,10 +89,24 @@ export function CandidateProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Call backend API to update candidate profile
-    // Example:
-    // await CandidateService.updateProfile(profile);
-    console.log('Perfil actualizado:', profile);
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      const result = await updateProfile(profile, cvFile || undefined);
+      setSuccess(result.message || 'Perfil actualizado con éxito');
+      
+      // Update user context if needed
+      if (result.user) {
+        // The auth context could be updated here if needed
+        console.log('Usuario actualizado:', result.user);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar el perfil');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Autocompletar datos desde el CV
@@ -91,6 +121,11 @@ export function CandidateProfile() {
       workExperience: cvData.workExperience || prev.workExperience,
       education: cvData.education || prev.education,
     }));
+  };
+  
+  // Handle CV file upload
+  const handleFileUpload = (base64File: string) => {
+    setCvFile(base64File);
   };
 
   return (
@@ -110,20 +145,36 @@ export function CandidateProfile() {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
           Editar Perfil de Candidato
         </h1>
+        
+        {/* Status messages */}
+        {error && (
+          <div className="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start mb-4">
+            <ExclamationCircleIcon className="h-6 w-6 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+            <p>{error}</p>
+          </div>
+        )}
+        
+        {success && (
+          <div className="w-full bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-start mb-4">
+            <CheckCircleIcon className="h-6 w-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+            <p>{success}</p>
+          </div>
+        )}
+        
         <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
           <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
           {/* Adjuntar CV debajo de la información básica */}
-          <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
+          <CandidateCVDropzone onCVProcessed={handleCVProcessed} onFileUpload={handleFileUpload} />
           <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
           <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 hover:scale-105"
+            disabled={isLoading}
+            className={`w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}`}
           >
-            Guardar Cambios
+            {isLoading ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </form>
-        {/* TODO: Show success/error messages from backend response here */}
       </div>
     </div>
   );

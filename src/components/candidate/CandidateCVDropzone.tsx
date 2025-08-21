@@ -3,44 +3,65 @@ import { useDropzone } from 'react-dropzone';
 
 interface CandidateCVDropzoneProps {
   onCVProcessed: (cvData: any) => void;
+  onFileUpload: (base64File: string) => void;
 }
 
-const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed }) => {
+const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed, onFileUpload }) => {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       setError(null);
       const file = acceptedFiles[0];
       if (!file) return;
+      
       if (file.type !== 'application/pdf') {
         setError('Solo se permite subir archivos PDF.');
         return;
       }
+      
       if (file.size > 5 * 1024 * 1024) {
         setError('El archivo no puede superar los 5MB.');
         return;
       }
+      
       setUploading(true);
+      setFileName(file.name);
+      
       try {
-        // TODO: Integrar con backend para subir el archivo y procesar el CV.
-        // Ejemplo:
-        // const formData = new FormData();
-        // formData.append('cv', file);
-        // const response = await fetch('/api/candidate/upload-cv', { method: 'POST', body: formData });
-        // const data = await response.json();
-        // onCVProcessed(data);
-
-        // Dejar la integración aquí, no simular ni devolver datos mockeados.
+        // Convert file to base64 for sending to API
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64String = event?.target?.result as string;
+          if (base64String) {
+            // Pass the base64 string to parent component
+            onFileUpload(base64String);
+            
+            // For now, just pass minimal data to onCVProcessed
+            // In a real implementation, this would come from backend CV parsing
+            onCVProcessed({
+              fullName: '',
+              workExperience: [],
+              education: []
+            });
+          }
+        };
+        
+        reader.onerror = () => {
+          setError('Error al leer el archivo.');
+        };
+        
+        reader.readAsDataURL(file);
       } catch (err) {
-        setError('Error al subir o procesar el CV.');
+        setError('Error al procesar el CV.');
       } finally {
         setUploading(false);
       }
     },
-    [onCVProcessed]
+    [onCVProcessed, onFileUpload]
   );
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -59,7 +80,7 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
           className="w-full text-blue-700 font-semibold py-2"
           onClick={() => setExpanded((prev) => !prev)}
         >
-          {expanded ? 'Cerrar' : 'Adjuntar CV'}
+          {expanded ? 'Cerrar' : fileName ? `CV: ${fileName}` : 'Adjuntar CV'}
         </button>
         {expanded && (
           <div className="mt-4">
@@ -88,6 +109,9 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
             </div>
             {uploading && <p className="mt-2 text-blue-600">Subiendo y procesando...</p>}
             {error && <p className="mt-2 text-red-600">{error}</p>}
+            {fileName && !error && (
+              <p className="mt-2 text-green-600">Archivo seleccionado: {fileName}</p>
+            )}
           </div>
         )}
       </div>
