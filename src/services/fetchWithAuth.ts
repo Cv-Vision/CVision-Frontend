@@ -20,7 +20,7 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
     ...init,
     headers: mergedHeaders,
     mode: 'cors',
-    credentials: 'include'
+    credentials: 'omit' // Changed from 'include' to 'omit' to avoid CORS issues
   };
 
   try {

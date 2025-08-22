@@ -28,7 +28,7 @@ const RecruiterRegisterForm = () => {
         }
 
         try {
-            await signUp({ username, email, password }); // Pass recruiter role
+            await signUp({ username, email, password, userType: 'recruiter' }); // Pass recruiter role
             navigate('/confirm', { state: { username } }); // Redirige y pasa username
         } catch (err: any) {
             setError(err.message);
