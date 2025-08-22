@@ -25,6 +25,7 @@ export interface CandidateProfile {
     basicInfo: BasicInfo;
     workExperience: WorkExperience[];
     education: Education[];
+    cvUrl?: string; // URL del CV subido
 }
 
 export interface JobSearchFilters {

@@ -11,6 +11,8 @@ import { ProtectedRoute } from '../components/other/ProtectedRoute.tsx';
 import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
+import CandidateConfirmAccount from "@/pages/candidate/ConfirmAccount.tsx";
+import RecruiterConfirmAccount from "@/pages/recruiter/ConfirmAccount.tsx";
 import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 //import JobDetailsPage from '../pages/recruiter/JobDetailsPage';
@@ -28,7 +30,8 @@ export function AppRouter() {
       <Route path="/register" element={<Register />} />
         <Route path="/recruiter-register" element={<RecruiterRegisterForm />} />
         <Route path="/candidate-register" element={<CandidateRegisterForm />} />
-
+        <Route path="/candidate-confirm" element={<CandidateConfirmAccount />} />
+        <Route path="/recruiter-confirm" element={<RecruiterConfirmAccount />} />
 
         <Route path="/confirm" element={<ConfirmAccount />} />
       <Route path="/candidate/dashboard" element={

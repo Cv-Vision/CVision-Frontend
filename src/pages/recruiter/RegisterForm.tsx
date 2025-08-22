@@ -1,37 +1,74 @@
 import React, { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
-import { signUp } from '@/services/AuthService.ts';
+import { registerRecruiter } from '@/services/recruiterService.ts';
+import Toast from '@/components/other/Toast.tsx';
 
 const RecruiterRegisterForm = () => {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
+    const [company, setCompany] = useState('');
+    const [position, setPosition] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [toast, setToast] = useState<{
+        isVisible: boolean;
+        type: 'success' | 'error';
+        message: string;
+    }>({
+        isVisible: false,
+        type: 'success',
+        message: ''
+    });
+
     const navigate = useNavigate();
 
-    const isValidUsername = (username: string) => {
-        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/; // Letras, números y guiones bajos, 3-20 caracteres
-        return usernameRegex.test(username);
+    const showToast = (type: 'success' | 'error', message: string) => {
+        setToast({
+            isVisible: true,
+            type,
+            message
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
-        if (!isValidUsername(username)) {
-            setError('El nombre de usuario solo puede contener letras, números y guiones bajos. De 3 a 20 caracteres.');
+        // Validar campos obligatorios
+        if (!fullName.trim() || !email.trim() || !password.trim()) {
+            showToast('error', 'Por favor completa todos los campos obligatorios');
+            setLoading(false);
+            return;
+        }
+
+        if (password.length < 8) {
+            showToast('error', 'La contraseña debe tener al menos 8 caracteres');
             setLoading(false);
             return;
         }
 
         try {
-            await signUp({ username, email, password }); // Pass recruiter role
-            navigate('/confirm', { state: { username } }); // Redirige y pasa username
+            const result = await registerRecruiter({
+                basicInfo: {
+                    fullName,
+                    email,
+                    password
+                },
+                company: company.trim() || undefined,
+                position: position.trim() || undefined
+            });
+
+            showToast('success', 'Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.');
+            
+            // Redirigir a la página de confirmación después de 2 segundos
+            setTimeout(() => {
+                navigate(`/recruiter-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
+            }, 2000);
+            
         } catch (err: any) {
-            setError(err.message);
+            console.error('Error al crear cuenta:', err);
+            showToast('error', err.message || 'Error al crear la cuenta. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -53,24 +90,23 @@ const RecruiterRegisterForm = () => {
                 </div>
 
                 <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
-                    {/* Elimina el selector de tipo de usuario, es solo reclutador */}
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Nombre de usuario
+                            Nombre completo *
                         </label>
                         <input
                             type="text"
-                            placeholder="tu_usuario"
+                            placeholder="Tu nombre completo"
                             className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
-                            value={username}
-                            onChange={e => setUsername(e.target.value)}
+                            value={fullName}
+                            onChange={e => setFullName(e.target.value)}
                             required
                         />
                     </div>
 
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Correo electrónico
+                            Correo electrónico *
                         </label>
                         <input
                             type="email"
@@ -84,7 +120,7 @@ const RecruiterRegisterForm = () => {
 
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Contraseña
+                            Contraseña *
                         </label>
                         <input
                             type="password"
@@ -93,6 +129,32 @@ const RecruiterRegisterForm = () => {
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             required
+                        />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700 ml-1">
+                            Empresa (opcional)
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Nombre de tu empresa"
+                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            value={company}
+                            onChange={e => setCompany(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700 ml-1">
+                            Cargo (opcional)
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Tu cargo o posición"
+                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            value={position}
+                            onChange={e => setPosition(e.target.value)}
                         />
                     </div>
 
@@ -110,12 +172,6 @@ const RecruiterRegisterForm = () => {
                             'Crear Cuenta'
                         )}
                     </button>
-
-                    {error && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                            <p className="text-red-600 text-sm text-center">{error}</p>
-                        </div>
-                    )}
                 </form>
 
                 <div className="mt-8 pt-6 border-t border-gray-200/50">
@@ -130,6 +186,13 @@ const RecruiterRegisterForm = () => {
                     </p>
                 </div>
             </div>
+
+            <Toast
+                type={toast.type}
+                message={toast.message}
+                isVisible={toast.isVisible}
+                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+            />
         </div>
     );
 };
