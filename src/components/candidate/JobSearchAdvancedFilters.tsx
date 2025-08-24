@@ -18,7 +18,7 @@ const JobSearchAdvancedFilters: FC<Props> = ({ filters, onChange }) => {
     const modalities = ["Remoto", "Híbrido", "Presencial"];
 
     return (
-        <div className="bg-blue-50 p-6 rounded-xl shadow-sm w-full flex flex-col gap-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-lg border border-blue-100 w-full flex flex-col gap-6">
             <FormInput label="Empresa" value={filters.company || ""} onChange={(v) => onChange("company", v)} />
             <FormSelect label="Tipo de puesto" value={filters.jobType || ""} onChange={(v) => onChange("jobType", v)} options={jobTypes} />
             <FormSelect label="Región" value={filters.region || ""} onChange={(v) => onChange("region", v)} options={regions} />

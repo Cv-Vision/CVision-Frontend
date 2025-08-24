@@ -32,10 +32,18 @@ const JobSearchResults = ({
     totalJobs,
 }: JobSearchResultsProps) => {
     if (isLoading) {
-        return <p className="text-gray-500 text-center py-4">Cargando resultados...</p>;
+        return (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8">
+                <p className="text-blue-600 text-center py-4 font-medium">Cargando resultados...</p>
+            </div>
+        );
     }
     if (!hasResults) {
-        return <p className="text-gray-500 text-center py-4">No se encontraron resultados</p>;
+        return (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8">
+                <p className="text-blue-600 text-center py-4 font-medium">No se encontraron resultados</p>
+            </div>
+        );
     }
     // Get current jobs for pagination
     const indexOfLastJob = currentPage * jobsPerPage;
@@ -47,33 +55,33 @@ const JobSearchResults = ({
     const paginate = (pageNumber: number) => onPageChange(pageNumber);
     
     return (
-        <div className="bg-white rounded-xl shadow p-6 space-y-4">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 space-y-6">
             {hasResults ? (
                 <>
                     <div className="space-y-6">
                         {currentJobs.map((job) => (
-                            <div key={job.pk} className="border-b pb-4 last:border-0">
-                                <h3 className="text-lg font-bold text-gray-800">{job.title}</h3>
-                                <p className="text-gray-600 mb-2">{job.company}</p>
-                                <p className="text-gray-500 text-sm mb-4">{job.description}</p>
-                                <div className="flex flex-wrap gap-2 mb-4">
+                            <div key={job.pk} className="border-b-2 border-blue-100 pb-6 last:border-0">
+                                <h3 className="text-xl font-bold text-blue-800 mb-2">{job.title}</h3>
+                                <p className="text-blue-700 font-medium mb-3">{job.company}</p>
+                                <p className="text-blue-600 text-base mb-4">{job.description}</p>
+                                <div className="flex flex-wrap gap-3 mb-4">
                                     {job.experience_level && (
-                                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm px-3 py-1 rounded-xl border border-blue-200 font-medium">
                                             {job.experience_level}
                                         </span>
                                     )}
                                     {job.english_level && (
-                                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                                        <span className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 text-sm px-3 py-1 rounded-xl border border-green-200 font-medium">
                                             {job.english_level}
                                         </span>
                                     )}
                                     {job.contract_type && (
-                                        <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
+                                        <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 text-sm px-3 py-1 rounded-xl border border-purple-200 font-medium">
                                             {job.contract_type}
                                         </span>
                                     )}
                                     {job.location && (
-                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                                        <span className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 text-sm px-3 py-1 rounded-xl border border-yellow-200 font-medium">
                                             {job.location}
                                         </span>
                                     )}
@@ -82,7 +90,7 @@ const JobSearchResults = ({
                                     <button
                                         onClick={() => onApply(job.pk)}
                                         disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                     >
                                         {isApplying && applyingJobId === job.pk
                                             ? 'Aplicando...'

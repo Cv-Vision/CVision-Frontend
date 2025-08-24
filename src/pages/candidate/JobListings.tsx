@@ -9,6 +9,7 @@ import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
+import BackButton from '@/components/other/BackButton.tsx';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
@@ -123,55 +124,62 @@ const JobSearch = () => {
   };
 
   return (
-      <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10 px-4 gap-6">
-        <div className="w-full max-w-4xl flex flex-col gap-4">
-          <JobSearchBar
-              title={filters.title}
-              onTitleChange={(v) => handleChange("title", v)}
-              onToggleAdvanced={() => setShowAdvanced((prev) => !prev)}
-          />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
+        <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20">
+          <div className="w-full flex flex-col gap-6">
+            {/* Botón de volver usando el componente BackButton */}
+            <div className="w-full flex justify-start mb-6">
+              <BackButton to="/candidate/dashboard" />
+            </div>
 
-          {showAdvanced && (
-              <JobSearchAdvancedFilters filters={filters} onChange={handleChange} />
-          )}
-
-          <div className="flex justify-end">
-            <button
-                onClick={handleSearch}
-                className="bg-blue-500 text-white font-semibold px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition"
-            >
-              Buscar
-            </button>
-          </div>
-
-          <JobSearchResults
-            isLoading={isLoadingJobs}
-            hasResults={filteredJobs.length > 0}
-            jobs={filteredJobs}
-            onApply={handleApply} // Pass the new handleApply function
-            appliedJobs={appliedJobs}
-            isApplying={isApplying}
-            applyingJobId={selectedJobId}
-            isAuthenticated={isAuthenticated}
-            userRole={user?.role}
-            currentPage={currentPage}
-            jobsPerPage={jobsPerPage}
-            onPageChange={setCurrentPage}
-            totalJobs={filteredJobs.length}
-          />
-          <ApplyConfirmationModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onConfirm={handleConfirmApply}
-            isLoading={isApplying}
-          />
-          {showToast && (
-            <ToastNotification
-              message={toastMessage}
-              type={toastType}
-              onClose={() => setShowToast(false)}
+            <JobSearchBar
+                title={filters.title}
+                onTitleChange={(v) => handleChange("title", v)}
+                onToggleAdvanced={() => setShowAdvanced((prev) => !prev)}
             />
-          )}
+
+            {showAdvanced && (
+                <JobSearchAdvancedFilters filters={filters} onChange={handleChange} />
+            )}
+
+            <div className="flex justify-center">
+              <button
+                  onClick={handleSearch}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 hover:scale-105"
+              >
+                Buscar
+              </button>
+            </div>
+
+            <JobSearchResults
+              isLoading={isLoadingJobs}
+              hasResults={filteredJobs.length > 0}
+              jobs={filteredJobs}
+              onApply={handleApply} // Pass the new handleApply function
+              appliedJobs={appliedJobs}
+              isApplying={isApplying}
+              applyingJobId={selectedJobId}
+              isAuthenticated={isAuthenticated}
+              userRole={user?.role}
+              currentPage={currentPage}
+              jobsPerPage={jobsPerPage}
+              onPageChange={setCurrentPage}
+              totalJobs={filteredJobs.length}
+            />
+            <ApplyConfirmationModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onConfirm={handleConfirmApply}
+              isLoading={isApplying}
+            />
+            {showToast && (
+              <ToastNotification
+                message={toastMessage}
+                type={toastType}
+                onClose={() => setShowToast(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
   );

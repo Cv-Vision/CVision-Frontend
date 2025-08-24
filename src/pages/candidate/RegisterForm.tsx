@@ -133,25 +133,29 @@ const CandidateRegisterForm = () => {
     };
 
     return (
-        <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10 px-4">
-            <div className="bg-white rounded-2xl shadow-lg max-w-3xl w-full p-8 flex flex-col gap-8">
-                <h1 className="text-3xl font-extrabold text-gray-800 text-center">Crear Perfil de Candidato</h1>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
+            <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
+                    Crear Perfil de Candidato
+                </h1>
                 <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
                 {/* Adjuntar CV debajo de la información básica */}
                 <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-                <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`px-6 py-3 rounded-lg shadow font-semibold text-lg transition ${
-                        isSubmitting 
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                            : 'bg-green-500 text-white hover:bg-green-700'
-                    }`}
-                >
-                    {isSubmitting ? 'Guardando...' : 'Guardar Perfil'}
-                </button>
+                <div className="flex justify-end pt-6">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ${
+                            isSubmitting 
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                                : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
+                        }`}
+                    >
+                        {isSubmitting ? 'Guardando...' : 'Guardar Perfil'}
+                    </button>
+                </div>
             </div>
             
             <Toast

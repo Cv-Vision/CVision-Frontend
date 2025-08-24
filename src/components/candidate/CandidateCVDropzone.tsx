@@ -59,28 +59,28 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
 
   return (
     <div className="w-full">
-      <div className="border rounded-xl bg-blue-50 px-4 py-3 mb-4">
+      <div className="border-2 border-blue-200 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 mb-6">
         <button
           type="button"
-          className="w-full text-blue-700 font-semibold py-2"
+          className="w-full text-blue-700 font-semibold py-3 text-lg hover:text-blue-800 transition-colors duration-300"
           onClick={() => setExpanded((prev) => !prev)}
         >
           {expanded ? 'Cerrar' : 'Adjuntar CV'}
         </button>
         {expanded && (
-          <div className="mt-4">
+          <div className="mt-6">
             {uploadedCVUrl ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <div className="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-2xl p-6 mb-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-green-800">CV subido exitosamente</p>
-                      <p className="text-xs text-green-600">El archivo está listo para ser incluido en tu perfil</p>
+                      <p className="text-lg font-semibold text-green-800">CV subido exitosamente</p>
+                      <p className="text-sm text-green-600">El archivo está listo para ser incluido en tu perfil</p>
                     </div>
                   </div>
                   <button
@@ -88,7 +88,7 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
                       setUploadedCVUrl(null);
                       onCVProcessed({ cvUrl: null, fileName: null, fileSize: null });
                     }}
-                    className="text-green-600 hover:text-green-800 text-sm font-medium"
+                    className="text-green-600 hover:text-green-800 text-sm font-semibold px-4 py-2 rounded-xl border-2 border-green-200 hover:border-green-300 transition-all duration-300"
                   >
                     Cambiar
                   </button>
@@ -97,13 +97,13 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
             ) : (
               <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-300 min-h-[120px] flex flex-col items-center justify-center bg-white
-                  ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-blue-300'}
+                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[140px] flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm
+                  ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'}
                 `}
                 style={{ outline: 'none' }}
               >
                 <input {...getInputProps()} />
-                <p className="text-base font-medium text-gray-700">
+                <p className="text-lg font-semibold text-blue-700 mb-4">
                   {isDragActive
                     ? 'Suelta el archivo PDF aquí...'
                     : 'Arrastra y suelta tu CV en PDF aquí, o haz clic para seleccionar'}
@@ -111,16 +111,30 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
                 <button
                   type="button"
                   onClick={open}
-                  className="mt-4 px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   disabled={uploading}
                 >
                   Seleccionar archivo
                 </button>
-                <p className="mt-2 text-sm text-gray-500">Solo PDF, máximo 5MB</p>
+                <p className="mt-4 text-sm text-blue-600 font-medium">Solo PDF, máximo 5MB</p>
               </div>
             )}
-            {uploading && <p className="mt-2 text-blue-600">Subiendo y procesando...</p>}
-            {error && <p className="mt-2 text-red-600">{error}</p>}
+            {uploading && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-medium">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Subiendo y procesando...
+                </div>
+              </div>
+            )}
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                <p className="text-red-600 font-medium text-center">{error}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
