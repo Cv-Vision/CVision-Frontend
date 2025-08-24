@@ -81,8 +81,9 @@ const RecruiterRegisterForm = () => {
                     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg mb-6">
                         <UserPlusIcon className="h-10 w-10 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-2">
-                        Crear Cuenta de Reclutador
+                    {/* Título acortado y centrado */}
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-2 text-center">
+                        Cuenta de Reclutador
                     </h1>
                     <p className="text-gray-600 text-center text-sm">
                         Únete como reclutador a nuestra plataforma

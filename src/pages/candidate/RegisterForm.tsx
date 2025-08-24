@@ -143,7 +143,9 @@ const CandidateRegisterForm = () => {
                 <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-                <div className="flex justify-end pt-6">
+                
+                {/* <-- Aquí centré el botón (justify-center en lugar de justify-end) --> */}
+                <div className="flex justify-center pt-6">
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting}
