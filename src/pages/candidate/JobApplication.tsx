@@ -115,10 +115,10 @@ const JobApplication = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <p className="mt-4 text-blue-600 font-medium">Cargando...</p>
         </div>
       </div>
     );
@@ -126,140 +126,136 @@ const JobApplication = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20">
+          <p className="text-red-600 font-medium">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="bg-white shadow sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              Postulación: {job?.title} en {job?.company}
-            </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
+      <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-8">
+          Postulación: {job?.title} en {job?.company}
+        </h1>
 
-            {/* CV Upload Section */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Sube tu CV</h2>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                <div className="space-y-1 text-center">
-                  <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="flex text-sm text-gray-600">
-                    <label
-                      htmlFor="cv-upload"
-                      className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                    >
-                      <span>Sube un archivo</span>
-                      <input
-                        id="cv-upload"
-                        name="cv-upload"
-                        type="file"
-                        className="sr-only"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleCvUpload}
-                      />
-                    </label>
-                    <p className="pl-1">o arrastra y suelta</p>
-                  </div>
-                  <p className="text-xs text-gray-500">PDF, DOC o DOCX hasta 10MB</p>
-                </div>
+        {/* CV Upload Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-blue-800 mb-4">Sube tu CV</h2>
+          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-blue-200 border-dashed rounded-xl bg-white/50 backdrop-blur-sm">
+            <div className="space-y-1 text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-blue-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div className="flex text-sm text-blue-600">
+                <label
+                  htmlFor="cv-upload"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                >
+                  <span>Sube un archivo</span>
+                  <input
+                    id="cv-upload"
+                    name="cv-upload"
+                    type="file"
+                    className="sr-only"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleCvUpload}
+                  />
+                </label>
+                <p className="pl-1">o arrastra y suelta</p>
               </div>
-              {cvFile && (
-                <p className="mt-2 text-sm text-gray-500">
-                  Archivo seleccionado: {cvFile.name}
-                </p>
-              )}
+              <p className="text-xs text-blue-500">PDF, DOC o DOCX hasta 10MB</p>
             </div>
-
-            {/* Chat Interface */}
-            {questions.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">
-                  Evaluación de Habilidades
-                </h2>
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-500">
-                      Pregunta {currentQuestionIndex + 1} de {questions.length}
-                    </p>
-                    <p className="text-lg font-medium text-gray-900 mt-2">
-                      {questions[currentQuestionIndex].text}
-                    </p>
-                  </div>
-
-                  {questions[currentQuestionIndex].type === 'multiple_choice' ? (
-                    <div className="space-y-4">
-                      {questions[currentQuestionIndex].options?.map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => handleAnswer(option)}
-                          className={`w-full text-left px-4 py-2 rounded-md ${
-                            answers[questions[currentQuestionIndex].id] === option
-                              ? 'bg-blue-100 border-blue-500'
-                              : 'bg-white border-gray-300'
-                          } border`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <textarea
-                      value={answers[questions[currentQuestionIndex].id] || ''}
-                      onChange={(e) => handleAnswer(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      rows={4}
-                      placeholder="Escribe tu respuesta aquí..."
-                    />
-                  )}
-
-                  <div className="mt-6 flex justify-between">
-                    <button
-                      onClick={handlePrevious}
-                      disabled={currentQuestionIndex === 0}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                    >
-                      Anterior
-                    </button>
-                    {currentQuestionIndex < questions.length - 1 ? (
-                      <button
-                        onClick={handleNext}
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Siguiente
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                      >
-                        Enviar Postulación
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
+          {cvFile && (
+            <p className="mt-2 text-sm text-blue-600 font-medium">
+              Archivo seleccionado: {cvFile.name}
+            </p>
+          )}
         </div>
+
+        {/* Chat Interface */}
+        {questions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-blue-800 mb-4">
+              Evaluación de Habilidades
+            </h2>
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+              <div className="mb-4">
+                <p className="text-sm text-blue-600 font-medium">
+                  Pregunta {currentQuestionIndex + 1} de {questions.length}
+                </p>
+                <p className="text-lg font-semibold text-blue-800 mt-2">
+                  {questions[currentQuestionIndex].text}
+                </p>
+              </div>
+
+              {questions[currentQuestionIndex].type === 'multiple_choice' ? (
+                <div className="space-y-4">
+                  {questions[currentQuestionIndex].options?.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer(option)}
+                      className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-300 ${
+                        answers[questions[currentQuestionIndex].id] === option
+                          ? 'bg-blue-100 border-blue-500 text-blue-800'
+                          : 'bg-white border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <textarea
+                  value={answers[questions[currentQuestionIndex].id] || ''}
+                  onChange={(e) => handleAnswer(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                  rows={4}
+                  placeholder="Escribe tu respuesta aquí..."
+                />
+              )}
+
+              <div className="mt-6 flex justify-between">
+                <button
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 0}
+                  className="px-6 py-3 border-2 border-blue-200 rounded-xl text-sm font-semibold text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  Anterior
+                </button>
+                {currentQuestionIndex < questions.length - 1 ? (
+                  <button
+                    onClick={handleNext}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 hover:from-blue-600 hover:to-indigo-700"
+                  >
+                    Siguiente
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 hover:from-green-600 hover:to-green-700"
+                  >
+                    Enviar Postulación
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

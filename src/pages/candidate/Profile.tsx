@@ -94,34 +94,40 @@ export function CandidateProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center py-10 px-2 overflow-auto">
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-2xl w-full p-10 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
+      <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
         <div className="w-full flex justify-start mb-6">
           <BackButton />
         </div>
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative">
-            <UserIcon className="h-12 w-12 text-blue-600" />
+        
+        {/* Icono y tag centrados */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <UserIcon className="h-16 w-16 text-blue-600" />
           </div>
-          <span className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+          <span className="text-sm text-blue-600 font-medium bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
             Candidato
           </span>
         </div>
+        
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
-          Editar Perfil de Candidato
+          Perfil de Candidato
         </h1>
+        
         <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
           <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
           {/* Adjuntar CV debajo de la información básica */}
           <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
           <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
           <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 hover:scale-105"
-          >
-            Guardar Cambios
-          </button>
+          <div className="flex justify-center pt-6">
+            <button
+              type="submit"
+              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 hover:scale-105"
+            >
+              Guardar Cambios
+            </button>
+          </div>
         </form>
         {/* TODO: Show success/error messages from backend response here */}
       </div>

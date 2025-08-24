@@ -61,7 +61,7 @@ const Navbar = () => {
               CVision
             </h1>
           </div>
-          {isAuthenticated && user && (
+          {isAuthenticated && user && user?.role === 'recruiter' && (
             <>
               <button onClick={() => navigate('/recruiter/create-job')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
                 Crear puesto

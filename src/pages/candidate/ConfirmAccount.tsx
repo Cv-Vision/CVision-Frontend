@@ -77,21 +77,21 @@ const CandidateConfirmAccount = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center py-10 px-4">
-      <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8">
-        <h1 className="text-3xl font-extrabold text-gray-800 text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-md w-full p-10">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
           Confirmar Cuenta
         </h1>
         
-        <p className="text-gray-600 text-center mb-6">
+        <p className="text-blue-700 text-center mb-8 text-lg">
           Hemos enviado un código de verificación a:
           <br />
-          <span className="font-semibold text-blue-600">{email}</span>
+          <span className="font-semibold text-blue-800">{email}</span>
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="code" className="block text-base font-semibold text-blue-800 mb-3">
               Código de Verificación
             </label>
             <input
@@ -100,7 +100,7 @@ const CandidateConfirmAccount = () => {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Ingresa el código de 6 dígitos"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-6 py-4 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm text-lg"
               maxLength={6}
             />
           </div>
@@ -108,20 +108,20 @@ const CandidateConfirmAccount = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition ${
+            className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg hover:shadow-xl ${
               isSubmitting
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
             }`}
           >
             {isSubmitting ? 'Confirmando...' : 'Confirmar Cuenta'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center">
           <button
             onClick={handleResendCode}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            className="text-blue-600 hover:text-blue-800 text-base font-semibold px-4 py-2 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300"
           >
             ¿No recibiste el código? Reenviar
           </button>
@@ -130,7 +130,7 @@ const CandidateConfirmAccount = () => {
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate('/login')}
-            className="text-gray-600 hover:text-gray-800 text-sm"
+            className="text-blue-600 hover:text-blue-800 text-base font-medium px-4 py-2 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300"
           >
             Volver al Login
           </button>

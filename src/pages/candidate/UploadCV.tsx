@@ -54,26 +54,26 @@ export function UploadCV() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8 overflow-y-auto">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white/80 backdrop-blur-sm shadow-2xl sm:rounded-3xl border border-white/20">
+          <div className="px-8 py-8 sm:p-12">
             <BackButton />
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
+            <h3 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent leading-6 mb-4">
               Sube tu CV
             </h3>
-            <div className="mt-2 max-w-xl text-sm text-gray-500">
+            <div className="mt-4 max-w-xl text-lg text-blue-700">
               <p>
                 Sube tu CV en formato PDF o DOCX para que podamos analizarlo y encontrar las mejores oportunidades para ti.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-5">
-              <div className="space-y-4">
-                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
+            <form onSubmit={handleSubmit} className="mt-8">
+              <div className="space-y-6">
+                <div className="flex justify-center px-8 pt-8 pb-8 border-2 border-blue-200 border-dashed rounded-2xl bg-white/50 backdrop-blur-sm">
+                  <div className="space-y-3 text-center">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
+                      className="mx-auto h-16 w-16 text-blue-400"
                       stroke="currentColor"
                       fill="none"
                       viewBox="0 0 48 48"
@@ -86,10 +86,10 @@ export function UploadCV() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <div className="flex text-sm text-gray-600">
+                    <div className="flex text-lg text-blue-600">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                        className="relative cursor-pointer bg-white rounded-xl font-semibold text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 px-4 py-2 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300"
                       >
                         <span>Sube un archivo</span>
                         <input
@@ -102,22 +102,22 @@ export function UploadCV() {
                           disabled={isUploading}
                         />
                       </label>
-                      <p className="pl-1">o arrastra y suelta</p>
+                      <p className="pl-3 self-center">o arrastra y suelta</p>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm text-blue-500 font-medium">
                       PDF o DOCX hasta 5MB
                     </p>
                   </div>
                 </div>
 
                 {file && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-lg text-blue-600 font-medium bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
                     Archivo seleccionado: {file.name}
                   </div>
                 )}
 
                 {error && (
-                  <div className="text-sm text-red-600">
+                  <div className="text-lg text-red-600 bg-red-50 border border-red-200 rounded-xl p-4">
                     {error}
                   </div>
                 )}
@@ -126,16 +126,16 @@ export function UploadCV() {
                   <button
                     type="submit"
                     disabled={!file || isUploading}
-                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                    className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
                       !file || isUploading
-                        ? 'bg-blue-300 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
                     }`}
                   >
                     {isUploading ? (
                       <>
                         <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
