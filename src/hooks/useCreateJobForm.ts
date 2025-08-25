@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
-import { CONFIG } from '@/config';
 
 export type CreateJobPayload = {
   title: string;
   description: string;
+  company: string;
   experience_level?: 'JUNIOR' | 'SEMISENIOR' | 'SENIOR';
   english_level?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED';
   industry_experience?: { required: boolean; industry?: string };
@@ -33,7 +33,7 @@ export function useCreateJobForm() {
       if (!token) throw new Error('No hay token de sesión');
 
       const response = await fetchWithAuth(
-        `${CONFIG.apiUrl}/recruiter/job-postings/create`, {
+        `/api/job-postings`, {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { Authorization: `Bearer ${token}` },

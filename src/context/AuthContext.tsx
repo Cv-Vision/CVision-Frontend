@@ -92,6 +92,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Lo que PERSISTE (sin username)
     const userForStorage: User = { ...userData, token };
     sessionStorage.setItem('user', JSON.stringify(userForStorage));
+    if (token) {
+      sessionStorage.setItem('idToken', token);
+    }
 
     // Lo que va al ESTADO (con username en memoria)
     const userForState: User = { ...userForStorage, username };
