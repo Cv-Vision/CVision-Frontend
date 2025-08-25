@@ -5,6 +5,7 @@ import { CONFIG } from '@/config';
 export type CreateJobPayload = {
   title: string;
   description: string;
+  company: string;
   experience_level?: 'JUNIOR' | 'SEMISENIOR' | 'SENIOR';
   english_level?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED';
   industry_experience?: { required: boolean; industry?: string };

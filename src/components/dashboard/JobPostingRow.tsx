@@ -35,23 +35,24 @@ const getStatusColorClass = (status: string) => {
     }
 };
 
-export function JobRow({ 
-    job, 
-    onRowClick, 
-    //onView, 
-    //onEdit, 
-    onDelete, 
-    //isLoading 
+// Ahora cada campo tiene su propia celda, alineada con los headers
+export function JobRow({
+                           job,
+                           onRowClick,
+                          // onView,
+                          // onEdit,
+                           onDelete,
+                           // isLoading
 }: JobRowProps) {
-    
     return [
         <TableCell key="title" onClick={() => onRowClick(job.pk)}>
-            <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors duration-200 truncate">
-                    {job.title}
-                </h3>
-                <p className="text-sm text-gray-600 font-medium truncate">{job.company}</p>
-            </div>
+            <h3 className="text-base font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors duration-200 truncate">
+                {job.title}
+            </h3>
+        </TableCell>,
+
+        <TableCell key="company" onClick={() => onRowClick(job.pk)}>
+            <p className="text-sm text-gray-600 font-medium truncate">{job.company}</p>
         </TableCell>,
 
         <TableCell key="desc" onClick={() => onRowClick(job.pk)}>
@@ -63,8 +64,8 @@ export function JobRow({
         <TableCell key="status">
             <div className="flex items-center justify-center">
                 <span className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColorClass(String(job.status))}`}>
-                {statusMap[String(job.status)] || job.status}
-            </span>
+                    {statusMap[String(job.status)] || job.status}
+                </span>
             </div>
         </TableCell>,
 

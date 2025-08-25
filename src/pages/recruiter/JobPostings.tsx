@@ -21,7 +21,6 @@ const JobPostings: React.FC = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
 
-  // Prevenir scroll en toda la página
   useEffect(() => {
     if (showConfirm) {
       document.body.style.overflow = 'hidden';
@@ -36,7 +35,8 @@ const JobPostings: React.FC = () => {
     };
   }, [showConfirm]);
 
-  const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
+  // Modificado: se agrega "Empresa" al encabezado
+  const headers = ['Título', 'Empresa', 'Descripción', 'Estado', 'Acciones'];
 
   const handleRowClick = (id: string) => {
     nav(`/recruiter/job/${id}`);
@@ -62,24 +62,18 @@ const JobPostings: React.FC = () => {
   };
 
   const filteredJobs = useMemo(() => {
-    // Always filter out DELETED jobs
     let visibleJobs = jobs.filter(job => job.status !== 'DELETED');
-    
-    // Apply status filter
     if (statusFilter !== 'all') {
       visibleJobs = visibleJobs.filter(job => job.status === statusFilter);
     }
-    
-    // Apply search filter
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
-      visibleJobs = visibleJobs.filter(job => 
-        job.title.toLowerCase().includes(searchLower) ||
-        job.company.toLowerCase().includes(searchLower) ||
-        job.description.toLowerCase().includes(searchLower)
+      visibleJobs = visibleJobs.filter(job =>
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.description.toLowerCase().includes(searchLower)
       );
     }
-    
     return visibleJobs;
   }, [jobs, statusFilter, searchTerm]);
 
@@ -88,7 +82,7 @@ const JobPostings: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <BackButton to="/recruiter/dashboard" />
-            
+
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
@@ -121,11 +115,11 @@ const JobPostings: React.FC = () => {
                   <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="text"
-                  placeholder="Buscar puestos por título, empresa o descripción..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                    type="text"
+                    placeholder="Buscar puestos por título, empresa o descripción..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                 />
               </div>
 
@@ -159,7 +153,6 @@ const JobPostings: React.FC = () => {
                         inactiveClasses = 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 hover:border-blue-300';
                     }
 
-                    // Textos de botón
                     const label = status === 'all'
                         ? 'Todos'
                         : status === 'ACTIVE'
@@ -187,15 +180,15 @@ const JobPostings: React.FC = () => {
                   Mostrando <span className="font-semibold text-blue-600">{filteredJobs.length}</span> de <span className="font-semibold text-blue-600">{jobs.filter(job => job.status !== 'DELETED').length}</span> puestos
                 </p>
                 {(searchTerm || statusFilter !== 'all') && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setStatusFilter('all');
-                    }}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    Limpiar filtros
-                  </button>
+                    <button
+                        onClick={() => {
+                          setSearchTerm('');
+                          setStatusFilter('all');
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Limpiar filtros
+                    </button>
                 )}
               </div>
             </div>
@@ -242,19 +235,19 @@ const JobPostings: React.FC = () => {
                         {searchTerm || statusFilter !== 'all' ? 'No se encontraron puestos' : 'No tienes puestos de trabajo'}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        {searchTerm || statusFilter !== 'all' 
-                          ? 'Intenta ajustar tus filtros de búsqueda'
-                          : 'Comienza creando tu primera publicación de empleo'
+                        {searchTerm || statusFilter !== 'all'
+                            ? 'Intenta ajustar tus filtros de búsqueda'
+                            : 'Comienza creando tu primera publicación de empleo'
                         }
                       </p>
                       {!searchTerm && statusFilter === 'all' && (
-                        <button
-                          onClick={() => nav('/recruiter/create-job')}
-                          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <PlusIcon className="h-5 w-5" />
-                          <span>Crear primer puesto</span>
-                        </button>
+                          <button
+                              onClick={() => nav('/recruiter/create-job')}
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                          >
+                            <PlusIcon className="h-5 w-5" />
+                            <span>Crear primer puesto</span>
+                          </button>
                       )}
                     </div>
                   </div>
@@ -264,7 +257,7 @@ const JobPostings: React.FC = () => {
             {/* Table */}
             {!isLoading && !error && filteredJobs.length > 0 && (
                 <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-lg">
-                    <Table headers={headers} rows={filteredJobs.map(job =>
+                  <Table headers={headers} rows={filteredJobs.map(job =>
                       JobRow({
                         job,
                         onRowClick: handleRowClick,
@@ -273,39 +266,39 @@ const JobPostings: React.FC = () => {
                         onDelete: handleDelete,
                         isLoading
                       })
-                    )} />
+                  )} />
                 </div>
             )}
             {showConfirm && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-gray-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="p-2 rounded-full bg-red-100">
-                      <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                  <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-gray-200">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="p-2 rounded-full bg-red-100">
+                        <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900">Confirmar eliminación</h3>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">Confirmar eliminación</h3>
-                  </div>
-                  <p className="text-gray-600 mb-6">
-                    ¿Estás seguro de que quieres eliminar este puesto? Esta acción no se puede deshacer.
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 font-medium"
-                      onClick={() => setShowConfirm(false)}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold flex items-center space-x-2"
-                      onClick={confirmDelete}
-                    >
-                      <span>Eliminar</span>
-                    </button>
+                    <p className="text-gray-600 mb-6">
+                      ¿Estás seguro de que quieres eliminar este puesto? Esta acción no se puede deshacer.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                          className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 font-medium"
+                          onClick={() => setShowConfirm(false)}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                          className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold flex items-center space-x-2"
+                          onClick={confirmDelete}
+                      >
+                        <span>Eliminar</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
             )}
           </div>
         </div>
