@@ -1,6 +1,12 @@
+// /src/hooks/useCreateJobForm.ts
 import { useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 import { CONFIG } from '@/config';
+
+export type PreguntaPayload = {
+  texto: string;
+  tipo: 'si_no' | 'desarrollo';
+};
 
 export type CreateJobPayload = {
   title: string;
@@ -11,11 +17,9 @@ export type CreateJobPayload = {
   contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
   additional_requirements?: string;
   job_location?: string;
-  applicant_questions?: {
-    id: string;
-    text: string;
-    type: 'YES_NO' | 'OPEN';
-  }[];
+
+  // Ahora usamos 'preguntas' como pide el ticket (opcional)
+  preguntas?: PreguntaPayload[];
 };
 
 export function useCreateJobForm() {
@@ -40,13 +44,22 @@ export function useCreateJobForm() {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Error al crear el puesto');
+        // Intentamos leer mensaje claro del backend
+        let errMessage = 'Error al crear el puesto';
+        try {
+          const errData = await response.json();
+          if (errData?.message) errMessage = errData.message;
+          // Si el backend devuelve validaciones en otro formato, podríamos extraer aquí.
+          // Ej: errData.errors -> construir mensaje legible.
+        } catch (e) {
+          // ignore parse error
+        }
+        throw new Error(errMessage);
       }
 
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message ?? 'Error al crear el puesto');
     } finally {
       setIsSubmitting(false);
     }

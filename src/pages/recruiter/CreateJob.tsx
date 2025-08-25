@@ -26,6 +26,9 @@ export default function CreateJob() {
   // Preguntas para aplicantes
   const [questions, setQuestions] = useState<ApplicantQuestion[]>([]);
 
+  // ERROR de validación local para preguntas (p. ej. texto vacío o tipo inválido)
+  const [localError, setLocalError] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
   const {
@@ -38,9 +41,29 @@ export default function CreateJob() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Reiniciar error local al inicio
+    setLocalError(null);
+
+    // Validación cliente sobre preguntas:
+    // - trim del texto
+    // - texto no vacío
+    // - tipo válido (YES_NO | OPEN)
+    const normalizedQuestions = questions.map(q => ({ ...q, text: q.text.trim() }));
+    for (let i = 0; i < normalizedQuestions.length; i++) {
+      const q = normalizedQuestions[i];
+      if (!q.text || q.text.length === 0) {
+        setLocalError(`La pregunta #${i + 1} tiene texto vacío.`);
+        return;
+      }
+      if (q.type !== 'YES_NO' && q.type !== 'OPEN') {
+        setLocalError(`La pregunta #${i + 1} tiene un tipo inválido.`);
+        return;
+      }
+    }
+
     const payload: CreateJobPayload = {
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
     };
 
     if (seniority) {
@@ -56,20 +79,19 @@ export default function CreateJob() {
       if (mapped) payload.contract_type = mapped as CreateJobPayload['contract_type'];
     }
 
-    payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText : undefined };
+    payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText.trim() : undefined };
     if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
     if (jobLocation.trim()) payload.job_location = jobLocation.trim();
 
-    //incluir applicant_questions solo si hay válidas
-    const validQs = questions
-      .map(q => ({ ...q, text: q.text.trim() }))
-      .filter(q => q.text.length > 0 && (q.type === 'YES_NO' || q.type === 'OPEN'));
+    // Incluir 'preguntas' (formato del ticket) solo si hay preguntas válidas.
+    // Formato esperado:
+    // preguntas: [{ texto: string, tipo: 'si_no' | 'desarrollo' }]
+    const validQs = normalizedQuestions.filter(q => q.text.length > 0 && (q.type === 'YES_NO' || q.type === 'OPEN'));
     if (validQs.length > 0) {
-      payload.applicant_questions = validQs.map(q => ({
-        id: q.id,
-        text: q.text,
-        type: q.type
-      }));
+      payload.preguntas = validQs.map(q => ({
+        texto: q.text,
+        tipo: q.type === 'YES_NO' ? 'si_no' : 'desarrollo'
+      })) as unknown as CreateJobPayload['preguntas'];
     }
 
     await createJob(payload);
@@ -232,7 +254,7 @@ export default function CreateJob() {
               <label className="block text-sm font-medium text-blue-800 mb-1">Requisitos Adicionales</label>
               <textarea
                 value={additionalRequirements}
-                onChange={e => setAdditionalRequirements(e.target.value)}
+                onChange={(e) => setAdditionalRequirements(e.target.value)}
                 className="w-full text-sm border-2 border-blue-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-blue-300 resize-none"
                 rows={3}
                 placeholder="Escribe requisitos adicionales..."
@@ -291,7 +313,14 @@ export default function CreateJob() {
             </div>
           </div>
 
-          {/* Error Message */}
+          {/* Local validation error (preguntas) */}
+          {localError && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+              <p className="text-red-600 text-base font-medium">{localError}</p>
+            </div>
+          )}
+
+          {/* Error Message (backend/hook) */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-6">
               <p className="text-red-600 text-base font-medium">{error}</p>
