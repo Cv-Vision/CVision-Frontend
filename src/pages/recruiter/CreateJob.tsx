@@ -15,6 +15,7 @@ interface ApplicantQuestion {
 export default function CreateJob() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [company, setCompany] = useState('');
   const [seniority, setSeniority] = useState<'Junior' | 'Mid' | 'Senior' | ''>('');
   const [englishLevel, setEnglishLevel] = useState<'No requerido' | 'Básico' | 'Intermedio' | 'Avanzado' | 'Nativo' | ''>('');
   const [industryRequired, setIndustryRequired] = useState(false);
@@ -41,6 +42,7 @@ export default function CreateJob() {
     const payload: CreateJobPayload = {
       title,
       description,
+      company,
     };
 
     if (seniority) {
@@ -132,6 +134,21 @@ export default function CreateJob() {
               className="w-full border-2 border-blue-200 rounded-xl px-6 py-4 text-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm resize-none"
               rows={8}
               placeholder="Describe las responsabilidades, requisitos y beneficios del puesto..."
+              required
+            />
+          </div>
+
+          {/* Compañía */}
+          <div className="space-y-3">
+            <label className="block text-base font-semibold text-blue-800">
+              Compañía
+            </label>
+            <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="w-full border-2 border-blue-200 rounded-xl px-6 py-4 text-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+              placeholder="Ej: Google"
               required
             />
           </div>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { confirmSignUp, resendConfirmationCode } from '@/services/AuthService.ts';
 import BackButton from '@/components/other/BackButton.tsx';
 
 const ConfirmAccount = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [username, setUsername] = useState(location.state?.username || '');
+  const [searchParams] = useSearchParams();
+
+  const [username, setUsername] = useState(searchParams.get('username') || '');
+  const [email, setEmail] = useState(searchParams.get('email') || '');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -56,8 +59,15 @@ const ConfirmAccount = () => {
     setLoading(true);
     setError('');
 
+    // Add validation for the code
+    if (!code.match(/^\d{6}$/)) {
+      setError('El código de verificación debe ser numérico y tener 6 dígitos.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await confirmSignUp({ username, code });
+      await confirmSignUp({ username, code, email });
       setSuccess(true);
       setTimeout(() => {
         navigate('/login');

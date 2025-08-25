@@ -1,41 +1,21 @@
-import { CONFIG } from "@/config";
-
-const CLIENT_ID = `${CONFIG.clientId}`;
-const COGNITO_ENDPOINT = `${CONFIG.cognitoEndpoint}`;
-
 interface SignUpParams {
-  username: string;
+  name: string;
   password: string;
   email: string;
+  role: 'APPLICANT' | 'RECRUITER';
 }
 
-interface ConfirmSignUpParams {
-  username: string;
-  code: string;
-}
-
-interface SignInParams {
-  username: string;
-  password: string;
-}
-
-export async function signUp({ username, password, email }: SignUpParams) {
-  const response = await fetch(COGNITO_ENDPOINT, {
+export async function signUp({ name, password, email, role }: SignUpParams) {
+  const response = await fetch('/api/auth/register', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      ClientId: CLIENT_ID,
-      Username: username,
-      Password: password,
-      UserAttributes: [
-        {
-          Name: 'email',
-          Value: email,
-        },
-      ],
+      name,
+      password,
+      email,
+      role,
     }),
   });
 
@@ -47,17 +27,22 @@ export async function signUp({ username, password, email }: SignUpParams) {
   return response.json();
 }
 
-export async function confirmSignUp({ username, code }: ConfirmSignUpParams) {
-  const response = await fetch(COGNITO_ENDPOINT, {
+interface ConfirmSignUpParams {
+  username: string;
+  code: string;
+  email: string;
+}
+
+export async function confirmSignUp({ username, code, email }: ConfirmSignUpParams) {
+  const response = await fetch('/api/auth/confirm', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmSignUp',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      ClientId: CLIENT_ID,
-      Username: username,
-      ConfirmationCode: code,
+      name: username,
+      confirmation_code: code,
+      email: email,
     }),
   });
 
@@ -69,38 +54,36 @@ export async function confirmSignUp({ username, code }: ConfirmSignUpParams) {
   return response.json();
 }
 
+interface SignInParams {
+  username: string;
+  password: string;
+}
+
 export async function signIn({ username, password }: SignInParams) {
-  const response = await fetch(COGNITO_ENDPOINT, {
+  const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password,
-      },
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: CLIENT_ID,
+      email: username, // The login form uses email as username
+      password,
     }),
   });
 
-  const data = await response.json(); // ✅ Parse una sola vez
-
   if (!response.ok) {
-    console.error('Sign in error:', data); // ✅ Mostrar error en consola
-    throw new Error(data.message || 'Error signing in');
+    const error = await response.json();
+    throw new Error(error.message || 'Error signing in');
   }
 
-  const idToken = data.AuthenticationResult?.IdToken;
-  if (!idToken) {
-    console.error('Missing IdToken in response:', data); // ✅ Si no hay token, mostrar error
-    throw new Error('No se obtuvo token');
-  }
+  const data = await response.json();
 
-  sessionStorage.setItem('idToken', idToken);
-  return data;
+  // The user wants to use the access_token from the response.
+  return {
+    AuthenticationResult: {
+      IdToken: data.access_token,
+    },
+  };
 }
 
 
@@ -118,22 +101,6 @@ interface ResendConfirmationCodeParams {
 }
 
 export async function resendConfirmationCode({ username }: ResendConfirmationCodeParams) {
-  const response = await fetch(COGNITO_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode',
-    },
-    body: JSON.stringify({
-      ClientId: CLIENT_ID,
-      Username: username,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.message || 'Error reenviando código de confirmación');
-  }
-
-  return response.json();
+    console.error("resendConfirmationCode is not implemented for the new backend");
+    return Promise.resolve({});
 }

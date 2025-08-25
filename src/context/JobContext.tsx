@@ -5,7 +5,6 @@ export type Job = {
   title: string;
   description: string;
   company: string;
-  questions: string[];
   status: string;
   experience_level?: string;
   english_level?: string;
@@ -34,32 +33,7 @@ type JobContextType = {
 const JobContext = createContext<JobContextType | undefined>(undefined);
 
 export const JobProvider = ({ children }: { children: ReactNode }) => {
-  const [jobs, setJobs] = useState<Job[]>([
-    {
-      pk: 'a',
-      title: 'Frontend Developer',
-      description: 'React, TypeScript, Tailwind',
-      company: 'TechCorp',
-      questions: [
-        '¿Por qué quieres trabajar en TechCorp?',
-        '¿Qué experiencia tienes con React?',
-        '¿Cómo resolverías un conflicto en un equipo de desarrollo?'
-      ],
-      status: "ACTIVE"
-    },
-    {
-      pk: 'b',
-      title: 'Backend Developer',
-      description: 'Node.js, Express, MongoDB',
-      company: 'DataSoft',
-      questions: [
-        '¿Qué te motiva a trabajar en DataSoft?',
-        '¿Cómo optimizarías una API REST?',
-        '¿Qué experiencia tienes con bases de datos NoSQL?'
-      ],
-      status: "INACTIVE"
-    }
-  ]);
+  const [jobs, setJobs] = useState<Job[]>([]); // Removed default job data
 
   const [applications, setApplications] = useState<Application[]>([]);
 
@@ -77,4 +51,4 @@ export const useJobs = () => {
   const context = useContext(JobContext);
   if (!context) throw new Error('useJobs must be used within a JobProvider');
   return context;
-}; 
+};
