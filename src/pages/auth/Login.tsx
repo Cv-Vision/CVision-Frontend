@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
-import { useAuth } from "@/context/AuthContext.tsx";
+import { decodeJwt, useAuth } from "@/context/AuthContext.tsx";
 import { UserRole } from '@/types/auth.ts';
+
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('candidate');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -18,17 +18,6 @@ const Login = () => {
 
   const fromJobListings = searchParams.get('fromJobListings') === 'true';
 
-  useEffect(() => {
-    if (fromJobListings) {
-      setRole('candidate');
-      // Disable role switching
-      const roleSelectElement = document.getElementById('role-select') as HTMLSelectElement;
-      if (roleSelectElement) {
-        roleSelectElement.disabled = true;
-      }
-    }
-  }, [fromJobListings]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -36,14 +25,22 @@ const Login = () => {
 
     try {
       const cognitoUser = await signIn({ username: email, password });
-
       const token = cognitoUser?.AuthenticationResult?.IdToken;
 
       if (!token) {
         throw new Error("No se pudo obtener el token de sesión");
       }
 
+      const decodedToken = decodeJwt(token);
+      const userType = decodedToken ? decodedToken['custom:userType'] : null;
+
+      if (!userType || (userType !== 'RECRUITER' && userType !== 'CANDIDATE')) {
+        throw new Error("Tipo de usuario no válido o no encontrado en el token.");
+      }
+
+      const role: UserRole = userType === 'RECRUITER' ? 'recruiter' : 'candidate';
       const userData = { email, role, token };
+
       if (login) {
         login(userData);
       }
@@ -79,28 +76,6 @@ const Login = () => {
         <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700 ml-1">
-              Tipo de usuario
-            </label>
-            <div className="relative">
-              <select
-                id="role-select"
-                className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer pr-10"
-                value={role}
-                onChange={e => setRole(e.target.value as UserRole)}
-              >
-                <option value="candidate" className="py-2">👤 Candidato</option>
-                <option value="recruiter" className="py-2">🏢 Reclutador</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 ml-1">
               Correo electrónico
             </label>
             <input
@@ -129,7 +104,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+           className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             disabled={loading}
           >
             {loading ? (
