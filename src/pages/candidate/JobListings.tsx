@@ -111,9 +111,6 @@ const JobSearch = () => {
 
   const handleApply = (jobId: string) => {
     if (!isAuthenticated) {
-      setToastMessage("Debes iniciar sesión para postularte a un trabajo");
-      setToastType("error");
-      setShowToast(true);
       // Redirect to login page with state
       window.location.href = "/login?fromJobListings=true";
       return;
@@ -129,7 +126,7 @@ const JobSearch = () => {
           <div className="w-full flex flex-col gap-6">
             {/* Botón de volver usando el componente BackButton */}
             <div className="w-full flex justify-start mb-6">
-              <BackButton to="/candidate/dashboard" />
+              <BackButton to={isAuthenticated ? "/applicant/dashboard" : "/"} />
             </div>
 
             <JobSearchBar

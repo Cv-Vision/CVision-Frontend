@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CandidateProfile } from "@/types/candidate.ts";
+import { ApplicantProfile } from "@/types/candidate.ts";
 import BasicInfoSection from "../../components/candidate/BasicInfoSection.tsx";
 import WorkExperienceSection from "../../components/candidate/WorkExperienceSection.tsx";
 import EducationSection from "../../components/candidate/EducationSection.tsx";
 import CandidateCVDropzone from "../../components/candidate/CandidateCVDropzone.tsx";
 import Toast from "../../components/other/Toast.tsx";
-import { registerCandidate } from "../../services/candidateService.ts";
+import { registerApplicant } from "../../services/candidateService.ts";
 import { v4 as uuidv4 } from "uuid";
 
-const CandidateRegisterForm = () => {
+const ApplicantRegisterForm = () => {
     const navigate = useNavigate();
-    const [profile, setProfile] = useState<CandidateProfile>({
+    const [profile, setProfile] = useState<ApplicantProfile>({
         basicInfo: { email: "", password: "", fullName: "" },
         workExperience: [],
         education: [],
@@ -115,13 +115,13 @@ const CandidateRegisterForm = () => {
 
         setIsSubmitting(true);
         try {
-            const result = await registerCandidate(profile);
+            const result = await registerApplicant(profile);
             showToast('success', 'Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta.');
             
             // Redirigir a la página de confirmación después de 2 segundos
             // Pasar tanto el username como el email
             setTimeout(() => {
-                navigate(`/candidate-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
+                navigate(`/applicant-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
             }, 2000);
             
         } catch (error: any) {
@@ -136,7 +136,7 @@ const CandidateRegisterForm = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
             <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
-                    Crear Perfil de Candidato
+                    Crear Perfil de Aplicante
                 </h1>
                 <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
                 {/* Adjuntar CV debajo de la información básica */}
@@ -170,4 +170,4 @@ const CandidateRegisterForm = () => {
     );
 };
 
-export default CandidateRegisterForm;
+export default ApplicantRegisterForm;

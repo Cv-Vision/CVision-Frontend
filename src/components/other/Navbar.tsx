@@ -16,8 +16,8 @@ const Navbar = () => {
   const showAuthButtons = location.pathname === '/' && !isAuthenticated;
 
   const handleLogoClick = () => {
-    if (user?.role === 'candidate') {
-      navigate('/candidate/dashboard');
+    if (user?.role === 'applicant') {
+      navigate('/applicant/dashboard');
     } else if (user?.role === 'recruiter') {
       navigate('/recruiter/dashboard');
     } else {
@@ -32,8 +32,8 @@ const Navbar = () => {
     navigate('/');
   };
   
-  const userRole = user?.role === 'candidate' ? 'Candidato' : 'Reclutador';
-  const roleColor = user?.role === 'candidate' ? 'blue' : 'green';
+  const userRole = user?.role === 'applicant' ? 'Aplicante' : 'Reclutador';
+  const roleColor = user?.role === 'applicant' ? 'blue' : 'green';
 
   return (
     <header className={`${location.pathname === '/' ? 'sticky top-0 z-50' : ''} w-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-lg border-b border-blue-500/20`}>
@@ -77,7 +77,7 @@ const Navbar = () => {
         {/* Botón Mi perfil a la derecha, antes de cerrar sesión */}
         {isAuthenticated && user && (
           <div className="flex items-center ml-4">
-            <button onClick={() => navigate(user?.role === 'candidate' ? '/perfil-candidato' : '/perfil-reclutador')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
+            <button onClick={() => navigate(user?.role === 'applicant' ? '/perfil-applicant' : '/perfil-reclutador')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
               Mi perfil
             </button>
           </div>

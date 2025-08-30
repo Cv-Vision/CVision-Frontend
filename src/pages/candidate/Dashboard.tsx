@@ -11,7 +11,7 @@ const CandidateDashboard = () => {
           <UserIcon className="h-16 w-16 text-blue-600 mb-4" />
         </div>
         <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-8 text-center">
-          Panel de Candidato
+          Panel de Aplicante
         </h1>
         
         {/* Acciones */}
@@ -23,7 +23,7 @@ const CandidateDashboard = () => {
             <p className="text-blue-600 text-sm mb-6 text-center">Explora las últimas ofertas de trabajo disponibles</p>
             <button
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
-              onClick={() => navigate('/candidate/positions')}
+              onClick={() => navigate('/applicant/positions')}
             >
               Ver Ofertas
             </button>
@@ -36,7 +36,7 @@ const CandidateDashboard = () => {
             <p className="text-blue-600 text-sm mb-6 text-center">Actualiza tu información personal y profesional</p>
             <button
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
-              onClick={() => navigate('/perfil-candidato')}
+              onClick={() => navigate('/perfil-applicant')}
             >
               Ver Perfil
             </button>
@@ -49,7 +49,7 @@ const CandidateDashboard = () => {
             <p className="text-blue-600 text-sm mb-6 text-center">Revisa el estado de tus postulaciones</p>
             <button
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-700"
-              onClick={() => navigate('/candidate/applications')}
+              onClick={() => navigate('/applicant/applications')}
             >
               Ver Postulaciones
             </button>

@@ -34,7 +34,7 @@ export const applyToJob = async (jobId: string): Promise<void> => {
 };
 
 // Función para registrar un candidato
-export const registerCandidate = async (profile: CandidateProfile): Promise<{ username: string; email: string }> => {
+export const registerApplicant = async (profile: ApplicantProfile): Promise<{ username: string; email: string }> => {
   try {
     // Primero registrar en Cognito
     // Usar el nombre completo como username, pero limpiarlo para que sea válido
@@ -71,7 +71,7 @@ export const registerCandidate = async (profile: CandidateProfile): Promise<{ us
           },
           {
             Name: 'custom:userType',
-            Value: 'candidate', // Atributo personalizado para el tipo de usuario
+            Value: 'APPLICANT', // Atributo personalizado para el tipo de usuario
           },
         ],
         ValidationData: [],

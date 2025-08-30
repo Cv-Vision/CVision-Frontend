@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CandidateProfile as CandidateProfileType } from '@/types/candidate.ts';
+import { ApplicantProfile as ApplicantProfileType } from '@/types/candidate.ts';
 import WorkExperienceSection from '../../components/candidate/WorkExperienceSection.tsx';
 import EducationSection from '../../components/candidate/EducationSection.tsx';
 import BasicInfoSection from '../../components/candidate/BasicInfoSection.tsx';
@@ -9,7 +9,7 @@ import { UserIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/other/BackButton.tsx';
 import CandidateCVDropzone from '../../components/candidate/CandidateCVDropzone.tsx';
 
-export function CandidateProfile() {
+export function ApplicantProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<CandidateProfileType>({
     basicInfo: {
@@ -106,12 +106,12 @@ export function CandidateProfile() {
             <UserIcon className="h-16 w-16 text-blue-600" />
           </div>
           <span className="text-sm text-blue-600 font-medium bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
-            Candidato
+            Aplicante
           </span>
         </div>
         
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
-          Perfil de Candidato
+          Perfil de Aplicante
         </h1>
         
         <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
@@ -135,4 +135,4 @@ export function CandidateProfile() {
   );
 }
 
-export default CandidateProfile;
+export default ApplicantProfile;
