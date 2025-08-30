@@ -1,5 +1,5 @@
 import { getIdToken } from '@/services/AuthService';
-import { CandidateProfile } from '@/types/candidate';
+import { ApplicantProfile } from '@/types/applicant.ts';
 import { CONFIG } from '@/config';
 
 export const applyToJob = async (jobId: string): Promise<void> => {
@@ -8,7 +8,7 @@ export const applyToJob = async (jobId: string): Promise<void> => {
     throw new Error('No se encontró el token de identidad. Por favor, inicie sesión nuevamente.');
   }
 
-  const response = await fetch('/api/candidate/apply', {
+  const response = await fetch('/api/applicant/apply', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
     // Si el nombre está vacío o es muy corto, usar un fallback
     const username = cleanUsername.length >= 3 
       ? cleanUsername 
-      : `candidate_${Date.now()}`;
+      : `applicant_${Date.now()}`;
     
     console.log('Username generado:', username);
     
@@ -94,7 +94,7 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
     /*
     // CÓDIGO REAL (comentado hasta solucionar CORS):
     // Luego guardar el perfil completo en la base de datos
-    const profileResponse = await fetch(`${CONFIG.apiUrl}/candidate/profile`, {
+    const profileResponse = await fetch(`${CONFIG.apiUrl}/applicant/profile`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
     return { username, email: profile.basicInfo.email };
 
   } catch (error) {
-    console.error('Error en registerCandidate:', error);
+    console.error('Error en registerApplicant:', error);
     throw error;
   }
 };

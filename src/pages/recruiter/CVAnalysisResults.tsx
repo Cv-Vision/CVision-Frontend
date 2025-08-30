@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/solid';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
@@ -150,7 +150,7 @@ export default function CVAnalysisResults() {
   const navigate = useNavigate();
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
-  const { candidates } = useGetCandidatesByJobId(jobId || '');
+  const { applicants } = useGetApplicantsByJobId(jobId || '');
   const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
 
   // Manejar éxito/error de eliminación
@@ -192,8 +192,8 @@ export default function CVAnalysisResults() {
     if (selectedCvIds.size === results.length) {
       setSelectedCvIds(new Set());
     } else {
-      // Usar los cv_id reales de los candidatos
-      const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+      // Usar los cv_id reales de los aplicantes
+      const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
       setSelectedCvIds(new Set(allCvIds));
     }
   };
@@ -203,7 +203,7 @@ export default function CVAnalysisResults() {
     
     const cvIdsArray = Array.from(selectedCvIds);
     console.log('🗑️ IDs seleccionados para eliminar:', cvIdsArray);
-    console.log('📋 Candidatos disponibles:', candidates.map(c => ({ id: c.id, name: c.fullName })));
+    console.log('📋 Aplicantes disponibles:', applicants.map(c => ({ id: c.id, name: c.fullName })));
     console.log('📊 Resultados disponibles:', results.map(r => ({ name: r.name || r.cv_name || r.participant_id, cv_id: r.cv_id, participant_id: r.participant_id })));
     
     await deleteResults(jobId!, cvIdsArray);
@@ -213,7 +213,7 @@ export default function CVAnalysisResults() {
   // Función para verificar si todos están seleccionados
   const areAllSelected = () => {
     if (results.length === 0) return false;
-    const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+    const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
@@ -327,12 +327,12 @@ export default function CVAnalysisResults() {
         <div className="space-y-6">
           {results.map((result, idx) => {
             // Buscar el candidato correspondiente por nombre
-            const correspondingCandidate = candidates.find(candidate => 
-              candidate.fullName === (result.name || result.cv_name || result.participant_id)
+            const correspondingApplicant = applicants.find(applicant => 
+              applicant.fullName === (result.name || result.cv_name || result.participant_id)
             );
             
             // Usar el ID del candidato si existe, sino el ID del resultado
-            const uniqueId = correspondingCandidate?.id || result.cv_id || result.participant_id || `index_${idx}`;
+            const uniqueId = correspondingApplicant?.id || result.cv_id || result.participant_id || `index_${idx}`;
             
           return (
             <CVAnalysisResultCard 

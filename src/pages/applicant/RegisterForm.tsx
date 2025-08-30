@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ApplicantProfile } from "@/types/candidate.ts";
-import BasicInfoSection from "../../components/candidate/BasicInfoSection.tsx";
-import WorkExperienceSection from "../../components/candidate/WorkExperienceSection.tsx";
-import EducationSection from "../../components/candidate/EducationSection.tsx";
-import CandidateCVDropzone from "../../components/candidate/CandidateCVDropzone.tsx";
+import { ApplicantProfile } from "@/types/applicant.ts";
+import BasicInfoSection from "@/components/applicant/BasicInfoSection.tsx";
+import WorkExperienceSection from "@/components/applicant/WorkExperienceSection.tsx";
+import EducationSection from "@/components/applicant/EducationSection.tsx";
+import ApplicantCVDropzone from "@/components/applicant/ApplicantCVDropzone.tsx";
 import Toast from "../../components/other/Toast.tsx";
-import { registerApplicant } from "../../services/candidateService.ts";
+import { registerApplicant } from "../../services/applicantService.ts";
 import { v4 as uuidv4 } from "uuid";
 
 const ApplicantRegisterForm = () => {
@@ -29,14 +29,14 @@ const ApplicantRegisterForm = () => {
         message: ''
     });
 
-    const handleBasicInfoChange = (field: keyof CandidateProfile["basicInfo"], value: string) => {
+    const handleBasicInfoChange = (field: keyof ApplicantProfile["basicInfo"], value: string) => {
         setProfile((prev) => ({
             ...prev,
             basicInfo: { ...prev.basicInfo, [field]: value }
         }));
     };
 
-    const handleWorkChange = (index: number, field: keyof CandidateProfile["workExperience"][0], value: string) => {
+    const handleWorkChange = (index: number, field: keyof ApplicantProfile["workExperience"][0], value: string) => {
         setProfile((prev) => {
             const updated = [...prev.workExperience];
             updated[index] = { ...updated[index], [field]: value };
@@ -44,7 +44,7 @@ const ApplicantRegisterForm = () => {
         });
     };
 
-    const handleEducationChange = (index: number, field: keyof CandidateProfile["education"][0], value: string) => {
+    const handleEducationChange = (index: number, field: keyof ApplicantProfile["education"][0], value: string) => {
         setProfile((prev) => {
             const updated = [...prev.education];
             updated[index] = { ...updated[index], [field]: value };
@@ -140,7 +140,7 @@ const ApplicantRegisterForm = () => {
                 </h1>
                 <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
                 {/* Adjuntar CV debajo de la información básica */}
-                <CandidateCVDropzone onCVProcessed={handleCVProcessed} />
+                <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
                 <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
                 <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
                 

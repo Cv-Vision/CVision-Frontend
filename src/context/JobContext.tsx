@@ -21,7 +21,7 @@ export type Job = {
 export type Application = {
   jobId: string;
   answers: string[];
-  candidate: string;
+  applicant: string;
 };
 
 type JobContextType = {

@@ -1,5 +1,5 @@
 export enum UserRole {
-    Candidate = 'candidate',
+    Applicant = 'applicant',
     Recruiter = 'recruiter'
 }
 export interface User {

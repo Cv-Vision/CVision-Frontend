@@ -44,8 +44,8 @@ const ConfirmAccount = () => {
         await resendConfirmationCode({ username });
         setResendSuccess('Código reenviado. Revisa tu correo.');
         setCanResend(false);
-      } catch (err: any) {
-        setResendError(err.message);
+      } catch (err: unknown) {
+        setResendError(err instanceof Error ? err.message : 'Error desconocido');
       } finally {
         setResendLoading(false);
       }
@@ -62,8 +62,8 @@ const ConfirmAccount = () => {
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }

@@ -14,12 +14,12 @@ import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
 
 // Applicant related imports
-import ApplicantDashboard from '../pages/candidate/Dashboard';
-import { UploadCV } from '../pages/candidate/UploadCV';
-import { ApplicantProfile } from '../pages/candidate/Profile';
-import JobListings from '../pages/candidate/JobListings';
-import ApplicantConfirmAccount from "@/pages/candidate/ConfirmAccount.tsx";
-import ApplicantRegisterForm from '../pages/candidate/RegisterForm.tsx';
+import ApplicantDashboard from '@/pages/applicant/Dashboard';
+import { UploadCV } from '@/pages/applicant/UploadCV';
+import { ApplicantProfile } from '@/pages/applicant/Profile';
+import JobListings from '@/pages/applicant/JobListings';
+import ApplicantConfirmAccount from "@/pages/applicant/ConfirmAccount.tsx";
+import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
 
 
 export function AppRouter() {

@@ -1,7 +1,7 @@
 import { UserIcon, BriefcaseIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 
-const CandidateDashboard = () => {
+const ApplicantDashboard = () => {
   const navigate = useNavigate();
 
   return (
@@ -60,4 +60,4 @@ const CandidateDashboard = () => {
   );
 };
 
-export default CandidateDashboard;
+export default ApplicantDashboard;

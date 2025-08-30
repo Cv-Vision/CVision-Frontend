@@ -107,7 +107,7 @@ const JobApplication = () => {
         throw new Error('Failed to submit application');
       }
 
-      navigate('/candidate/applications');
+      navigate('/applicant/applications');
     } catch (err) {
       setError('Error al enviar la postulación');
     }

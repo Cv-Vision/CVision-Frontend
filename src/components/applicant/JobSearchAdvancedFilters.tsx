@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { JobSearchFilters } from "@/types/candidate.ts";
+import { JobSearchFilters } from "@/types/applicant.ts";
 import FormInput from "./FormInput";
 import FormSelect from "./FormSelect";
 

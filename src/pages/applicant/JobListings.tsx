@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import JobSearchBar from "../../components/candidate/JobSearchBar.tsx";
-import JobSearchAdvancedFilters from "../../components/candidate/JobSearchAdvancedFilters";
-import JobSearchResults from "../../components/candidate/JobSearchResults";
-import { JobSearchFilters } from "@/types/candidate.ts";
+import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
+import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
+import JobSearchResults from "@/components/applicant/JobSearchResults";
+import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';

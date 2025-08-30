@@ -5,10 +5,10 @@ import { useGetCVDownloadUrl } from '@/hooks/useGetCVDownloadUrl';
 import { useParams } from 'react-router-dom';
 
 
-interface CandidateModalProps {
+interface ApplicantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedCandidate: {
+  selectedApplicant: {
     fullName: string;
     score: number | null;
     cvId: string;
@@ -23,12 +23,12 @@ const getScoreColorClass = (score: number | null) => {
   return 'bg-red-500 text-white';
 };
 
-const CandidateModal = ({
+const ApplicantModal = ({
                           isOpen,
                           onClose,
-                          selectedCandidate,
+                          selectedApplicant,
                           analysisResults,
-                        }: CandidateModalProps) => {
+                        }: ApplicantModalProps) => {
   const { jobId } = useParams<{ jobId: string }>();
 
   const {
@@ -37,22 +37,21 @@ const CandidateModal = ({
     error,
   } = useGetCVDownloadUrl(
     jobId ?? '',
-    selectedCandidate?.cvId ?? '',
-    !!selectedCandidate?.cvId && isOpen
+    selectedApplicant?.cvId ?? '',
+    !!selectedApplicant?.cvId && isOpen
   );
 
-  console.log('CV URL data:', data);
-  console.log("Selected candidate:", selectedCandidate);
+  
 
-  const selectedAnalysis = selectedCandidate
+  const selectedAnalysis = selectedApplicant
     ? analysisResults.find(
       (result) =>
         result.name?.toLowerCase().trim() ===
-        selectedCandidate.fullName.toLowerCase().trim()
+        selectedApplicant.fullName.toLowerCase().trim()
     )
     : null;
 
-  if (!selectedCandidate) return null;
+  if (!selectedApplicant) return null;
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50">
@@ -67,7 +66,7 @@ const CandidateModal = ({
           </button>
 
           {/* Nombre del candidato */}
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">{selectedCandidate.fullName}</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-6">{selectedApplicant.fullName}</h2>
 
           <div className="flex gap-6">
             {/* Columna izquierda: CV */}
@@ -120,10 +119,10 @@ const CandidateModal = ({
               <div className="flex flex-col items-center mb-6">
                 <div
                   className={`rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold shadow-md ${getScoreColorClass(
-                    selectedCandidate.score
+                    selectedApplicant.score
                   )}`}
                 >
-                  {selectedCandidate.score ?? 'N/A'}
+                  {selectedApplicant.score ?? 'N/A'}
                 </div>
                 <span className="text-lg text-gray-600 mt-2">Puntaje</span>
               </div>
@@ -147,4 +146,4 @@ const CandidateModal = ({
   );
 };
 
-export default CandidateModal;
+export default ApplicantModal;

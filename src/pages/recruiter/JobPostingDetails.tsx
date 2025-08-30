@@ -4,12 +4,12 @@ import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { CVDropzone } from '@/components/other/CVDropzone.tsx';
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
 import BackButton from '@/components/other/BackButton.tsx';
 import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import CandidateList from '@/components/other/CandidateList.tsx';
+import ApplicantList from '@/components/other/ApplicantList.tsx';
 import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
@@ -80,7 +80,7 @@ const JobPostingDetails = () => {
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
-  const { refetch: refetchCandidates } = useGetCandidatesByJobId(cleanJobId);
+  const { refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
   const { results: analysisResults, isLoading: analysisLoading, error: analysisError, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
 
   // Navigate to full analysis view
@@ -433,7 +433,7 @@ const JobPostingDetails = () => {
             </div>
           </div>
 
-          {/* Descripción y Candidatos */}
+          {/* Descripción y Aplicantes */}
           <div className="flex flex-row gap-8">
             <div className="flex-[2] min-w-0 w-full overflow-hidden">
               <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-800">
@@ -550,10 +550,10 @@ const JobPostingDetails = () => {
             <div className="flex-1 min-w-0 max-w-md">
               <h2 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-800">
                 <UsersIcon className="h-6 w-6" />
-                Candidatos
+                Aplicantes
               </h2>
               <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden" style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                <CandidateList jobId={cleanJobId} onCandidateDeleted={() => { refetchCandidates(); refetchAnalysisResults(); }} />
+                <ApplicantList jobId={cleanJobId} onApplicantDeleted={() => { refetchApplicants(); refetchAnalysisResults(); }} />
               </div>
             </div>
           </div>
@@ -684,7 +684,7 @@ const JobPostingDetails = () => {
                    extraRequirements={extraRequirements}
                    onSuccess={() => {
                      setTimeout(() => {
-                       refetchCandidates();
+                       refetchApplicants();
                        refetchAnalysisResults();
                      }, 12000);
                    }}

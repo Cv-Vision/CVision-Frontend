@@ -21,7 +21,7 @@ export interface Education {
     endDate?: string;
 }
 
-export interface CandidateProfile {
+export interface ApplicantProfile {
     basicInfo: BasicInfo;
     workExperience: WorkExperience[];
     education: Education[];

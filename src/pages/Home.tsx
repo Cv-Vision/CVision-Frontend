@@ -1,7 +1,7 @@
 import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
 import resultsImg from '../assets/homepage_results.png';
-import applicantsImg from '../assets/homepage_candidates.png';
+import applicantsImg from '../assets/homepage_applicants.png';
 
 const Home = () => {
   return (
@@ -63,7 +63,7 @@ const Home = () => {
         </div>
         {/* Separador */}
         <div className="w-32 h-1 bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300 rounded-full opacity-40 mb-6" />
-        {/* Sección: Gestión de candidatos con rectángulo, línea punteada e imagen */}
+        {/* Sección: Gestión de aplicantes con rectángulo, línea punteada e imagen */}
         <div className="w-full flex flex-row items-center justify-end gap-6 mr-0 md:mr-16">
           {/* Frase inspiradora a la izquierda */}
           <div className="hidden md:flex flex-col items-end justify-start flex-1 pr-8 mt-20 mb-auto">
@@ -72,8 +72,8 @@ const Home = () => {
           </div>
           <section className="inline-flex flex-col items-center justify-center gap-4 animate-fadein bg-gradient-to-br from-indigo-100/90 via-purple-100/80 to-blue-100/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-indigo-200 px-10 py-10 ml-0 md:ml-16 transition-transform duration-300 hover:shadow-3xl hover:scale-105">
             <UserGroupIcon className="h-20 w-20 text-indigo-500 mb-6 drop-shadow" />
-            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Gestión de candidatos</h2>
-            <p className="text-2xl text-gray-700 mb-2">Organiza y evalúa candidatos de manera eficiente.</p>
+            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Gestión de aplicantes</h2>
+            <p className="text-2xl text-gray-700 mb-2">Organiza y evalúa aplicantes de manera eficiente.</p>
           </section>
           {/* Línea punteada horizontal entre el rectángulo y la imagen */}
           <div className="flex items-center h-full transition-all duration-300 hover:drop-shadow-lg">

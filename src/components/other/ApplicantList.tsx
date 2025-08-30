@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Table } from '../dashboard/Table.tsx';
 import { TableCell } from '../dashboard/TableCell.tsx';
-import { CandidateRatingDropdown } from './CandidateRatingDropdown.tsx';
-import CandidateModal from '../../pages/recruiter/jp_elements/CandidateModal.tsx';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId.ts';
+import { ApplicantRatingDropdown } from './ApplicantRatingDropdown.tsx';
+import ApplicantModal from '../../pages/recruiter/jp_elements/ApplicantModal.tsx';
+import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults.ts';
 import Toast from './Toast.tsx';
-import { deleteCandidatesFromJob } from '@/services/cvAnalysisService.ts';
+import { deleteApplicantsFromJob } from '@/services/cvAnalysisService.ts';
 import { TrashIcon, UserIcon} from '@heroicons/react/24/outline';
 
-interface CandidateListProps {
+interface ApplicantListProps {
   jobId: string;
-  onCandidateDeleted?: () => void;
+  onApplicantDeleted?: () => void;
 }
 
 const getScoreColorClass = (score: number | null) => {
@@ -21,31 +21,31 @@ const getScoreColorClass = (score: number | null) => {
   return 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-red-300';
 };
 
-const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted }) => {
-  const [selectedCandidate, setSelectedCandidate] = useState<null | { fullName: string; score: number | null, cvId: string }>(null);
+const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted }) => {
+  const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, cvId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string; isVisible: boolean }>({ type: 'success', message: '', isVisible: false });
-  const { candidates, isLoading, error, refetch } = useGetCandidatesByJobId(jobId);
+  const { applicants, isLoading, error, refetch } = useGetApplicantsByJobId(jobId);
   const { results: analysisResults } = useGetAnalysisResults(jobId);
 
   const handleSelect = (id: string) => {
     setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
   const handleSelectAll = () => {
-    if (selectedIds.length === candidates.length) setSelectedIds([]);
-    else setSelectedIds(candidates.map((c) => c.id));
+    if (selectedIds.length === applicants.length) setSelectedIds([]);
+    else setSelectedIds(applicants.map((c) => c.id));
   };
   const handleDelete = async () => {
     setShowConfirm(false);
     try {
-      await deleteCandidatesFromJob(jobId, selectedIds);
-      setToast({ type: 'success', message: 'Candidatos eliminados correctamente.', isVisible: true });
+      await deleteApplicantsFromJob(jobId, selectedIds);
+      setToast({ type: 'success', message: 'Aplicantes eliminados correctamente.', isVisible: true });
       setSelectedIds([]);
       refetch();
-      if (onCandidateDeleted) onCandidateDeleted();
+      if (onApplicantDeleted) onApplicantDeleted();
     } catch (err: any) {
-      setToast({ type: 'error', message: err.message || 'Error al eliminar candidatos.', isVisible: true });
+      setToast({ type: 'error', message: err.message || 'Error al eliminar aplicantes.', isVisible: true });
     }
   };
 
@@ -54,7 +54,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
       <div className="flex justify-center items-center h-32">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
-          <p className="text-gray-600 font-medium">Cargando candidatos...</p>
+          <p className="text-gray-600 font-medium">Cargando aplicantes...</p>
         </div>
       </div>
     );
@@ -67,65 +67,65 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
           <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="text-red-800 font-semibold">Error al cargar candidatos</p>
+          <p className="text-red-800 font-semibold">Error al cargar aplicantes</p>
           <p className="text-red-600 text-sm">{error}</p>
         </div>
       </div>
     );
   }
   
-  if (!candidates.length) {
+  if (!applicants.length) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-6 text-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="p-3 rounded-full bg-gray-100">
             <UserIcon className="w-8 h-8 text-gray-600" />
           </div>
-          <p className="text-gray-800 font-semibold">No hay candidatos</p>
-          <p className="text-gray-600 text-sm">Aún no se han registrado candidatos para este puesto.</p>
+          <p className="text-gray-800 font-semibold">No hay aplicantes</p>
+          <p className="text-gray-600 text-sm">Aún no se han registrado aplicantes para este puesto.</p>
         </div>
       </div>
     );
   }
 
-  const headers = ['', 'Candidato', 'Score'];
-  const rows = candidates.map((candidate) => [
-    <TableCell key={`check-${candidate.id}`} className="text-center">
+  const headers = ['', 'Aplicante', 'Score'];
+  const rows = applicants.map((applicant) => [
+    <TableCell key={`check-${applicant.id}`} className="text-center">
       <div className="flex items-center justify-center">
         <input
           type="checkbox"
-          checked={selectedIds.includes(candidate.id)}
-          onChange={() => handleSelect(candidate.id)}
+          checked={selectedIds.includes(applicant.id)}
+          onChange={() => handleSelect(applicant.id)}
           onClick={e => e.stopPropagation()}
           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
         />
       </div>
     </TableCell>,
-    <TableCell key={`name-${candidate.id}`}> 
+    <TableCell key={`name-${applicant.id}`}> 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <span className="font-semibold text-gray-900">
-          {candidate.fullName}
+          {applicant.fullName}
         </span>
         <div className="z-20 relative" onClick={(e) => e.stopPropagation()}>
-          <CandidateRatingDropdown jobId={jobId} cvId={candidate.id} initialValue={candidate.rating || ''} />
+          <ApplicantRatingDropdown jobId={jobId} cvId={applicant.id} initialValue={applicant.rating || ''} />
         </div>
       </div>
     </TableCell>,
-    <TableCell key={`score-${candidate.id}`} className="text-center">
+    <TableCell key={`score-${applicant.id}`} className="text-center">
       <span
         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border-2 ${getScoreColorClass(
-          candidate.score
+          applicant.score
         )}`}
       >
-        {candidate.score !== null && candidate.score !== undefined ? candidate.score : 'N/A'}
+        {applicant.score !== null && applicant.score !== undefined ? applicant.score : 'N/A'}
       </span>
     </TableCell>,
   ]);
 
   const handleRowClick = (rowIndex: number) => {
-    const candidate = candidates[rowIndex];
-    console.log("cvId limpio:", JSON.stringify(candidate.id));
-    setSelectedCandidate({ fullName: candidate.fullName, score: candidate.score, cvId: candidate.id, });
+    const applicant = applicants[rowIndex];
+    console.log("cvId limpio:", JSON.stringify(applicant.id));
+    setSelectedApplicant({ fullName: applicant.fullName, score: applicant.score, cvId: applicant.id, });
   };
 
   return (
@@ -134,7 +134,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
         <div className="flex items-center space-x-3">
           <input 
             type="checkbox" 
-            checked={selectedIds.length === candidates.length && candidates.length > 0} 
+            checked={selectedIds.length === applicants.length && applicants.length > 0} 
             onChange={handleSelectAll}
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
@@ -160,10 +160,10 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
         <Table headers={headers} rows={rows} onRowClick={handleRowClick} />
       </div>
       
-      <CandidateModal
-        isOpen={!!selectedCandidate}
-        onClose={() => setSelectedCandidate(null)}
-        selectedCandidate={selectedCandidate}
+      <ApplicantModal
+        isOpen={!!selectedApplicant}
+        onClose={() => setSelectedApplicant(null)}
+        selectedApplicant={selectedApplicant}
         analysisResults={analysisResults}
       />
       
@@ -178,7 +178,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
               <h3 className="text-lg font-bold text-gray-900">Confirmar eliminación</h3>
             </div>
             <p className="text-gray-600 mb-6">
-              ¿Estás seguro de que quieres eliminar {selectedIds.length} candidato{selectedIds.length > 1 ? 's' : ''}? 
+              ¿Estás seguro de que quieres eliminar {selectedIds.length} aplicante{selectedIds.length > 1 ? 's' : ''}? 
               Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-3">
@@ -210,4 +210,4 @@ const CandidateList: React.FC<CandidateListProps> = ({ jobId, onCandidateDeleted
   );
 };
 
-export default CandidateList;
+export default ApplicantList;

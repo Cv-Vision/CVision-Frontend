@@ -24,7 +24,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ job, onClose }) => {
       setCurrent(current + 1);
     } else {
       // Guardar mock de aplicación
-      addApplication({ jobId: job.pk, answers, candidate: 'mock-candidate' });
+      addApplication({ jobId: job.pk, answers, applicant: 'mock-applicant' });
       setFinished(true);
     }
   };

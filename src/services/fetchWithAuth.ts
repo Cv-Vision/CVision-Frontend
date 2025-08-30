@@ -1,11 +1,5 @@
 export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
-  // Para desarrollo: usar un token falso si no hay uno real
-  let token = sessionStorage.getItem('idToken');
-  
-  if (!token) {
-    console.warn('No hay token en sesión, usando token falso para desarrollo');
-    token = 'fake-token';
-  }
+  const token = sessionStorage.getItem('idToken');
 
   const authHeaders = {
     'Authorization': `Bearer ${token}`,
@@ -25,6 +19,7 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
     credentials: 'omit' // Change to 'omit' to avoid CORS preflight issues
   };
 
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await fetch(input, mergedInit);
 
@@ -49,7 +44,7 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
         throw new Error('Error interno del servidor.');
       }
 
-      // Try to get error message from response
+      // Try to get an error message from response
       let errorMessage = `Error en la solicitud: ${response.status}`;
       try {
         const errorData = await response.json();

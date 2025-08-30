@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { applyToJob } from '@/services/candidateService';
+import { applyToJob } from '@/services/applicantService.ts';
 
 export const useApplyToJob = () => {
   const [isLoading, setIsLoading] = useState(false);

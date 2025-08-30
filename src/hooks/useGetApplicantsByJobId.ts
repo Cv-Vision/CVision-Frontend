@@ -1,7 +1,7 @@
 import { CONFIG } from '@/config';
 import { useEffect, useState } from 'react';
 
-export interface Candidate {
+export interface Applicant {
   id: string;
   fullName: string;
   score: number | null;
@@ -17,12 +17,12 @@ export interface Candidate {
 
 const S3_BASE_URL = `${CONFIG.bucketUrl}`;
 
-export const useGetCandidatesByJobId = (jobId: string) => {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+export const useGetApplicantsByJobId = (jobId: string) => {
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCandidates = async (skipLoading = false) => {
+  const fetchApplicants = async (skipLoading = false) => {
     if (!skipLoading) {
       setIsLoading(true);
       setError(null);
@@ -37,14 +37,14 @@ export const useGetCandidatesByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`, {
+        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/applicants`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
       });
-      if (!res.ok) throw new Error('Error al obtener candidatos');
+      if (!res.ok) throw new Error('Error al obtener aplicantes');
       const data = await res.json();
-      const mappedCandidates: Candidate[] = (data.candidates || []).map((item: any) => ({
+      const mappedApplicants: Applicant[] = (data.applicants || []).map((item: any) => ({
         id: item.cv_id,
         fullName: item.name || '',
         score: item.score || null,
@@ -57,13 +57,13 @@ export const useGetCandidatesByJobId = (jobId: string) => {
           detailedFeedback: '',
         },
       }));
-      mappedCandidates.sort((a, b) => {
+      mappedApplicants.sort((a, b) => {
         if (a.score === null && b.score === null) return 0;
         if (a.score === null) return 1;
         if (b.score === null) return -1;
         return b.score - a.score;
       });
-      setCandidates(mappedCandidates);
+      setApplicants(mappedApplicants);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -73,8 +73,8 @@ export const useGetCandidatesByJobId = (jobId: string) => {
 
   useEffect(() => {
     if (!jobId) return;
-    fetchCandidates(); // Solo fetch inicial, sin polling
+    fetchApplicants(); // Solo fetch inicial, sin polling
   }, [jobId]);
 
-  return { candidates, isLoading, error, refetch: fetchCandidates };
+  return { applicants, isLoading, error, refetch: fetchApplicants };
 };
