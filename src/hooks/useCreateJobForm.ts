@@ -29,11 +29,15 @@ export function useCreateJobForm() {
     setSuccess(false);
 
     try {
-      const token = sessionStorage.getItem('idToken');
-      if (!token) throw new Error('No hay token de sesión');
+      // Para desarrollo: usar un token falso si no hay uno real
+      let token = sessionStorage.getItem('idToken');
+      if (!token) {
+        console.warn('No hay token en sesión, usando token falso para desarrollo');
+        token = 'fake-token';
+      }
 
       const response = await fetchWithAuth(
-        `${CONFIG.apiUrl}/recruiter/job-postings/create`, {
+        `${CONFIG.apiUrl}/job-postings`, {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { Authorization: `Bearer ${token}` },
