@@ -31,7 +31,8 @@ export const useUpdateJobPostingData = () => {
 
     try {
       const cleanId = jobId.replace('JD#', '');
-      const url = `${CONFIG.apiUrl}/recruiter/job-postings/${cleanId}/update`;
+      // Corregido: usar el endpoint correcto del backend
+      const url = `${CONFIG.apiUrl}/job-postings/${cleanId}`;
 
       const response = await fetchWithAuth(url, {
         method: 'PUT',
