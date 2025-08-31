@@ -58,7 +58,6 @@ export function usePublicJobSearch() {
         english_level: item.english_level,
         contract_type: item.contract_type,
         location: item.location,
-        // TODO: Refactor a Job type para reflejar el backend
         industry_experience: item.industry_experience?.industries?.length
           ? { required: false, industry: item.industry_experience.industries[0] }
           : undefined,
