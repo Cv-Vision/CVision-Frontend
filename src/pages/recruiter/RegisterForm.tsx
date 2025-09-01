@@ -53,7 +53,7 @@ const RecruiterRegisterForm = () => {
             // Primero le pega al backend nuestro
             await registerUser({ name: fullName, email, password, role: 'RECRUITER' });
             // despues a cognito
-            const result = await registerRecruiter({
+            await registerRecruiter({
                 basicInfo: {
                     fullName,
                     email,
