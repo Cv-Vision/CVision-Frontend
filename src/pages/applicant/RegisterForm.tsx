@@ -16,7 +16,8 @@ const ApplicantRegisterForm = () => {
         basicInfo: { email: "", password: "", fullName: "" },
         workExperience: [],
         education: [],
-        cvUrl: undefined
+        cvUrl: undefined,
+        userId: undefined
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,16 +83,18 @@ const ApplicantRegisterForm = () => {
     };
 
     const handleCVProcessed = (cvData: any) => {
-        setProfile(prev => ({
-            ...prev,
-            cvUrl: cvData.cvUrl || undefined,
-            basicInfo: {
-                ...prev.basicInfo,
-                fullName: cvData.fullName || prev.basicInfo.fullName,
-            },
-            workExperience: cvData.workExperience || prev.workExperience,
-            education: cvData.education || prev.education,
-        }));
+    setProfile(prev => ({
+        ...prev,
+        cvUrl: cvData.cvUrl || prev.cvUrl,
+        userId: cvData.userId || prev.userId,
+        basicInfo: {
+        ...prev.basicInfo,
+        fullName: cvData.fullName || prev.basicInfo.fullName,
+        email: cvData.email || prev.basicInfo.email,
+        },
+        workExperience: cvData.workExperience || prev.workExperience,
+        education: cvData.education || prev.education,
+    }));
     };
 
     const showToast = (type: 'success' | 'error', message: string) => {

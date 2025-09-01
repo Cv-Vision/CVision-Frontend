@@ -1,6 +1,7 @@
 import { getIdToken } from '@/services/AuthService';
 import { ApplicantProfile } from '@/types/applicant.ts';
 import { CONFIG } from '@/config';
+import { fetchWithAuth } from './fetchWithAuth';
 
 export const applyToJob = async (jobId: string): Promise<void> => {
   const token = getIdToken();
@@ -8,14 +9,12 @@ export const applyToJob = async (jobId: string): Promise<void> => {
     throw new Error('No se encontró el token de identidad. Por favor, inicie sesión nuevamente.');
   }
 
-  const response = await fetch('/api/applicant/apply', {
+  const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/applications`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify({ jobId }),
-    credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
   });
 
   if (response.ok || response.status === 409) {
@@ -64,25 +63,23 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
 };
 
 // Función para subir CV y obtener URL presignada
-export const uploadCV = async (file: File): Promise<string> => {
+export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: string}> => {
   try {
     // TEMPORAL: Simulamos la subida del CV para evitar problemas de CORS
     // TODO: Descomentar cuando se solucione CORS en el backend
-    console.log('Simulando subida de CV:', file.name);
+    // console.log('Simulando subida de CV:', file.name);
     
     // Simular delay de subida
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Retornar una URL simulada
-    const simulatedUrl = `https://cvision-bucket.s3.us-east-2.amazonaws.com/simulated-cv-${Date.now()}.pdf`;
-    console.log('CV simulado subido a:', simulatedUrl);
+    // // Retornar una URL simulada
+    // const simulatedUrl = `https://cvision-bucket.s3.us-east-2.amazonaws.com/simulated-cv-${Date.now()}.pdf`;
+    // console.log('CV simulado subido a:', simulatedUrl);
     
-    return simulatedUrl;
+    // return simulatedUrl;
     
-    /*
-    // CÓDIGO REAL (comentado hasta solucionar CORS):
     // Obtener URL presignada para subir el CV
-    const presignedUrlResponse = await fetch(`${CONFIG.apiUrl}/cv/generate-presigned-url`, {
+    const presignedUrlResponse = await fetchWithAuth(`${CONFIG.apiUrl}/upload/cv`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,15 +95,12 @@ export const uploadCV = async (file: File): Promise<string> => {
       throw new Error(error.message || 'Error al obtener URL presignada');
     }
 
-    const { uploadUrl, s3Key } = await presignedUrlResponse.json();
+    const { upload_url, s3_key } = await presignedUrlResponse.json();
 
     // Subir el archivo usando la URL presignada
-    const uploadResponse = await fetch(uploadUrl, {
+    const uploadResponse = await fetch(upload_url, {
       method: 'PUT',
       body: file,
-      headers: {
-        'Content-Type': file.type,
-      },
     });
 
     if (!uploadResponse.ok) {
@@ -114,8 +108,8 @@ export const uploadCV = async (file: File): Promise<string> => {
     }
 
     // Retornar la URL del archivo subido
-    return `${CONFIG.bucketUrl}${s3Key}`;
-    */
+    return {"cvUrl": `${CONFIG.bucketUrl}${s3_key}`, s3Key: s3_key};
+
   } catch (error) {
     console.error('Error en uploadCV:', error);
     throw error;

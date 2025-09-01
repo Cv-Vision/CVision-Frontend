@@ -26,6 +26,7 @@ export interface ApplicantProfile {
     workExperience: WorkExperience[];
     education: Education[];
     cvUrl?: string; // URL del CV subido
+    userId?: string; // ID del usuario asociado (opcional)
 }
 
 export interface JobSearchFilters {
