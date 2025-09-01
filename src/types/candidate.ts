@@ -31,10 +31,16 @@ export interface CandidateProfile {
 export interface JobSearchFilters {
     title: string;
     company?: string;
-    jobType?: string;
-    region?: string;
-    contractType?: string;
-    seniorityLevel?: string;
-    industry?: string;
-    modality?: string;
+    location?: string; // NEW backend partial match
+    experience_level?: string; // ENUM: JUNIOR | SEMISENIOR | SENIOR
+    contract_type?: string; // ENUM: FULL_TIME | PART_TIME | CONTRACT | FREELANCE | INTERNSHIP
+    // ------------------------------------------------------------------
+    // Deprecated legacy UI-only fields kept temporarily to avoid breakage
+    // TODO: Remove these once components are refactored to only use the new ones.
+    jobType?: string; // deprecated
+    region?: string; // deprecated
+    contractType?: string; // duplicate of contract_type (deprecated)
+    seniorityLevel?: string; // duplicate of experience_level (deprecated)
+    industry?: string; // deprecated (not in new search API)
+    modality?: string; // deprecated (not in new search API)
 }
