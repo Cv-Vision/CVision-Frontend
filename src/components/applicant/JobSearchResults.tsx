@@ -1,4 +1,5 @@
 import { Job } from '@/context/JobContext';
+import { useNavigate } from 'react-router-dom';
 
 export interface JobSearchResultsProps {
     isLoading: boolean;
@@ -31,6 +32,7 @@ const JobSearchResults = ({
     onPageChange,
     totalJobs,
 }: JobSearchResultsProps) => {
+    const navigate = useNavigate();
     if (isLoading) {
         return (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8">
@@ -86,19 +88,27 @@ const JobSearchResults = ({
                                         </span>
                                     )}
                                 </div>
-                                {isAuthenticated && userRole === 'applicant' && (
+                                <div className="flex flex-wrap gap-3">
                                     <button
-                                        onClick={() => onApply(job.pk)}
-                                        disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
-                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                        onClick={() => navigate(`/position/${job.pk}`)}
+                                        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                     >
-                                        {isApplying && applyingJobId === job.pk
-                                            ? 'Aplicando...'
-                                            : appliedJobs.includes(job.pk)
-                                                ? 'Ya aplicado'
-                                                : 'Aplicar'}
+                                        Ver detalles
                                     </button>
-                                )}
+                                    {isAuthenticated && userRole === 'applicant' && (
+                                        <button
+                                            onClick={() => onApply(job.pk)}
+                                            disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
+                                            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                        >
+                                            {isApplying && applyingJobId === job.pk
+                                                ? 'Aplicando...'
+                                                : appliedJobs.includes(job.pk)
+                                                    ? 'Ya aplicado'
+                                                    : 'Aplicar'}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

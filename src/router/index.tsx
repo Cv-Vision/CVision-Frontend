@@ -3,7 +3,7 @@ import Home from '../pages/Home';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import RecruiterDashboard from '../pages/recruiter/Dashboard';
-import { RecruiterProfile } from '../pages/recruiter/Profile';
+
 import { ProtectedRoute } from '../components/other/ProtectedRoute.tsx';
 import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
@@ -20,6 +20,8 @@ import { ApplicantProfile } from '@/pages/applicant/Profile';
 import JobListings from '@/pages/applicant/JobListings';
 import ApplicantConfirmAccount from "@/pages/applicant/ConfirmAccount.tsx";
 import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
+import JobPosition from '@/pages/applicant/JobPosition.tsx';
+import JobApplication from '@/pages/applicant/JobApplication.tsx';
 
 
 export function AppRouter() {
@@ -55,13 +57,19 @@ export function AppRouter() {
           <ApplicantProfile />
         </ProtectedRoute>
       } />
-      <Route path="/perfil-reclutador" element={
-        <ProtectedRoute requiredRole="recruiter">
-          <RecruiterProfile />
-        </ProtectedRoute>
-      } />
       <Route path="/applicant/positions" element={
           <JobListings />
+      } />
+      <Route path="/applicant/position/:positionId" element={
+          <JobPosition />
+      } />
+      <Route path="/position/:positionId" element={
+          <JobPosition />
+      } />
+      <Route path="/applicant/job-application/:jobId" element={
+          <ProtectedRoute requiredRole="applicant">
+              <JobApplication />
+          </ProtectedRoute>
       } />
       <Route path="/recruiter/create-job" element={
         <ProtectedRoute requiredRole="recruiter">
