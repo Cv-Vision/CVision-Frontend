@@ -4,7 +4,7 @@ import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFi
 import JobSearchResults from "@/components/applicant/JobSearchResults";
 import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
-import { useGetJobs } from '@/hooks/useGetJobs';
+import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
@@ -16,8 +16,7 @@ const JobSearch = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(10);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const { jobs, isLoading: isLoadingJobs, error: jobsError } = useGetJobs();
+  const { jobs, isLoading: isLoadingSearch, error: searchError, search } = usePublicJobSearch();
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -28,6 +27,10 @@ const JobSearch = () => {
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
 
   useEffect(() => {
+    search({});
+  }, [search]);
+
+  useEffect(() => {
     if (success) {
       setIsModalOpen(false);
       setToastMessage("Te postulaste con éxito");
@@ -35,7 +38,7 @@ const JobSearch = () => {
       setShowToast(true);
       setAppliedJobs(prev => [...prev, selectedJobId]);
     }
-  }, [success]);
+  }, [success, selectedJobId]);
 
   useEffect(() => {
     if (applyError) {
@@ -46,63 +49,20 @@ const JobSearch = () => {
   }, [applyError]);
   
   useEffect(() => {
-    if (jobsError) {
-      setToastMessage(jobsError);
+    if (searchError) {
+      setToastMessage(searchError);
       setToastType("error");
       setShowToast(true);
     }
-  }, [jobsError]);
+  }, [searchError]);
 
   const handleChange = (field: keyof JobSearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Filtrar trabajos basados en los filtros aplicados
-  useEffect(() => {
-    filterJobs();
-  }, [jobs]);
-
-  const filterJobs = () => {
-    if (jobs.length === 0) return;
-    
-    let results = [...jobs];
-    
-    if (filters.title) {
-      results = results.filter(job => 
-        job.title.toLowerCase().includes(filters.title.toLowerCase())
-      );
-    }
-    
-    if (filters.company) {
-      results = results.filter(job => 
-        job.company.toLowerCase().includes(filters.company!.toLowerCase())
-      );
-    }
-
-    if (filters.industry) {
-      results = results.filter(job => 
-        job.industry_experience?.industry?.toLowerCase().includes(filters.industry!.toLowerCase())
-      );
-    }
-
-    if (filters.contractType) {
-      results = results.filter(job => 
-        job.contract_type?.toLowerCase() === filters.contractType!.toLowerCase()
-      );
-    }
-
-    if (filters.seniorityLevel) {
-      results = results.filter(job => 
-        job.experience_level?.toLowerCase() === filters.seniorityLevel!.toLowerCase()
-      );
-    }
-    
-    setFilteredJobs(results);
-    setCurrentPage(1);
-  };
-
   const handleSearch = () => {
-    filterJobs();
+    search(filters);
+    setCurrentPage(1);
   };
 
   const handleConfirmApply = () => {
@@ -149,10 +109,10 @@ const JobSearch = () => {
             </div>
 
             <JobSearchResults
-              isLoading={isLoadingJobs}
-              hasResults={filteredJobs.length > 0}
-              jobs={filteredJobs}
-              onApply={handleApply} // Pass the new handleApply function
+              isLoading={isLoadingSearch}
+              hasResults={jobs.length > 0}
+              jobs={jobs as Job[]}
+              onApply={handleApply}
               appliedJobs={appliedJobs}
               isApplying={isApplying}
               applyingJobId={selectedJobId}
@@ -161,7 +121,7 @@ const JobSearch = () => {
               currentPage={currentPage}
               jobsPerPage={jobsPerPage}
               onPageChange={setCurrentPage}
-              totalJobs={filteredJobs.length}
+              totalJobs={jobs.length}
             />
             <ApplyConfirmationModal
               isOpen={isModalOpen}
