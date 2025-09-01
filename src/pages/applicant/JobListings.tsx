@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import JobSearchBar from "../../components/candidate/JobSearchBar.tsx";
-import JobSearchAdvancedFilters from "../../components/candidate/JobSearchAdvancedFilters";
-import JobSearchResults from "../../components/candidate/JobSearchResults";
-import { JobSearchFilters } from "@/types/candidate.ts";
+import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
+import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
+import JobSearchResults from "@/components/applicant/JobSearchResults";
+import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
@@ -71,9 +71,6 @@ const JobSearch = () => {
 
   const handleApply = (jobId: string) => {
     if (!isAuthenticated) {
-      setToastMessage("Debes iniciar sesión para postularte a un trabajo");
-      setToastType("error");
-      setShowToast(true);
       // Redirect to login page with state
       window.location.href = "/login?fromJobListings=true";
       return;
@@ -89,7 +86,7 @@ const JobSearch = () => {
           <div className="w-full flex flex-col gap-6">
             {/* Botón de volver usando el componente BackButton */}
             <div className="w-full flex justify-start mb-6">
-              <BackButton to="/candidate/dashboard" />
+              <BackButton to={isAuthenticated ? "/applicant/dashboard" : "/"} />
             </div>
 
             <JobSearchBar

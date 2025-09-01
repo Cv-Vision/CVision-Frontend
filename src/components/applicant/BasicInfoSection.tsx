@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { BasicInfo } from "../../types/candidate.ts";
+import { BasicInfo } from "@/types/applicant.ts";
 import FormInput from "./FormInput.tsx";
 import FormSection from "./FormSelection.tsx";
 

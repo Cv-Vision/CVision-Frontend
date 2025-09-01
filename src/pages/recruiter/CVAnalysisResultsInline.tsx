@@ -81,7 +81,7 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
           <div className="absolute right-0 top-full mt-2 z-20 bg-white border border-gray-200 rounded-xl shadow-xl p-3 text-sm min-w-[200px]">
             <div className="flex items-center space-x-2 mb-2">
               <TrophyIcon className="h-4 w-4 text-yellow-500" />
-              <span className="font-semibold text-gray-800">Mejor candidato</span>
+              <span className="font-semibold text-gray-800">Mejor aplicante</span>
             </div>
             <div className="space-y-1">
               <div className="flex justify-between">

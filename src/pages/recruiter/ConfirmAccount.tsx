@@ -53,9 +53,9 @@ const RecruiterConfirmAccount = () => {
         navigate('/login');
       }, 2000);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error confirmando cuenta:', error);
-      showToast('error', error.message || 'Error al confirmar la cuenta');
+      showToast('error', error instanceof Error ? error.message : 'Error al confirmar la cuenta');
     } finally {
       setIsSubmitting(false);
     }
@@ -71,8 +71,8 @@ const RecruiterConfirmAccount = () => {
       // Aquí podrías implementar la función para reenviar código
       // usando el username correcto
       showToast('success', 'Código reenviado. Revisa tu email.');
-    } catch (error: any) {
-      showToast('error', 'Error al reenviar código');
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : 'Error al reenviar código');
     }
   };
 

@@ -2,36 +2,36 @@ import { useEffect, useState } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 import { CONFIG } from '@/config';
 
-export interface Candidate {
+export interface Applicant {
     cv_id: string;
     name: string;
     cv_s3_key: string;
     created_at: string;
 }
 
-// Hook to fetch candidates for a specific job posting
-// Returns an object with candidates, loading state, and error message
-// Candidate has cv_id, name, cv_s3_key, and created_at fields
-export function useGetCandidates(jobId: string) {
-    const [candidates, setCandidates] = useState<Candidate[]>([]);
+// Hook to fetch Applicants for a specific job posting
+// Returns an object with Applicants, loading state, and error message
+// Applicant has cv_id, name, cv_s3_key, and created_at fields
+export function useGetApplicants(jobId: string) {
+    const [Applicants, setApplicants] = useState<Applicant[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!jobId) {
             setError('Falta el jobId');
-            setCandidates([]);
+            setApplicants([]);
             return;
         }
 
-        const loadCandidates = async () => {
+        const loadApplicants = async () => {
             setIsLoading(true);
             setError(null);
             try {
                 const token = sessionStorage.getItem('idToken');
                 if (!token) throw new Error('No autenticado');
                 const res = await fetchWithAuth(
-                    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`,
+                    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/Applicants`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (!res.ok) {
@@ -40,18 +40,18 @@ export function useGetCandidates(jobId: string) {
                     throw new Error('Error en el servidor');
                 }
                 const data = await res.json();
-                setCandidates(data.candidates);
+                setApplicants(data.Applicants);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error desconocido');
-                setCandidates([]);
+                setApplicants([]);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        loadCandidates();
+        loadApplicants();
     }, [jobId]);
 
-    return { candidates, isLoading, error };
+    return { Applicants, isLoading, error };
 }
 

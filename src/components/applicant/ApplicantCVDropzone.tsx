@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { uploadCV } from '@/services/candidateService';
+import { uploadCV } from '@/services/applicantService.ts';
 
-interface CandidateCVDropzoneProps {
+interface ApplicantCVDropzoneProps {
   onCVProcessed: (cvData: any) => void;
 }
 
-const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed }) => {
+const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed }) => {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -142,4 +142,4 @@ const CandidateCVDropzone: React.FC<CandidateCVDropzoneProps> = ({ onCVProcessed
   );
 };
 
-export default CandidateCVDropzone;
+export default ApplicantCVDropzone;

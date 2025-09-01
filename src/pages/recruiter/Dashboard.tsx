@@ -1,7 +1,7 @@
 import { UserIcon, BriefcaseIcon, UsersIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
-import { useGetTotalCandidates } from '@/hooks/useGetTotalCandidates';
+import { useGetTotaApplicants } from '@/hooks/useGetTotaApplicants.ts';
 import { useEffect } from 'react';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
@@ -9,7 +9,7 @@ const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const { jobs } = useGetJobs();
   const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
-  const { totalCandidates, isLoading: candidatesLoading } = useGetTotalCandidates();
+  const { totalApplicants, isLoading: applicantsLoading } = useGetTotaApplicants();
 
   // Prevenir scroll en toda la página
   useEffect(() => {
@@ -44,9 +44,9 @@ const RecruiterDashboard = () => {
             <div className="relative mb-4">
             </div>
             <p className="text-3xl font-bold text-blue-800 mb-2">
-              {candidatesLoading ? '...' : totalCandidates}
+              {applicantsLoading ? '...' : totalApplicants}
             </p>
-            <p className="text-sm text-blue-600 font-medium">Cantidad de Candidatos</p>
+            <p className="text-sm text-blue-600 font-medium">Cantidad de Aplicantes</p>
           </div>
         </div>
 

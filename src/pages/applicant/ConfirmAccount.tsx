@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { confirmSignUp } from '@/services/AuthService';
 import Toast from '@/components/other/Toast';
 
-const CandidateConfirmAccount = () => {
+const ApplicantConfirmAccount = () => {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{
@@ -147,4 +147,4 @@ const CandidateConfirmAccount = () => {
   );
 };
 
-export default CandidateConfirmAccount;
+export default ApplicantConfirmAccount;

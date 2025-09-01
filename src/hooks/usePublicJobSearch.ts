@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { CONFIG } from '@/config';
 import { Job } from '@/context/JobContext';
-import { JobSearchFilters } from '@/types/candidate';
+import { JobSearchFilters } from '@/types/applicant';
 
 // Hook to call the public advanced search endpoint: GET /job-postings/search
 // It does NOT require authentication.

@@ -2,23 +2,24 @@ import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
-import CandidateDashboard from '../pages/candidate/Dashboard';
 import RecruiterDashboard from '../pages/recruiter/Dashboard';
-import { UploadCV } from '../pages/candidate/UploadCV';
-import { CandidateProfile } from '../pages/candidate/Profile';
 import { RecruiterProfile } from '../pages/recruiter/Profile';
 import { ProtectedRoute } from '../components/other/ProtectedRoute.tsx';
-import JobListings from '../pages/candidate/JobListings';
 import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
-import CandidateConfirmAccount from "@/pages/candidate/ConfirmAccount.tsx";
 import RecruiterConfirmAccount from "@/pages/recruiter/ConfirmAccount.tsx";
 import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
-//import JobDetailsPage from '../pages/recruiter/JobDetailsPage';
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
-import CandidateRegisterForm from '../pages/candidate/RegisterForm.tsx';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
+
+// Applicant related imports
+import ApplicantDashboard from '@/pages/applicant/Dashboard';
+import { UploadCV } from '@/pages/applicant/UploadCV';
+import { ApplicantProfile } from '@/pages/applicant/Profile';
+import JobListings from '@/pages/applicant/JobListings';
+import ApplicantConfirmAccount from "@/pages/applicant/ConfirmAccount.tsx";
+import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
 
 
 export function AppRouter() {
@@ -29,14 +30,14 @@ export function AppRouter() {
 
       <Route path="/register" element={<Register />} />
         <Route path="/recruiter-register" element={<RecruiterRegisterForm />} />
-        <Route path="/candidate-register" element={<CandidateRegisterForm />} />
-        <Route path="/candidate-confirm" element={<CandidateConfirmAccount />} />
+        <Route path="/applicant-register" element={<ApplicantRegisterForm />} />
+        <Route path="/applicant-confirm" element={<ApplicantConfirmAccount />} />
         <Route path="/recruiter-confirm" element={<RecruiterConfirmAccount />} />
 
         <Route path="/confirm" element={<ConfirmAccount />} />
-      <Route path="/candidate/dashboard" element={
-        <ProtectedRoute requiredRole="candidate">
-          <CandidateDashboard />
+      <Route path="/applicant/dashboard" element={
+        <ProtectedRoute requiredRole="applicant">
+          <ApplicantDashboard />
         </ProtectedRoute>
       } />
       <Route path="/recruiter/dashboard" element={
@@ -45,13 +46,13 @@ export function AppRouter() {
         </ProtectedRoute>
       } />
       <Route path="/upload-cv" element={
-        <ProtectedRoute requiredRole="candidate">
+        <ProtectedRoute requiredRole="applicant">
           <UploadCV />
         </ProtectedRoute>
       } />
-      <Route path="/perfil-candidato" element={
-        <ProtectedRoute requiredRole="candidate">
-          <CandidateProfile />
+      <Route path="/perfil-applicant" element={
+        <ProtectedRoute requiredRole="applicant">
+          <ApplicantProfile />
         </ProtectedRoute>
       } />
       <Route path="/perfil-reclutador" element={
@@ -59,7 +60,7 @@ export function AppRouter() {
           <RecruiterProfile />
         </ProtectedRoute>
       } />
-      <Route path="/candidate/positions" element={
+      <Route path="/applicant/positions" element={
           <JobListings />
       } />
       <Route path="/recruiter/create-job" element={

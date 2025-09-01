@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { useSetCandidateRating } from '@/hooks/useSetCandidateRating.ts';
+import { useSetApplicantRating } from '@/hooks/useSetApplicantRating.ts';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
-type CandidateRatingDropdownProps = {
+type ApplicantRatingDropdownProps = {
   jobId: string;
   cvId: string;
   initialValue?: string;
@@ -11,15 +11,15 @@ type CandidateRatingDropdownProps = {
 
 const OPTIONS = ['Favorito', 'Visto', 'Bueno', 'Malo'];
 
-export const CandidateRatingDropdown = ({
+export const ApplicantRatingDropdown = ({
                                           jobId,
                                           cvId,
                                           initialValue = '',
-                                        }: CandidateRatingDropdownProps) => {
+                                        }: ApplicantRatingDropdownProps) => {
   const [selected, setSelected] = useState(initialValue);
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const { setRating, isLoading, error, success } = useSetCandidateRating();
+  const { setRating, isLoading, error, success } = useSetApplicantRating();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuPosition, setMenuPosition] = useState<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});

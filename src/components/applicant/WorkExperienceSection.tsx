@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { WorkExperience } from "../../types/candidate.ts";
+import { WorkExperience } from "../../types/applicant.ts";
 import FormInput from "./FormInput.tsx";
 import FormSection from "./FormSelection.tsx";
 

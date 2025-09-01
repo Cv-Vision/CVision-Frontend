@@ -45,7 +45,7 @@ export function UploadCV() {
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Mock successful upload
-      navigate('/candidate/dashboard');
+      navigate('/applicant/dashboard');
     } catch (err) {
       setError('Error al subir el archivo. Por favor, intenta nuevamente.');
     } finally {

@@ -8,13 +8,13 @@ interface Job {
   status: string;
 }
 
-export const useGetTotalCandidates = () => {
-  const [totalCandidates, setTotalCandidates] = useState(0);
+export const useGetTotaApplicants = () => {
+  const [totalApplicants, setTotalApplicants] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTotalCandidates = async () => {
+    const fetchTotalApplicants = async () => {
       setIsLoading(true);
       setError(null);
       
@@ -50,28 +50,28 @@ export const useGetTotalCandidates = () => {
             const jobId = job.pk.split('#')[1]; // Extraer el ID del puesto
             console.log(`Obteniendo candidatos para puesto: ${job.title} (ID: ${jobId})`);
             
-            const candidatesResponse = await fetch(
-              `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/candidates`,
+            const applicantsResponse = await fetch(
+              `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/applicants`,
               { headers: { Authorization: `Bearer ${idToken}` } }
             );
             
-            if (candidatesResponse.ok) {
-              const data = await candidatesResponse.json();
-              const candidateCount = (data.candidates || []).length;
-              total += candidateCount;
+            if (applicantsResponse.ok) {
+              const data = await applicantsResponse.json();
+              const applicantCount = (data.applicants || []).length;
+              total += applicantCount;
               
               jobDetails.push({
                 jobTitle: job.title,
                 jobId: jobId,
-                candidates: candidateCount
+                applicants: applicantCount
               });
               
-              console.log(`Puesto "${job.title}": ${candidateCount} candidatos`);
+              console.log(`Puesto "${job.title}": ${applicantCount} candidatos`);
             } else {
-              console.warn(`Error en respuesta para puesto ${job.title}:`, candidatesResponse.status);
+              console.warn(`Error en respuesta para puesto ${job.title}:`, applicantsResponse.status);
             }
           } catch (err) {
-            console.warn(`Error fetching candidates for job ${job.pk}:`, err);
+            console.warn(`Error fetching applicants for job ${job.pk}:`, err);
             // Continuar con otros trabajos incluso si uno falla
           }
         }
@@ -79,17 +79,17 @@ export const useGetTotalCandidates = () => {
         console.log('Detalles por puesto:', jobDetails);
         console.log('Total de candidatos:', total);
         
-        setTotalCandidates(total);
+        setTotalApplicants(total);
       } catch (err: any) {
         setError(err.message || 'Error al obtener el total de candidatos');
-        console.error('Error en useGetTotalCandidates:', err);
+        console.error('Error en useGetTotaApplicants:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTotalCandidates();
+    fetchTotalApplicants();
   }, []);
 
-  return { totalCandidates, isLoading, error };
+  return { totalApplicants, isLoading, error };
 }; 
