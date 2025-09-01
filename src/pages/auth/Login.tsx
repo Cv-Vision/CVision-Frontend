@@ -34,7 +34,7 @@ const Login = () => {
       const decodedToken = decodeJwt(token);
       const userType = decodedToken ? decodedToken['custom:userType'] : null;
 
-      if (!userType || (userType !== 'RECRUITER' && userType !== 'APPLICANT')) {
+      if (!userType || (userType !== 'recruiter' && userType !== 'applicant')) {
         throw new Error("Tipo de usuario no válido o no encontrado en el token.");
       }
 
