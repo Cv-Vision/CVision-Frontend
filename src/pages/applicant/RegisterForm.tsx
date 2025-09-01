@@ -8,6 +8,7 @@ import ApplicantCVDropzone from "@/components/applicant/ApplicantCVDropzone.tsx"
 import Toast from "../../components/other/Toast.tsx";
 import { registerApplicant } from "../../services/applicantService.ts";
 import { v4 as uuidv4 } from "uuid";
+import { registerUser } from '@/services/registrationService';
 
 const ApplicantRegisterForm = () => {
     const navigate = useNavigate();
@@ -115,6 +116,8 @@ const ApplicantRegisterForm = () => {
 
         setIsSubmitting(true);
         try {
+            // Primero le pega a nuestro backend
+            await registerUser({ name: profile.basicInfo.fullName, email: profile.basicInfo.email, password: profile.basicInfo.password, role: 'APPLICANT' });
             const result = await registerApplicant(profile);
             showToast('success', 'Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta.');
             

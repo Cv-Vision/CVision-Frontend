@@ -3,6 +3,7 @@ import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerRecruiter } from '@/services/recruiterService.ts';
 import Toast from '@/components/other/Toast.tsx';
+import { registerUser } from '@/services/registrationService';
 
 const RecruiterRegisterForm = () => {
     const [fullName, setFullName] = useState('');
@@ -49,6 +50,9 @@ const RecruiterRegisterForm = () => {
         }
 
         try {
+            // Primero le pega al backend nuestro
+            await registerUser({ name: fullName, email, password, role: 'RECRUITER' });
+            // despues a cognito
             const result = await registerRecruiter({
                 basicInfo: {
                     fullName,
