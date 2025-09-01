@@ -67,7 +67,7 @@ const RecruiterRegisterForm = () => {
             
             // Redirigir a la página de confirmación después de 2 segundos
             setTimeout(() => {
-                navigate(`/recruiter-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
+                navigate(`/recruiter-confirm?username=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`);
             }, 2000);
             
         } catch (err: any) {

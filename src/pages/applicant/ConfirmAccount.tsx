@@ -48,7 +48,7 @@ const ApplicantConfirmAccount = () => {
       const response = await fetch(`${CONFIG.apiUrl}/auth/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email, 'confirmation_code': code, 'name': username }),
       });
       if (!response.ok) {
         const error = await response.json();
