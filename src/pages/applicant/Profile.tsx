@@ -80,17 +80,18 @@ export function ApplicantProfile() {
   };
 
   // Autocompletar datos desde el CV
-  const handleCVProcessed = (cvData: unknown) => {
-    setProfile(prev => ({
+  const handleCVProcessed = (cvData: any) => {
+  setProfile(prev => ({
       ...prev,
+      cvUrl: cvData.cvUrl || prev.cvUrl,
       basicInfo: {
-        ...prev.basicInfo,
-        fullName: (cvData as { fullName?: string }).fullName || prev.basicInfo.fullName,
-        // Puedes agregar otros campos si el backend los provee
+      ...prev.basicInfo,
+      fullName: cvData.fullName || prev.basicInfo.fullName,
+      email: cvData.email || prev.basicInfo.email,
       },
-      workExperience: (cvData as { workExperience?: any[] }).workExperience || prev.workExperience,
-      education: (cvData as { education?: any[] }).education || prev.education,
-    }));
+      workExperience: cvData.workExperience || prev.workExperience,
+      education: cvData.education || prev.education,
+  }));
   };
 
   return (

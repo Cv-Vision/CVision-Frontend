@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { uploadCV } from '@/services/applicantService.ts';
+import { CONFIG } from '@/config';
 
 interface ApplicantCVDropzoneProps {
   onCVProcessed: (cvData: any) => void;
@@ -28,12 +29,17 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
       setUploading(true);
       try {
         // Subir el CV usando el servicio
-        const cvUrl = await uploadCV(file);
-        setUploadedCVUrl(cvUrl);
+        const cvrResponse = await uploadCV(file);
+        setUploadedCVUrl(cvrResponse.cvUrl);
+
         
+        const cvRes = await fetch(`${CONFIG.apiUrl}/cv/information/${cvrResponse.s3Key}`);
+        const cvData = (await cvRes.json()).data;
+
         // Llamar al callback con la información del CV
         onCVProcessed({
-          cvUrl: cvUrl,
+          ...cvData,
+          cvUrl: cvrResponse.cvUrl,
           fileName: file.name,
           fileSize: file.size,
         });
