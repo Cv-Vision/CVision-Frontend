@@ -3,9 +3,7 @@ import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
 import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
 import JobSearchResults from "@/components/applicant/JobSearchResults";
 import { JobSearchFilters } from "@/types/applicant.ts";
-import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
-import MockApplicationModal from '@/components/other/MockApplicationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
@@ -14,39 +12,19 @@ import BackButton from '@/components/other/BackButton.tsx';
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const { isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(10);
   const { jobs, isLoading: isLoadingSearch, error: searchError, search } = usePublicJobSearch();
-  const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedJobId, setSelectedJobId] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
-  const { user, isAuthenticated } = useAuth();
-  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
 
   useEffect(() => {
     search({});
   }, [search]);
 
-  useEffect(() => {
-    if (success) {
-      setIsModalOpen(false);
-      setToastMessage("Te postulaste con éxito");
-      setToastType("success");
-      setShowToast(true);
-      setAppliedJobs(prev => [...prev, selectedJobId]);
-    }
-  }, [success, selectedJobId]);
 
-  useEffect(() => {
-    if (applyError) {
-      setToastMessage(applyError);
-      setToastType("error");
-      setShowToast(true);
-    }
-  }, [applyError]);
   
   useEffect(() => {
     if (searchError) {
@@ -65,20 +43,7 @@ const JobSearch = () => {
     setCurrentPage(1);
   };
 
-  const handleConfirmApply = () => {
-    apply(selectedJobId);
-  };
 
-  const handleApply = (jobId: string) => {
-    if (!isAuthenticated) {
-      // Redirect to login page with state
-      window.location.href = "/login?fromJobListings=true";
-      return;
-    }
-
-    setSelectedJobId(jobId);
-    setIsModalOpen(true);
-  };
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
@@ -112,23 +77,10 @@ const JobSearch = () => {
               isLoading={isLoadingSearch}
               hasResults={jobs.length > 0}
               jobs={jobs as Job[]}
-              onApply={handleApply}
-              appliedJobs={appliedJobs}
-              isApplying={isApplying}
-              applyingJobId={selectedJobId}
-              isAuthenticated={isAuthenticated}
-              userRole={user?.role}
               currentPage={currentPage}
               jobsPerPage={jobsPerPage}
               onPageChange={setCurrentPage}
               totalJobs={jobs.length}
-            />
-            <MockApplicationModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onConfirm={handleConfirmApply}
-              isLoading={isApplying}
-              jobTitle="esta posición"
             />
             {showToast && (
               <ToastNotification

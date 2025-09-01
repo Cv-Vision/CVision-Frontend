@@ -5,11 +5,11 @@ export interface JobSearchResultsProps {
     isLoading: boolean;
     hasResults: boolean;
     jobs: Job[];
-    onApply: (jobId: string) => void;
-    appliedJobs: string[];
-    isApplying: boolean;
-    applyingJobId: string;
-    isAuthenticated: boolean;
+    onApply?: (jobId: string) => void;
+    appliedJobs?: string[];
+    isApplying?: boolean;
+    applyingJobId?: string;
+    isAuthenticated?: boolean;
     userRole?: string;
     currentPage: number;
     jobsPerPage: number;
@@ -21,12 +21,6 @@ const JobSearchResults = ({
     isLoading,
     hasResults,
     jobs,
-    onApply,
-    appliedJobs,
-    isApplying,
-    applyingJobId,
-    isAuthenticated,
-    userRole,
     currentPage,
     jobsPerPage,
     onPageChange,
