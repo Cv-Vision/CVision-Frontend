@@ -5,7 +5,7 @@ import JobSearchResults from "@/components/applicant/JobSearchResults";
 import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
-import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
+import MockApplicationModal from '@/components/other/MockApplicationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
@@ -123,11 +123,12 @@ const JobSearch = () => {
               onPageChange={setCurrentPage}
               totalJobs={jobs.length}
             />
-            <ApplyConfirmationModal
+            <MockApplicationModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onConfirm={handleConfirmApply}
               isLoading={isApplying}
+              jobTitle="esta posición"
             />
             {showToast && (
               <ToastNotification

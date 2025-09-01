@@ -95,7 +95,7 @@ const JobSearchResults = ({
                                     >
                                         Ver detalles
                                     </button>
-                                    {isAuthenticated && userRole === 'applicant' && (
+                                    {/* {isAuthenticated && userRole === 'applicant' && (
                                         <button
                                             onClick={() => onApply(job.pk)}
                                             disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
@@ -107,7 +107,7 @@ const JobSearchResults = ({
                                                     ? 'Ya aplicado'
                                                     : 'Aplicar'}
                                         </button>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         ))}

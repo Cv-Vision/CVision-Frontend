@@ -5,7 +5,7 @@ import { useGetJobPosition } from '@/hooks/useGetJobPosition';
 import BackButton from '@/components/other/BackButton';
 import { useAuth } from '@/context/AuthContext';
 import { useApplyToJob } from '@/hooks/useApplyToJob';
-import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
+import MockApplicationModal from '@/components/other/MockApplicationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 
 const JobPosition = () => {
@@ -19,12 +19,17 @@ const JobPosition = () => {
   const isPublicView = location.pathname.startsWith('/position/');
   
   // Estados para manejar la aplicación al trabajo
-  const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
+  const { isLoading: isApplying } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+
+  // Reiniciar el estado de appliedJobs cada vez que se entra al puesto
+  useEffect(() => {
+    setAppliedJobs([]);
+  }, [positionId]);
 
   const handleApply = () => {
     if (!isAuthenticated) {
@@ -35,28 +40,13 @@ const JobPosition = () => {
   };
 
   const handleConfirmApply = () => {
-    apply(positionId!);
+    // Mock application - simulate success
+    setIsModalOpen(false);
+    setToastMessage("Te postulaste con éxito");
+    setToastType("success");
+    setShowToast(true);
+    setAppliedJobs(prev => [...prev, positionId!]);
   };
-
-  // Manejar éxito de la aplicación
-  useEffect(() => {
-    if (success) {
-      setIsModalOpen(false);
-      setToastMessage("Te postulaste con éxito");
-      setToastType("success");
-      setShowToast(true);
-      setAppliedJobs(prev => [...prev, positionId!]);
-    }
-  }, [success, positionId]);
-
-  // Manejar error de la aplicación
-  useEffect(() => {
-    if (applyError) {
-      setToastMessage(applyError);
-      setToastType("error");
-      setShowToast(true);
-    }
-  }, [applyError]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -351,11 +341,12 @@ const JobPosition = () => {
       </div>
 
       {/* Modal de confirmación de aplicación */}
-      <ApplyConfirmationModal
+      <MockApplicationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmApply}
         isLoading={isApplying}
+        jobTitle={jobPosition.title}
       />
 
       {/* Notificaciones Toast */}
