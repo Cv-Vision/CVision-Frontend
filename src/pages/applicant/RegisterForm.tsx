@@ -124,7 +124,7 @@ const ApplicantRegisterForm = () => {
             // Redirigir a la página de confirmación después de 2 segundos
             // Pasar tanto el username como el email
             setTimeout(() => {
-                navigate(`/applicant-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
+                navigate(`/applicant-confirm?username=${encodeURIComponent(profile.basicInfo.fullName)}&email=${encodeURIComponent(result.email)}`);
             }, 2000);
             
         } catch (error: any) {

@@ -53,7 +53,7 @@ const RecruiterRegisterForm = () => {
             // Primero le pega al backend nuestro
             await registerUser({ name: fullName, email, password, role: 'RECRUITER' });
             // despues a cognito
-            const result = await registerRecruiter({
+            await registerRecruiter({
                 basicInfo: {
                     fullName,
                     email,
@@ -67,7 +67,7 @@ const RecruiterRegisterForm = () => {
             
             // Redirigir a la página de confirmación después de 2 segundos
             setTimeout(() => {
-                navigate(`/recruiter-confirm?username=${encodeURIComponent(result.username)}&email=${encodeURIComponent(result.email)}`);
+                navigate(`/recruiter-confirm?username=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`);
             }, 2000);
             
         } catch (err: any) {
