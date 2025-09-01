@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { confirmSignUp } from '@/services/AuthService';
 import Toast from '@/components/other/Toast';
+import { CONFIG } from '@/config';
 
 const ApplicantConfirmAccount = () => {
   const [code, setCode] = useState('');
@@ -37,22 +37,27 @@ const ApplicantConfirmAccount = () => {
       return;
     }
 
-    if (!username) {
-      showToast('error', 'Username no encontrado en la URL');
+    if (!email) {
+      showToast('error', 'Email no encontrado en la URL');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Usar el username para confirmar, no el email
-      await confirmSignUp({ username, code });
+      // Llamar a backend para confirmar cuenta
+      const response = await fetch(`${CONFIG.apiUrl}/auth/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al confirmar la cuenta');
+      }
       showToast('success', 'Cuenta confirmada exitosamente. Redirigiendo al login...');
-      
-      // Redirigir al login después de 2 segundos
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-      
     } catch (error: any) {
       console.error('Error confirmando cuenta:', error);
       showToast('error', error.message || 'Error al confirmar la cuenta');
