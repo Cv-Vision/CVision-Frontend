@@ -37,14 +37,14 @@ export const useGetApplicantsByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/applicants`, {
+        `${CONFIG.apiUrl}/job-postings/${jobId}/applications`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
       });
       if (!res.ok) throw new Error('Error al obtener aplicantes');
       const data = await res.json();
-      const mappedApplicants: Applicant[] = (data.applicants || []).map((item: any) => ({
+      const mappedApplicants: Applicant[] = (data || []).map((item: any) => ({
         id: item.cv_id,
         fullName: item.name || '',
         score: item.score || null,

@@ -3,9 +3,9 @@ import { useDropzone } from 'react-dropzone';
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid';
 import RejectedCVsModal from './RejectedCVsModal.tsx';
 import CVFilesModal from './CVFilesModal.tsx';
-import { useCVValidation } from '../../hooks/useCVValidation.ts';
+import { useCVValidation } from '@/hooks/useCVValidation.ts';
 import JSZip from 'jszip';
-import { useFileUploader } from '../../hooks/useFileUploader.ts';
+import { useFileUploader } from '@/hooks/useFileUploader.ts';
 
 interface CVDropzoneProps {
   jobId: string;

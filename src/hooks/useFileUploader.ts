@@ -17,19 +17,13 @@ export const useFileUploader = (jobId: string) => {
     const errors: string[] = [];
 
     try {
+      const cleanJobId = jobId.startsWith('JD#') ? jobId.substring(3) : jobId;
       const response = await fetchWithAuth(
-        `${CONFIG.apiUrl}/cv/generate-presigned-url`,
+        `${CONFIG.apiUrl}/job-postings/${cleanJobId}/cvs`, 
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Origin': window.location.origin,
-          },
-          credentials: 'include',
-          mode: 'cors',
           body: JSON.stringify({
-            job_id: jobId,
+            job_id: cleanJobId,
             filenames: files.map(f => f.name),
           }),
         }
@@ -40,18 +34,21 @@ export const useFileUploader = (jobId: string) => {
         try {
           const err = await response.json();
           msg = err.error || msg;
-        } catch {}
-        new Error(msg);
+        } catch { /* empty */ }
+        throw new Error(msg);
       }
 
       const data = await response.json();
+      if (!Array.isArray(data.upload_urls)) {
+        throw new Error('Invalid response format: upload_urls is not an array');
+      }
 
       for (const file of files) {
         try {
           setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
 
-          const urlData = data.presigned_urls.find((u: any) => u.filename === file.name);
-          if (!urlData) new Error(`No URL prefirmada para ${file.name}`);
+          const urlData = data.upload_urls.find((u: any) => u.s3_key.endsWith(file.name));
+          if (!urlData) throw new Error(`No URL prefirmada para ${file.name}`);
 
           const res = await fetch(urlData.upload_url, {
             method: 'PUT',
@@ -59,7 +56,7 @@ export const useFileUploader = (jobId: string) => {
             headers: { 'Content-Type': file.type },
           });
 
-          if (!res.ok) new Error(`Error al subir ${file.name}`);
+          if (!res.ok) throw new Error(`Error al subir ${file.name}`);
 
           uploadedUrls.push(urlData.s3_key);
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
