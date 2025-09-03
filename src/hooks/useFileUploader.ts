@@ -69,8 +69,7 @@ export const useFileUploader = (jobId: string) => {
       if (uploadedUrls.length > 0) onComplete(uploadedUrls);
       if (errors.length > 0) {
         const errorMsg = errors.join('\n');
-        console.error(errorMsg); // log interno
-        // no llamar a onError si ya hubo error por tipo/tamaño
+        console.error(errorMsg);
       }
 
     } catch (err: any) {
