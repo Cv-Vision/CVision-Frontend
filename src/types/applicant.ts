@@ -1,6 +1,7 @@
 export interface BasicInfo {
     email: string;
     password: string;
+    confirmPassword?: string;
     fullName: string;
 }
 
