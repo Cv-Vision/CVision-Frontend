@@ -5,8 +5,8 @@ import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
-import Toast from '@/components/other/Toast.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -144,9 +144,7 @@ export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
   const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const { showToast } = useToast(); // Use the new useToast hook
   const navigate = useNavigate();
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
@@ -156,9 +154,7 @@ export default function CVAnalysisResults() {
   // Manejar éxito/error de eliminación
   useEffect(() => {
     if (deleteSuccess) {
-      setToastMessage('Análisis eliminado exitosamente');
-      setToastType('success');
-      setShowToast(true);
+      showToast('Análisis eliminado exitosamente', 'success'); // Use showToast
       setSelectedCvIds(new Set());
       resetState();
       
@@ -167,16 +163,14 @@ export default function CVAnalysisResults() {
         navigate(`/recruiter/job/${jobId}`);
       }, 1500);
     }
-  }, [deleteSuccess, jobId, resetState, navigate]);
+  }, [deleteSuccess, jobId, resetState, navigate, showToast]); // Add showToast to dependencies
 
   useEffect(() => {
     if (deleteError) {
-      setToastMessage(deleteError);
-      setToastType('error');
-      setShowToast(true);
+      showToast(deleteError, 'error'); // Use showToast
       resetState();
     }
-  }, [deleteError, resetState]);
+  }, [deleteError, resetState, showToast]); // Add showToast to dependencies
 
   const handleSelectCv = (cvId: string, selected: boolean) => {
     const newSelected = new Set(selectedCvIds);
@@ -352,13 +346,6 @@ export default function CVAnalysisResults() {
         onConfirm={handleDeleteSelected}
         selectedCount={selectedCvIds.size}
         isLoading={isDeleting}
-      />
-
-      <Toast
-        type={toastType}
-        message={toastMessage}
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
       />
       </div>
     </div>

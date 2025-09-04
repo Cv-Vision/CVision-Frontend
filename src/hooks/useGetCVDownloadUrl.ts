@@ -4,13 +4,11 @@ import { fetchWithAuth } from '@/services/fetchWithAuth';
 import { CONFIG } from '@/config';
 
 interface CVDownloadUrlResponse {
-  url: string;
-  filename: string;
+  download_url: string;
 }
 
 export function useGetCVDownloadUrl(
-  jobId: string,
-  cvId: string,
+  cvKey: string,
   isEnabled: boolean
 ) {
   const [data, setData] = useState<CVDownloadUrlResponse | null>(null);
@@ -18,26 +16,15 @@ export function useGetCVDownloadUrl(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isEnabled || !jobId || !cvId) return;
+    if (!isEnabled || !cvKey) return;
 
     const fetchUrl = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const idToken = sessionStorage.getItem('idToken');
-        if (!idToken) {
-          throw new Error('No autenticado');
-        }
-
         const response = await fetchWithAuth(
-          `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/cv/${cvId}/download_url`,
-          {
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
+          `${CONFIG.apiUrl}/download/cv/${cvKey}`
         );
 
         if (!response.ok) {
@@ -46,7 +33,7 @@ export function useGetCVDownloadUrl(
         }
 
         const json = await response.json();
-        setData(json); // { url, filename }
+        setData(json); 
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
         setData(null);
@@ -56,7 +43,7 @@ export function useGetCVDownloadUrl(
     };
 
     fetchUrl();
-  }, [jobId, cvId, isEnabled]);
+  }, [cvKey, isEnabled]);
 
   return { data, isLoading, error };
 }

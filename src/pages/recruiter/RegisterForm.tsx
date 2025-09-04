@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerRecruiter } from '@/services/recruiterService.ts';
-import Toast from '@/components/other/Toast.tsx';
 import { registerUser } from '@/services/registrationService';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 const RecruiterRegisterForm = () => {
     const [fullName, setFullName] = useState('');
@@ -12,25 +12,9 @@ const RecruiterRegisterForm = () => {
     const [company, setCompany] = useState('');
     const [position, setPosition] = useState('');
     const [loading, setLoading] = useState(false);
-    const [toast, setToast] = useState<{
-        isVisible: boolean;
-        type: 'success' | 'error';
-        message: string;
-    }>({
-        isVisible: false,
-        type: 'success',
-        message: ''
-    });
+    const { showToast } = useToast(); // Use the new useToast hook
 
     const navigate = useNavigate();
-
-    const showToast = (type: 'success' | 'error', message: string) => {
-        setToast({
-            isVisible: true,
-            type,
-            message
-        });
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,13 +22,13 @@ const RecruiterRegisterForm = () => {
 
         // Validar campos obligatorios
         if (!fullName.trim() || !email.trim() || !password.trim()) {
-            showToast('error', 'Por favor completa todos los campos obligatorios');
+            showToast('Por favor completa todos los campos obligatorios', 'error'); // Use showToast
             setLoading(false);
             return;
         }
 
         if (password.length < 8) {
-            showToast('error', 'La contraseña debe tener al menos 8 caracteres');
+            showToast('La contraseña debe tener al menos 8 caracteres', 'error'); // Use showToast
             setLoading(false);
             return;
         }
@@ -63,7 +47,7 @@ const RecruiterRegisterForm = () => {
                 position: position.trim() || undefined
             });
 
-            showToast('success', 'Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.');
+            showToast('Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.', 'success'); // Use showToast
             
             // Redirigir a la página de confirmación después de 2 segundos
             setTimeout(() => {
@@ -72,7 +56,7 @@ const RecruiterRegisterForm = () => {
             
         } catch (err: any) {
             console.error('Error al crear cuenta:', err);
-            showToast('error', err.message || 'Error al crear la cuenta. Intenta nuevamente.');
+            showToast(err.message || 'Error al crear la cuenta. Intenta nuevamente.', 'error'); // Use showToast
         } finally {
             setLoading(false);
         }
@@ -191,13 +175,6 @@ const RecruiterRegisterForm = () => {
                     </p>
                 </div>
             </div>
-
-            <Toast
-                type={toast.type}
-                message={toast.message}
-                isVisible={toast.isVisible}
-                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
-            />
         </div>
     );
 };

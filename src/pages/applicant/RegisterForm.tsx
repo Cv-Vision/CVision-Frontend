@@ -5,10 +5,10 @@ import BasicInfoSection from "@/components/applicant/BasicInfoSection.tsx";
 import WorkExperienceSection from "@/components/applicant/WorkExperienceSection.tsx";
 import EducationSection from "@/components/applicant/EducationSection.tsx";
 import ApplicantCVDropzone from "@/components/applicant/ApplicantCVDropzone.tsx";
-import Toast from "../../components/other/Toast.tsx";
-import { registerApplicant } from "../../services/applicantService.ts";
+import { registerApplicant } from "@/services/applicantService.ts";
 import { v4 as uuidv4 } from "uuid";
 import { registerUser } from '@/services/registrationService';
+import { useToast } from '../../context/ToastContext';
 
 const ApplicantRegisterForm = () => {
     const navigate = useNavigate();
@@ -21,15 +21,7 @@ const ApplicantRegisterForm = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [toast, setToast] = useState<{
-        isVisible: boolean;
-        type: 'success' | 'error';
-        message: string;
-    }>({
-        isVisible: false,
-        type: 'success',
-        message: ''
-    });
+    const { showToast } = useToast();
 
     const handleBasicInfoChange = (field: keyof ApplicantProfile["basicInfo"], value: string) => {
         setProfile((prev) => ({
@@ -97,23 +89,15 @@ const ApplicantRegisterForm = () => {
     }));
     };
 
-    const showToast = (type: 'success' | 'error', message: string) => {
-        setToast({
-            isVisible: true,
-            type,
-            message
-        });
-    };
-
     const handleSubmit = async () => {
         // Validar campos obligatorios
         if (!profile.basicInfo.email || !profile.basicInfo.password || !profile.basicInfo.fullName) {
-            showToast('error', 'Por favor completa todos los campos obligatorios');
+            showToast('Por favor completa todos los campos obligatorios', 'error');
             return;
         }
 
         if (profile.basicInfo.password.length < 8) {
-            showToast('error', 'La contraseña debe tener al menos 8 caracteres');
+            showToast('La contraseña debe tener al menos 8 caracteres', 'error');
             return;
         }
 
@@ -122,7 +106,7 @@ const ApplicantRegisterForm = () => {
             // Primero le pega a nuestro backend
             await registerUser({ name: profile.basicInfo.fullName, email: profile.basicInfo.email, password: profile.basicInfo.password, role: 'APPLICANT' });
             const result = await registerApplicant(profile);
-            showToast('success', 'Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta.');
+            showToast('Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta.', 'success');
             
             // Redirigir a la página de confirmación después de 2 segundos
             // Pasar tanto el username como el email
@@ -132,7 +116,7 @@ const ApplicantRegisterForm = () => {
             
         } catch (error: any) {
             console.error('Error al guardar perfil:', error);
-            showToast('error', error.message || 'Error al guardar el perfil. Intenta nuevamente.');
+            showToast(error.message || 'Error al guardar el perfil. Intenta nuevamente.', 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -165,13 +149,6 @@ const ApplicantRegisterForm = () => {
                     </button>
                 </div>
             </div>
-            
-            <Toast
-                type={toast.type}
-                message={toast.message}
-                isVisible={toast.isVisible}
-                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
-            />
         </div>
     );
 };

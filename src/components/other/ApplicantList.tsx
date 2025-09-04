@@ -5,9 +5,9 @@ import { ApplicantRatingDropdown } from './ApplicantRatingDropdown.tsx';
 import ApplicantModal from '../../pages/recruiter/jp_elements/ApplicantModal.tsx';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults.ts';
-import Toast from './Toast.tsx';
 import { deleteApplicantsFromJob } from '@/services/cvAnalysisService.ts';
 import { TrashIcon, UserIcon} from '@heroicons/react/24/outline';
+import { useToast } from '../../context/ToastContext';
 
 interface ApplicantListProps {
   jobId: string;
@@ -22,10 +22,10 @@ const getScoreColorClass = (score: number | null) => {
 };
 
 const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted }) => {
-  const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, cvId: string }>(null);
+  const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, applicationId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string; isVisible: boolean }>({ type: 'success', message: '', isVisible: false });
+  const { showToast } = useToast();
   const { applicants, isLoading, error, refetch } = useGetApplicantsByJobId(jobId);
   const { results: analysisResults } = useGetAnalysisResults(jobId);
 
@@ -124,8 +124,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
 
   const handleRowClick = (rowIndex: number) => {
     const applicant = applicants[rowIndex];
-    console.log("cvId limpio:", JSON.stringify(applicant.id));
-    setSelectedApplicant({ fullName: applicant.fullName, score: applicant.score, cvId: applicant.id, });
+    setSelectedApplicant({ fullName: applicant.fullName, score: applicant.score, applicationId: applicant.id });
   };
 
   return (
@@ -164,7 +163,6 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
         isOpen={!!selectedApplicant}
         onClose={() => setSelectedApplicant(null)}
         selectedApplicant={selectedApplicant}
-        analysisResults={analysisResults}
       />
       
       {/* Confirmación de eliminación mejorada */}
@@ -200,13 +198,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
         </div>
       )}
       
-      <Toast
-        type={toast.type}
-        message={toast.message}
-        isVisible={toast.isVisible}
-        onClose={() => setToast(t => ({ ...t, isVisible: false }))}
-      />
-    </div>
+      </div>
   );
 };
 

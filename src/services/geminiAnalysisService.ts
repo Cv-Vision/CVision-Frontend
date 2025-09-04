@@ -15,16 +15,6 @@ export interface GeminiAnalysisResult {
 }
 
 export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAnalysisResult[]> => {
-  const response = await fetchWithAuth(
-    `${CONFIG.apiUrl}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
-  );
-
-  if (!response.ok) {
-    if (response.status === 401) throw new Error('No autorizado. Por favor, inicia sesión nuevamente.');
-    if (response.status === 404) throw new Error('No se encontraron resultados para este puesto.');
-    throw new Error('Error al obtener los resultados de análisis.');
-  }
-
   const data = await response.json();
   return Array.isArray(data) ? data : [];
 };

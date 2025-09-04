@@ -5,7 +5,7 @@ export interface Applicant {
   id: string;
   fullName: string;
   score: number | null;
-  cvId: string;
+          cvId: string;
   rating?: string;
   analysis: {
     strengths: string[];
@@ -37,7 +37,7 @@ export const useGetApplicantsByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${CONFIG.apiUrl}/job-postings/${jobId}/applications`, {
+        `${CONFIG.apiUrl}/job-postings/${jobId}/applicants`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
@@ -45,10 +45,11 @@ export const useGetApplicantsByJobId = (jobId: string) => {
       if (!res.ok) throw new Error('Error al obtener aplicantes');
       const data = await res.json();
       const mappedApplicants: Applicant[] = (data || []).map((item: any) => ({
-        id: item.cv_id,
-        fullName: item.name || '',
-        score: item.score || null,
-        cvUrl: item.cv_s3_key ? `${S3_BASE_URL}${item.cv_s3_key}` : '',
+        id: item.application_id,
+        fullName: item.cv_analysis_result?.analysis_data?.name || '',
+        score: item.cv_analysis_result?.analysis_data?.score || null,
+        cvId: item.cv_hash,
+        cvUrl: item.cv_upload_key ? `${S3_BASE_URL}${item.cv_upload_key}` : '',
         rating: item.valoracion || '',
         analysis: {
           strengths: [],

@@ -71,12 +71,8 @@ const JobPostingDetails = () => {
   const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showExtraRequirements, setShowExtraRequirements] = useState(false);
 
-  const hasActiveRequirements = () => {
-    if (!extraRequirements) return false;
-    return Object.keys(extraRequirements).length > 0;
-  };
+  
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
@@ -616,20 +612,7 @@ const JobPostingDetails = () => {
           </div>
 
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-blue-800">Cargar CVs</h2>
-              <button
-                onClick={() => setShowExtraRequirements(true)}
-                className={`px-4 py-2 rounded-xl text-white font-medium transition-all duration-300 flex items-center gap-2 text-sm ${
-                  hasActiveRequirements() 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
-                    : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
-                } hover:scale-105 shadow-md hover:shadow-lg`}
-              >
-                <AdjustmentsHorizontalIcon className={`h-4 w-4 ${hasActiveRequirements() ? 'animate-pulse' : ''}`} />
-                Requisitos
-              </button>
-            </div>
+            <h2 className="text-lg font-semibold mb-4 text-blue-800">Cargar CVs</h2>
             {!canAddCVs ? (
                 <p className="text-blue-600 text-sm p-3 bg-blue-50 rounded-xl border border-blue-200">No se pueden agregar CVs en este estado.</p>
             ) : (
@@ -678,6 +661,20 @@ const JobPostingDetails = () => {
 
           <div>
 
+             </div>
+
+           <div>
+            <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del Puesto</h2>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+              <JobRequirementsDisplay 
+                job={jobToShow} 
+                onUpdate={handleRequirementsUpdate}
+                canEdit={canEditFields}
+              />
+            </div>
+          </div>
+
+           <div>
              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                <AnalysisButton
                    jobId={jobToShow.pk}
@@ -690,40 +687,7 @@ const JobPostingDetails = () => {
                    }}
                />
              </div>
-
-
            </div>
-
-           {/* Panel deslizable de requisitos */}
-           <div className={`fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showExtraRequirements ? 'translate-x-0' : 'translate-x-full'}`}>
-             <div className="h-full flex flex-col">
-               <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                 <h2 className="text-xl font-semibold text-blue-800">Requisitos del Puesto</h2>
-                 <button
-                   onClick={() => setShowExtraRequirements(false)}
-                   className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all duration-300"
-                 >
-                   <XMarkIcon className="h-6 w-6" />
-                 </button>
-               </div>
-               
-               <div className="flex-1 overflow-y-auto p-6">
-                 <JobRequirementsDisplay 
-                   job={jobToShow} 
-                   onUpdate={handleRequirementsUpdate}
-                   canEdit={canEditFields}
-                 />
-               </div>
-             </div>
-           </div>
-
-           {/* Overlay oscuro cuando el panel está abierto */}
-           {showExtraRequirements && (
-             <div
-               className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40"
-               onClick={() => setShowExtraRequirements(false)}
-             />
-           )}
          </div>
        </div>
   );
