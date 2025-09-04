@@ -40,3 +40,17 @@ export const registerRecruiter = async (profile: RecruiterProfile): Promise<{ us
     throw error;
   }
 };
+
+// Función para obtener el resumen del dashboard del reclutador
+export const getDashboardSummary = async (token: string): Promise<{ active_postings_count: number; applications_count: number }> => {
+  const response = await fetch(`${CONFIG.apiUrl}/recruiter/dashboard-summary`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al obtener el resumen');
+  }
+  return response.json();
+};
