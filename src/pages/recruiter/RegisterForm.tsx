@@ -9,6 +9,7 @@ const RecruiterRegisterForm = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [company, setCompany] = useState('');
     const [position, setPosition] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,6 +46,12 @@ const RecruiterRegisterForm = () => {
 
         if (password.length < 8) {
             showToast('error', 'La contraseña debe tener al menos 8 caracteres');
+            setLoading(false);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showToast('error', 'Las contraseñas no coinciden');
             setLoading(false);
             return;
         }
@@ -138,6 +145,18 @@ const RecruiterRegisterForm = () => {
                     </div>
 
                     <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700 ml-1">Confirmar contraseña *</label>
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
                             Empresa (opcional)
                         </label>
@@ -166,7 +185,7 @@ const RecruiterRegisterForm = () => {
                     <button
                         type="submit"
                         className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                        disabled={loading}
+                        disabled={loading || password !== confirmPassword}
                     >
                         {loading ? (
                             <div className="flex items-center justify-center gap-2">

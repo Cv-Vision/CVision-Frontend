@@ -13,7 +13,7 @@ import { registerUser } from '@/services/registrationService';
 const ApplicantRegisterForm = () => {
     const navigate = useNavigate();
     const [profile, setProfile] = useState<ApplicantProfile>({
-        basicInfo: { email: "", password: "", fullName: "" },
+        basicInfo: { email: "", password: "", fullName: "", confirmPassword: "" },
         workExperience: [],
         education: [],
         cvUrl: undefined,
@@ -117,6 +117,11 @@ const ApplicantRegisterForm = () => {
             return;
         }
 
+        if (profile.basicInfo.password !== profile.basicInfo.confirmPassword) {
+            showToast('error', 'Las contraseña no');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             // Primero le pega a nuestro backend
@@ -154,7 +159,7 @@ const ApplicantRegisterForm = () => {
                 <div className="flex justify-center pt-6">
                     <button
                         onClick={handleSubmit}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || profile.basicInfo.password !== profile.basicInfo.confirmPassword}
                         className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ${
                             isSubmitting 
                                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
