@@ -7,10 +7,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  // Ocultar navbar en login y register
-  if (location.pathname === '/login' || location.pathname === '/register') {
-    return null;
-  }
+  // La navbar ahora se muestra en todas las páginas
+  // if (location.pathname === '/login' || location.pathname === '/register') {
+  //   return null;
+  // }
 
   // Mostrar login/signup solo en Home y solo si NO está autenticado
   const showAuthButtons = location.pathname === '/' && !isAuthenticated;
@@ -36,7 +36,7 @@ const Navbar = () => {
   const roleColor = user?.role === 'applicant' ? 'blue' : 'green';
 
   return (
-    <header className={`${location.pathname === '/' ? 'sticky top-0 z-50' : ''} w-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-lg border-b border-blue-500/20`}>
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-lg border-b border-blue-500/20">
       <div className="px-6 py-4 flex items-center w-full">
         {/* Badge de usuario al extremo izquierdo */}
         {isAuthenticated && user && (
@@ -66,10 +66,15 @@ const Navbar = () => {
               <button onClick={() => navigate('/recruiter/create-job')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
                 Crear puesto
               </button>
-              <button onClick={() => navigate('/job-postings')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
+              <button onClick={() => navigate('/recruiter/job-postings')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
                 Ver puestos
               </button>
             </>
+          )}
+          {isAuthenticated && user && user?.role === 'applicant' && (
+            <button onClick={() => navigate('/applicant/positions')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
+              Buscar puestos
+            </button>
           )}
         </div>
         {/* Espacio flexible */}
