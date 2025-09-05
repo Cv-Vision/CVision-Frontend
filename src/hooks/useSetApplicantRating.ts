@@ -5,7 +5,7 @@ export function useSetApplicantRating() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const setRating = async (jobId: string, cvId: string, valoracion: string) => {
+  const setRating = async (jobId: string, applicationId: string, status: string) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -13,13 +13,13 @@ export function useSetApplicantRating() {
       const token = sessionStorage.getItem('idToken');
       if (!token) throw new Error('No autorizado - token ausente');
 
-      const payload = { valoracion, cvId, jobId };
+      const payload = { status };
       console.log('📤 Enviando request a Lambda con payload:', payload);
 
       const res = await fetch(
-        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/set-applicant-rating`,
+        `${CONFIG.apiUrl}/applications/${applicationId}/status`,
         {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,

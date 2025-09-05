@@ -12,6 +12,7 @@ interface Props {
   onClose: () => void;
   onRemove: (index: number) => void;
   onUploadAll: () => Promise<void> | void;
+  rejectedFiles: { name: string; reason: string }[];
 }
 
 const formatBytes = (bytes: number) => {
@@ -23,7 +24,7 @@ const formatBytes = (bytes: number) => {
 };
 
 function ModalContent({
-                        files, uploadProgress, uploading, onClose, onRemove, onUploadAll
+                        files, uploadProgress, uploading, onClose, onRemove, onUploadAll, rejectedFiles
                       }: Omit<Props, 'open'>) {
   const remainingToUpload = files.filter(f => (uploadProgress[f.name] ?? 0) !== 100).length;
 
@@ -60,6 +61,8 @@ function ModalContent({
                 const isDone = prog === 100;
                 const isError = prog === -1;
                 const isUploading = !isDone && !isError && typeof prog === 'number' && prog > 0;
+                const rejectedFile = rejectedFiles.find(rf => rf.name === file.name);
+                const isRejected = !!rejectedFile;
 
                 return (
                   <li key={`${file.name}-${index}`} className="py-3 flex items-center gap-3">
@@ -69,6 +72,7 @@ function ModalContent({
                         {formatBytes(file.size)}
                         {isUploading && <span className="ml-2">• Subiendo {prog}%</span>}
                         {isError && <span className="ml-2 text-red-600">• Error al subir</span>}
+                        {isRejected && <span className="ml-2 text-red-600">• {rejectedFile?.reason}</span>}
                       </p>
                     </div>
 
@@ -78,7 +82,7 @@ function ModalContent({
                           <CheckCircleIcon className="w-5 h-5 mr-1" /> Subido
                         </span>
                       )}
-                      {!isDone && !isUploading && !isError && (
+                      {!isDone && !isUploading && !isError && !isRejected && (
                         <button
                           onClick={() => onRemove(index)}
                           className="p-2 rounded-lg hover:bg-red-50 text-red-600 border border-red-200"

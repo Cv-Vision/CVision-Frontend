@@ -9,14 +9,30 @@ type ApplicantRatingDropdownProps = {
   initialValue?: string;
 };
 
-const OPTIONS = ['Favorito', 'Visto', 'Bueno', 'Malo'];
+const OPTIONS = ['Favorito', 'Visto', 'Bueno', 'Malo', 'Pendiente'];
+
+const statusMap: Record<string, string> = {
+  'FAVORITE': 'Favorito',
+  'PENDING': 'Pendiente',
+  'SEEN': 'Visto',
+  'GOOD_FIT': 'Bueno',
+  'BAD_FIT': 'Malo',
+};
+
+const reverseStatusMap: Record<string, string> = {
+  'Favorito': 'FAVORITE',
+  'Pendiente': 'PENDING',
+  'Visto': 'SEEN',
+  'Bueno': 'GOOD_FIT',
+  'Malo': 'BAD_FIT',
+};
 
 export const ApplicantRatingDropdown = ({
                                           jobId,
                                           cvId,
                                           initialValue = '',
                                         }: ApplicantRatingDropdownProps) => {
-  const [selected, setSelected] = useState(initialValue);
+  const [selected, setSelected] = useState(statusMap[initialValue] || initialValue);
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { setRating, isLoading, error, success } = useSetApplicantRating();
@@ -25,7 +41,7 @@ export const ApplicantRatingDropdown = ({
   const [menuPosition, setMenuPosition] = useState<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});
 
   useEffect(() => {
-    setSelected(initialValue);
+    setSelected(statusMap[initialValue] || initialValue);
   }, [initialValue]);
 
   const openMenu = () => {
@@ -48,7 +64,7 @@ export const ApplicantRatingDropdown = ({
     console.log('🔄 Seleccionando opción:', option);
     setSelected(option);
     setIsOpen(false);
-    await setRating(jobId, cvId, option);
+    await setRating(jobId, cvId, reverseStatusMap[option] || option);
   };
 
   useEffect(() => {

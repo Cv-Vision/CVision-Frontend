@@ -5,14 +5,10 @@ export interface Applicant {
   id: string;
   fullName: string;
   score: number | null;
-          cvId: string;
+  cvId: string;
   rating?: string;
-  analysis: {
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-    detailedFeedback: string;
-  };
+  status?: string;
+  rawReasons: string[];
 }
 
 const S3_BASE_URL = `${CONFIG.bucketUrl}`;
@@ -51,12 +47,8 @@ export const useGetApplicantsByJobId = (jobId: string) => {
         cvId: item.cv_hash,
         cvUrl: item.cv_upload_key ? `${S3_BASE_URL}${item.cv_upload_key}` : '',
         rating: item.valoracion || '',
-        analysis: {
-          strengths: [],
-          weaknesses: [],
-          recommendations: [],
-          detailedFeedback: '',
-        },
+        status: item.status || '',
+        rawReasons: item.cv_analysis_result?.analysis_data?.reasons || [],
       }));
       mappedApplicants.sort((a, b) => {
         if (a.score === null && b.score === null) return 0;

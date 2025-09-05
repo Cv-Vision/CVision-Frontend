@@ -30,13 +30,13 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         throw new Error('No hay token de autenticación. Por favor, inicie sesión nuevamente.');
       }
 
-      const payload: Record<string, any> = { job_id: jobId };
+      const payload: Record<string, any> = {};
       if (extraRequirements && extraRequirements.additional_requirements) {
         payload.additional_requirements = extraRequirements.additional_requirements;
       }
       
       const response = await axios.post(
-        `${CONFIG.apiUrl}/cv/analyze-job-cvs`,
+        `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
         payload,
         {
           headers: {
@@ -46,8 +46,8 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         }
       );
 
-      if (response.status === 200) {
-        showToast(response.data.message, 'success');
+      if (response.status === 200 || response.status === 202) {
+        showToast('Análisis iniciado correctamente.', 'success');
         onSuccess?.();
       } else {
         throw new Error('Error al iniciar el análisis');

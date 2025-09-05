@@ -107,7 +107,8 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
           {applicant.fullName}
         </span>
         <div className="z-20 relative" onClick={(e) => e.stopPropagation()}>
-          <ApplicantRatingDropdown jobId={jobId} cvId={applicant.id} initialValue={applicant.rating || ''} />
+          
+          <ApplicantRatingDropdown jobId={jobId} cvId={applicant.id} initialValue={applicant.status || ''} />
         </div>
       </div>
     </TableCell>,

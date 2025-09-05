@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
-import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
+import TopApplicantsDisplay from '@/components/other/TopApplicantsDisplay.tsx';
 import BackButton from '@/components/other/BackButton.tsx';
 import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import ApplicantList from '@/components/other/ApplicantList.tsx';
@@ -32,6 +32,17 @@ function contractTypeLabel(type?: string) {
     case 'FREELANCE': return 'Freelance';
     case 'INTERNSHIP': return 'Internship';
     default: return type || '';
+  }
+}
+
+function englishLevelLabel(level?: string) {
+  switch (level) {
+    case 'BASIC': return 'Básico';
+    case 'INTERMEDIATE': return 'Intermedio';
+    case 'ADVANCED': return 'Avanzado';
+    case 'NATIVE': return 'Nativo';
+    case 'NOT_REQUIRED': return 'No requerido';
+    default: return level || '';
   }
 }
 
@@ -61,6 +72,7 @@ const JobPostingDetails = () => {
   const [newTipoContrato, setNewTipoContrato] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | ''>('');
   const [newUbicacion, setNewUbicacion] = useState('');
   const [newEmpresa, setNewEmpresa] = useState('');
+  const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
   const [fieldsSaveSuccess, setFieldsSaveSuccess] = useState(false);
   const [fieldsSaveError, setFieldsSaveError] = useState<string | null>(null);
 
@@ -75,8 +87,7 @@ const JobPostingDetails = () => {
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
-  const { refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
-  const { results: analysisResults, isLoading: analysisLoading, error: analysisError, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+  const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
 
   // Navigate to full analysis view
   const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
@@ -296,6 +307,7 @@ const JobPostingDetails = () => {
                     setNewTipoContrato((jobToShow.contract_type as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP') || '');
                     setNewUbicacion(jobToShow.location || '');
                     setNewEmpresa(jobToShow.company || '');
+                    setNewEnglishLevel((jobToShow.english_level as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED') || '');
                   }}
                   disabled={!canEditFields}
                   className="ml-2 px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
@@ -312,14 +324,16 @@ const JobPostingDetails = () => {
                           experience_level: newSeniority || undefined,
                           contract_type: newTipoContrato || undefined,
                           location: newUbicacion || undefined,
-                          company: newEmpresa || undefined, // Added company to the update payload
+                          company: newEmpresa || undefined,
+                          english_level: newEnglishLevel || undefined, // Added company to the update payload
                         });
                         setLocalJob({
                           ...jobToShow,
                           experience_level: newSeniority,
                           contract_type: newTipoContrato,
                           location: newUbicacion,
-                          company: newEmpresa, // Ensure local state reflects the updated company
+                          company: newEmpresa,
+                          english_level: newEnglishLevel, // Ensure local state reflects the updated company
                         });
                         setIsEditingFields(false);
                         setFieldsSaveSuccess(true);
@@ -387,6 +401,25 @@ const JobPostingDetails = () => {
                   </select>
                 ) : (
                   <div className="text-blue-900">{contractTypeLabel(jobToShow.contract_type) || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Nivel de Inglés</label>
+                {isEditingFields ? (
+                  <select
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newEnglishLevel}
+                    onChange={e => setNewEnglishLevel(e.target.value as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | '')}
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="BASIC">Básico</option>
+                    <option value="INTERMEDIATE">Intermedio</option>
+                    <option value="ADVANCED">Avanzado</option>
+                    <option value="NATIVE">Nativo</option>
+                    <option value="NOT_REQUIRED">No requerido</option>
+                  </select>
+                ) : (
+                  <div className="text-blue-900">{englishLevelLabel(jobToShow.english_level) || <span className="text-gray-400">No especificado</span>}</div>
                 )}
               </div>
               <div>
@@ -552,9 +585,9 @@ const JobPostingDetails = () => {
               </h2>
               <button
                   onClick={goToFullAnalysis}
-                  disabled={analysisResults.length === 0}
+                  disabled={applicants.length === 0}
                   className={`px-6 py-2 rounded-xl text-sm transition-all duration-300 font-semibold ${
-                    analysisResults.length === 0 
+                    applicants.length === 0 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                       : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:scale-105 shadow-lg hover:shadow-xl'
                   }`}
@@ -563,7 +596,7 @@ const JobPostingDetails = () => {
               </button>
             </div>
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-              <CVAnalysisResultsInline jobId={cleanJobId} />
+              <TopApplicantsDisplay applicants={applicants} />
             </div>
           </div>
         </div>
@@ -572,32 +605,17 @@ const JobPostingDetails = () => {
         <div className="w-full max-w-xs bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-2xl border border-white/20 self-start space-y-6 min-h-fit">
           <div>
             <h2 className="text-lg font-semibold mb-4 text-blue-800">Métricas de análisis</h2>
-            {analysisLoading ? (
-                <div className="flex justify-center items-center h-16">
-                  <div className="inline-flex items-center gap-3 text-blue-600">
-                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm">Cargando...</span>
-                  </div>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="p-3 rounded-full bg-blue-100">
+                  <ChartBarIcon className="h-6 w-6 text-blue-600" />
                 </div>
-            ) : analysisError ? (
-                <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
-            ) : analysisResults.length === 0 ? (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
-                  <div className="flex flex-col items-center text-center gap-3">
-                    <div className="p-3 rounded-full bg-blue-100">
-                      <ChartBarIcon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
-                      <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
+                  <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
                 </div>
-            ) : (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-                  <CVAnalysisMetricsSummary results={analysisResults} />
-                </div>
-            )}
+              </div>
+            </div>
           </div>
 
           <div>
@@ -648,7 +666,6 @@ const JobPostingDetails = () => {
                    onSuccess={() => {
                      setTimeout(() => {
                        refetchApplicants();
-                       refetchAnalysisResults();
                      }, 12000);
                    }}
                />
