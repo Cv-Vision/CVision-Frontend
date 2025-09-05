@@ -66,7 +66,6 @@ const JobPostingDetails = () => {
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
-  const [requirementsUpdateSuccess, setRequirementsUpdateSuccess] = useState<string | null>(null);
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
   const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
@@ -148,7 +147,7 @@ const JobPostingDetails = () => {
       setLocalJob({ ...jobToShow, ...payload });
       setExtraRequirements(undefined); // Clear the requirements after successful update
       // Show success message for requirements update
-      setRequirementsUpdateSuccess('Requisitos del puesto actualizados correctamente');
+      
     } catch (error) {
       console.error('Error updating job posting:', error);
     }
@@ -156,8 +155,6 @@ const JobPostingDetails = () => {
 
   const handleRequirementsUpdate = (updates: any) => {
     setExtraRequirements(updates);
-    // Pass the updates directly to handleUpdateJob
-    handleUpdateJob(updates);
   };
 
 
@@ -194,15 +191,7 @@ const JobPostingDetails = () => {
     }
   }, [uploadError]);
 
-  // Auto-dismiss requirements update success message
-  useEffect(() => {
-    if (requirementsUpdateSuccess) {
-      const timer = setTimeout(() => {
-        setRequirementsUpdateSuccess(null);
-      }, 4000); // 4 seconds for success
-      return () => clearTimeout(timer);
-    }
-  }, [requirementsUpdateSuccess]);
+  
 
   // Auto-adjust textarea height when editing starts
   useEffect(() => {
@@ -619,28 +608,7 @@ const JobPostingDetails = () => {
                 <div className="space-y-4">
 
 
-                  {requirementsUpdateSuccess && (
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-green-800 font-semibold">{requirementsUpdateSuccess}</p>
-                        </div>
-                        <button 
-                          onClick={() => setRequirementsUpdateSuccess(null)}
-                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  
 
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone

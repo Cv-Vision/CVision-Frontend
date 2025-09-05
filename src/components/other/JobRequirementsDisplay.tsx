@@ -29,9 +29,6 @@ const JobRequirementsDisplay: React.FC<JobRequirementsDisplayProps> = ({ job, on
             value={formData.additionalRequirements}
             onChange={(e) => {
               setFormData(prev => ({ ...prev, additionalRequirements: e.target.value }))
-              if (onUpdate) {
-                onUpdate({ additional_requirements: e.target.value })
-              }
             }}
             className="w-full text-xs border-2 border-blue-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all duration-200 hover:border-blue-300 resize-none"
             rows={3}

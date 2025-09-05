@@ -53,7 +53,18 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         throw new Error('Error al iniciar el análisis');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      let errorMessage = 'Error desconocido';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data.message || error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      // Customize the error message
+      if (errorMessage.includes("No CVs found for job_id")) {
+        errorMessage = "CVs no encontrados para este puesto";
+      }
+
       showToast(errorMessage, 'error');
       onError?.(errorMessage);
     } finally {
