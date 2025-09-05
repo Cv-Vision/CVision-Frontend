@@ -86,7 +86,7 @@ const CVAnalysisResultCard = ({
       </div>
 
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
               <ChartBarIcon className="h-5 w-5 text-blue-600 mr-2" />
               Razones del puntaje
@@ -94,7 +94,7 @@ const CVAnalysisResultCard = ({
             <ul className="space-y-2">
           {result.reasons.map((reason, idx) => (
                 <li key={idx} className="text-gray-700 flex items-start">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   <span>{reason}</span>
                 </li>
           ))}
@@ -102,7 +102,7 @@ const CVAnalysisResultCard = ({
       </div>
 
       {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <UserGroupIcon className="h-5 w-5 text-green-600 mr-2" />
                 Razones de habilidades blandas
@@ -110,7 +110,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_reasons.map((reason, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{reason}</span>
                   </li>
             ))}
@@ -119,7 +119,7 @@ const CVAnalysisResultCard = ({
       )}
 
       {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
-            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <TrophyIcon className="h-5 w-5 text-purple-600 mr-2" />
                 Preguntas sugeridas para entrevista
@@ -127,7 +127,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_questions?.map((question, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{question}</span>
                   </li>
             ))}
@@ -187,7 +187,7 @@ export default function CVAnalysisResults() {
       setSelectedCvIds(new Set());
     } else {
       // Usar los cv_id reales de los aplicantes
-      const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
+      const allCvIds = results.map(result => result.cv_id || result.participant_id).filter((id): id is string => typeof id === 'string');
       setSelectedCvIds(new Set(allCvIds));
     }
   };
@@ -207,7 +207,7 @@ export default function CVAnalysisResults() {
   // Función para verificar si todos están seleccionados
   const areAllSelected = () => {
     if (results.length === 0) return false;
-    const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
+    const allCvIds = results.map(result => result.cv_id || result.participant_id).filter((id): id is string => typeof id === 'string');
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 

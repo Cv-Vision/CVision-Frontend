@@ -24,7 +24,14 @@ export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAna
     throw new Error('Expected an array of applicants');
   }
   const analysisResults = applicants
-    .map((applicant: any) => applicant.cv_analysis_result?.analysis_data)
+    .map((applicant: any) => {
+      const analysisData = applicant.cv_analysis_result?.analysis_data;
+      const createdAt = applicant.cv_analysis_result?.created_at; // Get created_at from the parent
+      if (analysisData) {
+        return { ...analysisData, created_at: createdAt }; // Add created_at to analysisData
+      }
+      return undefined;
+    })
     .filter((result: any) => result !== undefined); // Filter out undefined results if any applicant doesn't have analysis data
   return analysisResults;
 };
