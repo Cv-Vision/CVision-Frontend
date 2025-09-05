@@ -39,13 +39,13 @@ export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAna
 export const deleteAnalysisResults = async (jobId: string, cvIds: string[]): Promise<void> => {
   console.log('📤 Enviando request de eliminación:', { jobId, cvIds });
   
-  const payload = { cv_ids: cvIds };
+  const payload = { application_ids: cvIds };
   console.log('📦 Payload:', payload);
   
   const response = await fetchWithAuth(
-    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/delete-analysis-results`,
+    `${CONFIG.apiUrl}/applications`,
     {
-      method: 'POST',
+      method: 'DELETE',
       body: JSON.stringify(payload),
     }
   );

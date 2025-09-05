@@ -187,7 +187,7 @@ export default function CVAnalysisResults() {
       setSelectedCvIds(new Set());
     } else {
       // Usar los cv_id reales de los aplicantes
-      const allCvIds = results.map(result => result.cv_id || result.participant_id).filter((id): id is string => typeof id === 'string');
+      const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
       setSelectedCvIds(new Set(allCvIds));
     }
   };
@@ -207,7 +207,7 @@ export default function CVAnalysisResults() {
   // Función para verificar si todos están seleccionados
   const areAllSelected = () => {
     if (results.length === 0) return false;
-    const allCvIds = results.map(result => result.cv_id || result.participant_id).filter((id): id is string => typeof id === 'string');
+    const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
@@ -293,12 +293,12 @@ export default function CVAnalysisResults() {
         
         {results.length > 0 && (
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 mb-6">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={handleSelectAll}>
               <input
                 type="checkbox"
                 checked={areAllSelected()}
-                onChange={handleSelectAll}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                readOnly
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200 pointer-events-none"
               />
               <span className="font-semibold text-gray-800">
                 {selectedCvIds.size > 0 ? `${selectedCvIds.size} seleccionado${selectedCvIds.size > 1 ? 's' : ''}` : 'Seleccionar todos'}
