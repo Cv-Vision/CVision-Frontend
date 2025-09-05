@@ -77,9 +77,9 @@ export default function CreateJob() {
 
   useEffect(() => {
     if (success) {
-      navigate('/recruiter/job-postings');
+      navigate('/recruiter/job-postings', { state: { jobCreated: true, jobTitle: title } });
     }
-  }, [success, navigate]);
+  }, [success, navigate, title]);
 
   const addQuestion = () =>
     setQuestions(prev => [...prev, { id: crypto.randomUUID(), text: '', type: 'YES_NO' }]);
