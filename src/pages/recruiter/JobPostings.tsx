@@ -1,11 +1,12 @@
 import { Table } from '@/components/dashboard/Table';
 import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
 import { useGetJobs } from '@/hooks/useGetJobs';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BriefcaseIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import BackButton from '@/components/other/BackButton.tsx';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useMemo, useEffect } from 'react';
+import ToastNotification from '@/components/other/ToastNotification';
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
 type StatusFilter = 'all' | JobStatus;
@@ -15,11 +16,14 @@ const ALL_STATUSES: JobStatus[] = ['ACTIVE', 'INACTIVE', 'CANCELLED'];
 const JobPostings: React.FC = () => {
   const {jobs = [], isLoading, error, refetch} = useGetJobs();
   const nav = useNavigate();
+  const location = useLocation();
   const {updateJobPostingData} = useUpdateJobPostingData();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   // Prevenir scroll en toda la página
   useEffect(() => {
@@ -35,6 +39,18 @@ const JobPostings: React.FC = () => {
       document.documentElement.style.overflow = 'unset';
     };
   }, [showConfirm]);
+  
+  // Mostrar toast cuando se crea un puesto exitosamente
+  useEffect(() => {
+    const state = location.state as { jobCreated?: boolean; jobTitle?: string } | null;
+    if (state?.jobCreated && state?.jobTitle) {
+      setToastMessage(`¡El puesto "${state.jobTitle}" se ha creado exitosamente!`);
+      setShowToast(true);
+      
+      // Limpiar el estado de la ubicación para evitar que el toast aparezca al recargar
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
 
@@ -85,6 +101,13 @@ const JobPostings: React.FC = () => {
 
   return (
       <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-hidden">
+        {showToast && (
+          <ToastNotification 
+            message={toastMessage} 
+            type="success" 
+            onClose={() => setShowToast(false)} 
+          />
+        )}
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <BackButton to="/recruiter/dashboard" />
