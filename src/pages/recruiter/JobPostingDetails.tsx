@@ -5,10 +5,10 @@ import { CVDropzone } from '@/components/other/CVDropzone.tsx';
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
-import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
+import { useGetAnalysisResults, GeminiAnalysisResultWithCreatedAt } from '@/hooks/useGetAnalysisResults';
 import TopApplicantsDisplay from '@/components/other/TopApplicantsDisplay.tsx';
 import BackButton from '@/components/other/BackButton.tsx';
-import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon, CalculatorIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import ApplicantList from '@/components/other/ApplicantList.tsx';
 import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
@@ -88,6 +88,15 @@ const JobPostingDetails = () => {
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
   const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
+  const { results: analysisResults, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+
+  const highestScore = Math.max(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0));
+  const highestScoreApplicant = analysisResults.find((res: GeminiAnalysisResultWithCreatedAt) => res.score === highestScore);
+  const highestScoreApplicantName = highestScoreApplicant?.name || 'N/A';
+
+  const lowestScore = Math.min(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0));
+  const lowestScoreApplicant = analysisResults.find((res: GeminiAnalysisResultWithCreatedAt) => res.score === lowestScore);
+  const lowestScoreApplicantName = lowestScoreApplicant?.name || 'N/A';
 
   // Navigate to full analysis view
   const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
@@ -606,15 +615,52 @@ const JobPostingDetails = () => {
           <div>
             <h2 className="text-lg font-semibold mb-4 text-blue-800">Métricas de análisis</h2>
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
-              <div className="flex flex-col items-center text-center gap-3">
-                <div className="p-3 rounded-full bg-blue-100">
-                  <ChartBarIcon className="h-6 w-6 text-blue-600" />
+              {(analysisResults && analysisResults.length > 0) ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ChartBarIcon className="h-4 w-4 text-blue-500" /> Total Analizados:</p>
+                    <span className="text-blue-900 font-semibold text-sm">{analysisResults.length}</span>
+                  </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><CalculatorIcon className="h-4 w-4 text-blue-500" /> Puntaje Promedio:</p>
+                    <span className="text-blue-900 font-semibold text-sm">
+                      {(analysisResults.reduce((sum: number, res: GeminiAnalysisResultWithCreatedAt) => sum + (res.score || 0), 0) / analysisResults.length).toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2 group relative">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowUpIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Alto:</p>
+                    <div>
+                      <span className="text-blue-900 font-semibold text-sm">
+                        {Math.max(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0))}
+                      </span>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                        {highestScoreApplicantName}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2 group relative">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowDownIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Bajo:</p>
+                    <div>
+                      <span className="text-blue-900 font-semibold text-sm">
+                        {Math.min(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0))}
+                      </span>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                        {lowestScoreApplicantName}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
-                  <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
+              ) : (
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="p-3 rounded-full bg-blue-100">
+                    <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
+                    <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

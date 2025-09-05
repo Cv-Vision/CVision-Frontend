@@ -22,7 +22,7 @@ const getScoreColorClass = (score: number | null) => {
 };
 
 const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted }) => {
-  const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, applicationId: string }>(null);
+  const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, applicationId: string, cvId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const { showToast } = useToast();
@@ -40,12 +40,12 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
     setShowConfirm(false);
     try {
       await deleteApplicantsFromJob(jobId, selectedIds);
-      setToast({ type: 'success', message: 'Aplicantes eliminados correctamente.', isVisible: true });
+      showToast('Aplicantes eliminados correctamente.', 'success');
       setSelectedIds([]);
       refetch();
       if (onApplicantDeleted) onApplicantDeleted();
     } catch (err: any) {
-      setToast({ type: 'error', message: err.message || 'Error al eliminar aplicantes.', isVisible: true });
+      showToast(err.message || 'Error al eliminar aplicantes.', 'error');
     }
   };
 
@@ -125,7 +125,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
 
   const handleRowClick = (rowIndex: number) => {
     const applicant = applicants[rowIndex];
-    setSelectedApplicant({ fullName: applicant.fullName, score: applicant.score, applicationId: applicant.id });
+    setSelectedApplicant({ fullName: applicant.fullName, score: applicant.score, applicationId: applicant.id, cvId: applicant.id });
   };
 
   return (

@@ -15,8 +15,18 @@ export interface GeminiAnalysisResult {
 }
 
 export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAnalysisResult[]> => {
-  const data = await response.json();
-  return Array.isArray(data) ? data : [];
+  const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/applicants`);
+  if (!response.ok) {
+    throw new Error(`Error fetching analysis results: ${response.statusText}`);
+  }
+  const applicants = await response.json();
+  if (!Array.isArray(applicants)) {
+    throw new Error('Expected an array of applicants');
+  }
+  const analysisResults = applicants
+    .map((applicant: any) => applicant.cv_analysis_result?.analysis_data)
+    .filter((result: any) => result !== undefined); // Filter out undefined results if any applicant doesn't have analysis data
+  return analysisResults;
 };
 
 export const deleteAnalysisResults = async (jobId: string, cvIds: string[]): Promise<void> => {

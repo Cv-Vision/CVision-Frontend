@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
 // Extiendo el tipo para soportar created_at
-interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
+export interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   created_at?: string;
 }
 
@@ -12,6 +12,7 @@ export const useGetAnalysisResults = (jobId: string) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchResults = async (skipLoading = false) => {
+    console.log('Fetching analysis results for jobId:', jobId); // Added log
     if (!skipLoading) {
       setIsLoading(true);
       setError(null);
@@ -19,10 +20,12 @@ export const useGetAnalysisResults = (jobId: string) => {
 
     try {
       const data = await getGeminiAnalysisResults(jobId);
+      console.log('Received analysis results data:', data); // Added log
       // Ordenar resultados de mayor a menor score
       const sortedResults = [...data].sort((a, b) => b.score - a.score);
       setResults(sortedResults);
     } catch (err: any) {
+      console.error('Error fetching analysis results:', err); // Added log
       setError(err.message);
     } finally {
       if (!skipLoading) setIsLoading(false);

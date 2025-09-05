@@ -3,10 +3,10 @@ import React from 'react';
 interface ToastNotificationProps {
   message: string;
   type?: 'success' | 'error' | 'info';
-  onDismiss: () => void;
+  onClose: () => void;
 }
 
-const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = 'info', onDismiss }) => {
+const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = 'info', onClose }) => {
   return (
     <div
       className={`
@@ -42,7 +42,7 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = '
       </span>
       <span className="flex-1">{message}</span>
       <button
-        onClick={onDismiss}
+        onClick={onClose}
         className="ml-2 text-lg text-gray-400 hover:text-gray-700 transition"
         aria-label="Cerrar notificación"
       >

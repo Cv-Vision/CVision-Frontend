@@ -42,7 +42,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         <ToastNotification
           message={toast.message}
           type={toast.type}
-          onDismiss={handleDismiss}
+          onClose={handleDismiss}
         />
       )}
     </ToastContext.Provider>
