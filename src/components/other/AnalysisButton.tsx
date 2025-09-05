@@ -9,13 +9,14 @@ interface AnalysisButtonProps {
   jobId: string;
   onSuccess?: () => void;
   onError?: (error: string) => void;
-  extraRequirements?: ExtraRequirements;
+  extraRequirements?: any;
 }
 
 const AnalysisButton: React.FC<AnalysisButtonProps> = ({ 
   jobId, 
   onSuccess, 
   onError,
+  extraRequirements,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
@@ -30,7 +31,10 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
       }
 
       const payload: Record<string, any> = { job_id: jobId };
-      // Ya no se envían requisitos adicionales
+      if (extraRequirements && extraRequirements.additional_requirements) {
+        payload.additional_requirements = extraRequirements.additional_requirements;
+      }
+      
       const response = await axios.post(
         `${CONFIG.apiUrl}/cv/analyze-job-cvs`,
         payload,

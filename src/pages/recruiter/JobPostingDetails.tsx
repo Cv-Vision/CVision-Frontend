@@ -8,7 +8,7 @@ import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
 import BackButton from '@/components/other/BackButton.tsx';
-import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import ApplicantList from '@/components/other/ApplicantList.tsx';
 import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
@@ -663,15 +663,13 @@ const JobPostingDetails = () => {
 
              </div>
 
-           <div>
-            <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del Puesto</h2>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                      <div>
+            <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del análisis</h2>
               <JobRequirementsDisplay 
                 job={jobToShow} 
                 onUpdate={handleRequirementsUpdate}
                 canEdit={canEditFields}
               />
-            </div>
           </div>
 
            <div>
