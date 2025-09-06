@@ -148,31 +148,6 @@ const JobPostingDetails = () => {
       }
     }
   };
-
-  const handleUpdateJob = async (updates?: any) => {
-    if (!jobToShow) return;
-
-    const payload: any = {};
-
-    // Use the provided updates or fall back to extraRequirements
-    const updatesToUse = updates || extraRequirements;
-    
-    if (updatesToUse && Object.keys(updatesToUse).length > 0) {
-      Object.assign(payload, updatesToUse);
-    }
-
-    try {
-      await updateJobPostingData(jobToShow.pk, payload);
-      // Actualizar el estado local con los datos nuevos
-      setLocalJob({ ...jobToShow, ...payload });
-      setExtraRequirements(undefined); // Clear the requirements after successful update
-      // Show success message for requirements update
-      
-    } catch (error) {
-      console.error('Error updating job posting:', error);
-    }
-  };
-
   const handleRequirementsUpdate = (updates: any) => {
     setExtraRequirements(updates);
   };

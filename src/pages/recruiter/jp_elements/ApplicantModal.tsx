@@ -29,7 +29,7 @@ const ApplicantModal = ({
                         }: ApplicantModalProps) => {
   const { jobId } = useParams<{ jobId: string }>();
 
-  const { data: applicantDetails, isLoading: isLoadingApplicantDetails, error: applicantDetailsError } = useGetApplicantDetails(
+  const { data: applicantDetails } = useGetApplicantDetails(
     jobId ?? '',
     selectedApplicant?.applicationId ?? '',
     isOpen && !!selectedApplicant?.applicationId

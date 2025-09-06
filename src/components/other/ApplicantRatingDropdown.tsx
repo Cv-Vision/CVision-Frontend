@@ -28,7 +28,6 @@ const reverseStatusMap: Record<string, string> = {
 };
 
 export const ApplicantRatingDropdown = ({
-                                          jobId,
                                           cvId,
                                           initialValue = '',
                                         }: ApplicantRatingDropdownProps) => {
@@ -64,7 +63,7 @@ export const ApplicantRatingDropdown = ({
     console.log('🔄 Seleccionando opción:', option);
     setSelected(option);
     setIsOpen(false);
-    await setRating(jobId, cvId, reverseStatusMap[option] || option);
+    await setRating(cvId, reverseStatusMap[option] || option);
   };
 
   useEffect(() => {

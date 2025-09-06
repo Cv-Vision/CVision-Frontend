@@ -42,7 +42,7 @@ export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisRes
   }));
 };
 
-export const deleteApplicantsFromJob = async (jobId: string, cvIds: string[]): Promise<void> => {
+export const deleteApplicantsFromJob = async (cvIds: string[]): Promise<void> => {
   const response = await fetchWithAuth(
     `${CONFIG.apiUrl}/applications`,
     {

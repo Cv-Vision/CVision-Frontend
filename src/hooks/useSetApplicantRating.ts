@@ -5,7 +5,7 @@ export function useSetApplicantRating() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const setRating = async (jobId: string, applicationId: string, status: string) => {
+  const setRating = async (applicationId: string, status: string) => {
     setLoading(true);
     setError(null);
     setSuccess(false);

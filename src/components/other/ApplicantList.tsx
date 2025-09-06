@@ -25,9 +25,9 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
   const [selectedApplicant, setSelectedApplicant] = useState<null | { fullName: string; score: number | null, applicationId: string, cvId: string }>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { showToast } = useToast();
+  const { showToast }: { showToast: (message: string, type?: 'success' | 'error' | 'info') => void } = useToast();
   const { applicants, isLoading, error, refetch } = useGetApplicantsByJobId(jobId);
-  const { results: analysisResults } = useGetAnalysisResults(jobId);
+  useGetAnalysisResults(jobId);
 
   const handleSelect = (id: string) => {
     setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
@@ -39,7 +39,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({ jobId, onApplicantDeleted
   const handleDelete = async () => {
     setShowConfirm(false);
     try {
-      await deleteApplicantsFromJob(jobId, selectedIds);
+      await deleteApplicantsFromJob(selectedIds);
       showToast('Aplicantes eliminados correctamente.', 'success');
       setSelectedIds([]);
       refetch();

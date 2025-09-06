@@ -8,7 +8,7 @@ interface JobRequirementsDisplayProps {
   canEdit?: boolean;
 }
 
-const JobRequirementsDisplay: React.FC<JobRequirementsDisplayProps> = ({ job, onUpdate, canEdit = false }) => {
+const JobRequirementsDisplay: React.FC<JobRequirementsDisplayProps> = ({ job, canEdit = false }) => {
   const [formData, setFormData] = useState({
     additionalRequirements: job.additional_requirements || ''
   });
