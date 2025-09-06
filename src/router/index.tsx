@@ -1,11 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import RecruiterDashboard from '../pages/recruiter/Dashboard';
 
 import { ProtectedRoute } from '../components/other/ProtectedRoute.tsx';
-import { NotFound } from '../components/other/NotFound.tsx';
 import CreateJob from '../pages/recruiter/CreateJob';
 import ConfirmAccount from "@/pages/auth/ConfirmAccount.tsx";
 import RecruiterConfirmAccount from "@/pages/recruiter/ConfirmAccount.tsx";
@@ -97,7 +96,7 @@ export function AppRouter() {
         </ProtectedRoute>
       } />
       {/* Catch-all route for non-existent routes */}
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
