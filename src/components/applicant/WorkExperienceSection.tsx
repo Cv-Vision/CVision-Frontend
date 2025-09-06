@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { WorkExperience } from "../../types/applicant.ts";
 import FormInput from "./FormInput.tsx";
+import FormTextArea from "../applicant/FormTextArea.tsx";
 import FormSection from "./FormSelection.tsx";
 
 interface Props {
@@ -19,7 +20,7 @@ const WorkExperienceSection: FC<Props> = ({ data, onChange, onAdd, onRemove }) =
                     <FormInput label="Puesto" value={exp.role} onChange={(v) => onChange(index, "role", v)} />
                     <FormInput label="Fecha de inicio" type="date" value={exp.startDate} onChange={(v) => onChange(index, "startDate", v)} />
                     <FormInput label="Fecha de fin" type="date" value={exp.endDate || ""} onChange={(v) => onChange(index, "endDate", v)} />
-                    <FormInput label="Descripción" value={exp.description || ""} onChange={(v) => onChange(index, "description", v)} />
+                    <FormTextArea label="Descripción" value={exp.description || ""} onChange={(v) => onChange(index, "description", v)} />
                     <div className="flex justify-center">
                         <button 
                             onClick={() => onRemove(index)} 
