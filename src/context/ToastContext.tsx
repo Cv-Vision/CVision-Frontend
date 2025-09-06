@@ -9,7 +9,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; id: number } | null>(null);
-  const [toastQueue, setToastQueue] = useState<Array<{ message: string; type: 'success' | 'error' | 'info'; id: number }>>([]);
+  const [_toastQueue, setToastQueue] = useState<Array<{ message: string; type: 'success' | 'error' | 'info'; id: number }>>([]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Date.now();
