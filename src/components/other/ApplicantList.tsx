@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Table } from '../dashboard/Table.tsx';
 import { TableCell } from '../dashboard/TableCell.tsx';
 import { ApplicantRatingDropdown } from './ApplicantRatingDropdown.tsx';

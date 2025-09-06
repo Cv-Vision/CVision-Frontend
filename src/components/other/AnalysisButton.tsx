@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import type { ExtraRequirements } from '@/components/other/ExtraRequirementsForm.tsx';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { CONFIG } from '@/config';
 import { useToast } from '../../context/ToastContext';
