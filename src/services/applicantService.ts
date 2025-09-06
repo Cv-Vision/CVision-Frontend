@@ -115,3 +115,61 @@ export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: strin
     throw error;
   }
 };
+
+// Función para obtener el perfil del aplicante
+export const getApplicantProfile = async (): Promise<ApplicantProfile> => {
+  try {
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/applicant/profile`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Error al obtener el perfil del aplicante');
+    }
+
+    const profileData = await response.json();
+    
+    // Transformar los datos del backend al formato de ApplicantProfile
+    return {
+      basicInfo: {
+        email: profileData.email || '',
+        fullName: profileData.name || '',
+        password: '', // Campo vacío ya que no se usa
+      },
+      workExperience: profileData.workExperience || [],
+      education: profileData.education || [],
+      cvUrl: profileData.cvUrl || '',
+      userId: profileData.user_id || '',
+    };
+  } catch (error) {
+    console.error('Error en getApplicantProfile:', error);
+    throw error;
+  }
+};
+
+// Función para actualizar el perfil del aplicante
+export const updateApplicantProfile = async (profile: ApplicantProfile): Promise<void> => {
+  try {
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/applicant/profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: profile.basicInfo.email,
+        workExperience: profile.workExperience,
+        education: profile.education,
+        cvUrl: profile.cvUrl || null,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Error al actualizar el perfil del aplicante');
+    }
+  } catch (error) {
+    console.error('Error en updateApplicantProfile:', error);
+    throw error;
+  }
+};
