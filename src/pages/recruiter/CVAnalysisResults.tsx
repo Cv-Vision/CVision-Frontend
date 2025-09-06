@@ -5,8 +5,8 @@ import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
-import Toast from '@/components/other/Toast.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -86,7 +86,7 @@ const CVAnalysisResultCard = ({
       </div>
 
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
               <ChartBarIcon className="h-5 w-5 text-blue-600 mr-2" />
               Razones del puntaje
@@ -94,7 +94,7 @@ const CVAnalysisResultCard = ({
             <ul className="space-y-2">
           {result.reasons.map((reason, idx) => (
                 <li key={idx} className="text-gray-700 flex items-start">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   <span>{reason}</span>
                 </li>
           ))}
@@ -102,7 +102,7 @@ const CVAnalysisResultCard = ({
       </div>
 
       {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <UserGroupIcon className="h-5 w-5 text-green-600 mr-2" />
                 Razones de habilidades blandas
@@ -110,7 +110,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_reasons.map((reason, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{reason}</span>
                   </li>
             ))}
@@ -119,7 +119,7 @@ const CVAnalysisResultCard = ({
       )}
 
       {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
-            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <TrophyIcon className="h-5 w-5 text-purple-600 mr-2" />
                 Preguntas sugeridas para entrevista
@@ -127,7 +127,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_questions?.map((question, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{question}</span>
                   </li>
             ))}
@@ -144,9 +144,7 @@ export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
   const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const { showToast } = useToast(); // Use the new useToast hook
   const navigate = useNavigate();
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
@@ -156,9 +154,7 @@ export default function CVAnalysisResults() {
   // Manejar éxito/error de eliminación
   useEffect(() => {
     if (deleteSuccess) {
-      setToastMessage('Análisis eliminado exitosamente');
-      setToastType('success');
-      setShowToast(true);
+      showToast('Análisis eliminado exitosamente', 'success'); // Use showToast
       setSelectedCvIds(new Set());
       resetState();
       
@@ -167,16 +163,14 @@ export default function CVAnalysisResults() {
         navigate(`/recruiter/job/${jobId}`);
       }, 1500);
     }
-  }, [deleteSuccess, jobId, resetState, navigate]);
+  }, [deleteSuccess, jobId, resetState, navigate, showToast]); // Add showToast to dependencies
 
   useEffect(() => {
     if (deleteError) {
-      setToastMessage(deleteError);
-      setToastType('error');
-      setShowToast(true);
+      showToast(deleteError, 'error'); // Use showToast
       resetState();
     }
-  }, [deleteError, resetState]);
+  }, [deleteError, resetState, showToast]); // Add showToast to dependencies
 
   const handleSelectCv = (cvId: string, selected: boolean) => {
     const newSelected = new Set(selectedCvIds);
@@ -193,7 +187,7 @@ export default function CVAnalysisResults() {
       setSelectedCvIds(new Set());
     } else {
       // Usar los cv_id reales de los aplicantes
-      const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
+      const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
       setSelectedCvIds(new Set(allCvIds));
     }
   };
@@ -213,7 +207,7 @@ export default function CVAnalysisResults() {
   // Función para verificar si todos están seleccionados
   const areAllSelected = () => {
     if (results.length === 0) return false;
-    const allCvIds = applicants.map(applicant => applicant.id).filter(Boolean);
+    const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
@@ -299,12 +293,12 @@ export default function CVAnalysisResults() {
         
         {results.length > 0 && (
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 mb-6">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={handleSelectAll}>
               <input
                 type="checkbox"
                 checked={areAllSelected()}
-                onChange={handleSelectAll}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                readOnly
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200 pointer-events-none"
               />
               <span className="font-semibold text-gray-800">
                 {selectedCvIds.size > 0 ? `${selectedCvIds.size} seleccionado${selectedCvIds.size > 1 ? 's' : ''}` : 'Seleccionar todos'}
@@ -352,13 +346,6 @@ export default function CVAnalysisResults() {
         onConfirm={handleDeleteSelected}
         selectedCount={selectedCvIds.size}
         isLoading={isDeleting}
-      />
-
-      <Toast
-        type={toastType}
-        message={toastMessage}
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
       />
       </div>
     </div>

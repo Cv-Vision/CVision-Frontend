@@ -5,10 +5,10 @@ import { CVDropzone } from '@/components/other/CVDropzone.tsx';
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
-import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
-import CVAnalysisResultsInline, { CVAnalysisMetricsSummary } from './CVAnalysisResultsInline';
+import { useGetAnalysisResults, GeminiAnalysisResultWithCreatedAt } from '@/hooks/useGetAnalysisResults';
+import TopApplicantsDisplay from '@/components/other/TopApplicantsDisplay.tsx';
 import BackButton from '@/components/other/BackButton.tsx';
-import { BriefcaseIcon, UsersIcon, ChartBarIcon, AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, UsersIcon, ChartBarIcon, CalculatorIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import ApplicantList from '@/components/other/ApplicantList.tsx';
 import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
@@ -32,6 +32,17 @@ function contractTypeLabel(type?: string) {
     case 'FREELANCE': return 'Freelance';
     case 'INTERNSHIP': return 'Internship';
     default: return type || '';
+  }
+}
+
+function englishLevelLabel(level?: string) {
+  switch (level) {
+    case 'BASIC': return 'Básico';
+    case 'INTERMEDIATE': return 'Intermedio';
+    case 'ADVANCED': return 'Avanzado';
+    case 'NATIVE': return 'Nativo';
+    case 'NOT_REQUIRED': return 'No requerido';
+    default: return level || '';
   }
 }
 
@@ -61,27 +72,31 @@ const JobPostingDetails = () => {
   const [newTipoContrato, setNewTipoContrato] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | ''>('');
   const [newUbicacion, setNewUbicacion] = useState('');
   const [newEmpresa, setNewEmpresa] = useState('');
+  const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
   const [fieldsSaveSuccess, setFieldsSaveSuccess] = useState(false);
   const [fieldsSaveError, setFieldsSaveError] = useState<string | null>(null);
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
-  const [requirementsUpdateSuccess, setRequirementsUpdateSuccess] = useState<string | null>(null);
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
   const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showExtraRequirements, setShowExtraRequirements] = useState(false);
 
-  const hasActiveRequirements = () => {
-    if (!extraRequirements) return false;
-    return Object.keys(extraRequirements).length > 0;
-  };
+  
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
-  const { refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
-  const { results: analysisResults, isLoading: analysisLoading, error: analysisError, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+  const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
+  const { results: analysisResults, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+
+  const highestScore = Math.max(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0));
+  const highestScoreApplicant = analysisResults.find((res: GeminiAnalysisResultWithCreatedAt) => res.score === highestScore);
+  const highestScoreApplicantName = highestScoreApplicant?.name || 'N/A';
+
+  const lowestScore = Math.min(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0));
+  const lowestScoreApplicant = analysisResults.find((res: GeminiAnalysisResultWithCreatedAt) => res.score === lowestScore);
+  const lowestScoreApplicantName = lowestScoreApplicant?.name || 'N/A';
 
   // Navigate to full analysis view
   const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
@@ -133,35 +148,8 @@ const JobPostingDetails = () => {
       }
     }
   };
-
-  const handleUpdateJob = async (updates?: any) => {
-    if (!jobToShow) return;
-
-    const payload: any = {};
-
-    // Use the provided updates or fall back to extraRequirements
-    const updatesToUse = updates || extraRequirements;
-    
-    if (updatesToUse && Object.keys(updatesToUse).length > 0) {
-      Object.assign(payload, updatesToUse);
-    }
-
-    try {
-      await updateJobPostingData(jobToShow.pk, payload);
-      // Actualizar el estado local con los datos nuevos
-      setLocalJob({ ...jobToShow, ...payload });
-      setExtraRequirements(undefined); // Clear the requirements after successful update
-      // Show success message for requirements update
-      setRequirementsUpdateSuccess('Requisitos del puesto actualizados correctamente');
-    } catch (error) {
-      console.error('Error updating job posting:', error);
-    }
-  };
-
   const handleRequirementsUpdate = (updates: any) => {
     setExtraRequirements(updates);
-    // Pass the updates directly to handleUpdateJob
-    handleUpdateJob(updates);
   };
 
 
@@ -198,15 +186,7 @@ const JobPostingDetails = () => {
     }
   }, [uploadError]);
 
-  // Auto-dismiss requirements update success message
-  useEffect(() => {
-    if (requirementsUpdateSuccess) {
-      const timer = setTimeout(() => {
-        setRequirementsUpdateSuccess(null);
-      }, 4000); // 4 seconds for success
-      return () => clearTimeout(timer);
-    }
-  }, [requirementsUpdateSuccess]);
+  
 
   // Auto-adjust textarea height when editing starts
   useEffect(() => {
@@ -311,6 +291,7 @@ const JobPostingDetails = () => {
                     setNewTipoContrato((jobToShow.contract_type as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP') || '');
                     setNewUbicacion(jobToShow.location || '');
                     setNewEmpresa(jobToShow.company || '');
+                    setNewEnglishLevel((jobToShow.english_level as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED') || '');
                   }}
                   disabled={!canEditFields}
                   className="ml-2 px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
@@ -327,14 +308,16 @@ const JobPostingDetails = () => {
                           experience_level: newSeniority || undefined,
                           contract_type: newTipoContrato || undefined,
                           location: newUbicacion || undefined,
-                          company: newEmpresa || undefined, // Added company to the update payload
+                          company: newEmpresa || undefined,
+                          english_level: newEnglishLevel || undefined, // Added company to the update payload
                         });
                         setLocalJob({
                           ...jobToShow,
                           experience_level: newSeniority,
                           contract_type: newTipoContrato,
                           location: newUbicacion,
-                          company: newEmpresa, // Ensure local state reflects the updated company
+                          company: newEmpresa,
+                          english_level: newEnglishLevel, // Ensure local state reflects the updated company
                         });
                         setIsEditingFields(false);
                         setFieldsSaveSuccess(true);
@@ -402,6 +385,25 @@ const JobPostingDetails = () => {
                   </select>
                 ) : (
                   <div className="text-blue-900">{contractTypeLabel(jobToShow.contract_type) || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Nivel de Inglés</label>
+                {isEditingFields ? (
+                  <select
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newEnglishLevel}
+                    onChange={e => setNewEnglishLevel(e.target.value as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | '')}
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="BASIC">Básico</option>
+                    <option value="INTERMEDIATE">Intermedio</option>
+                    <option value="ADVANCED">Avanzado</option>
+                    <option value="NATIVE">Nativo</option>
+                    <option value="NOT_REQUIRED">No requerido</option>
+                  </select>
+                ) : (
+                  <div className="text-blue-900">{englishLevelLabel(jobToShow.english_level) || <span className="text-gray-400">No especificado</span>}</div>
                 )}
               </div>
               <div>
@@ -567,9 +569,9 @@ const JobPostingDetails = () => {
               </h2>
               <button
                   onClick={goToFullAnalysis}
-                  disabled={analysisResults.length === 0}
+                  disabled={applicants.length === 0}
                   className={`px-6 py-2 rounded-xl text-sm transition-all duration-300 font-semibold ${
-                    analysisResults.length === 0 
+                    applicants.length === 0 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                       : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:scale-105 shadow-lg hover:shadow-xl'
                   }`}
@@ -578,7 +580,7 @@ const JobPostingDetails = () => {
               </button>
             </div>
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-              <CVAnalysisResultsInline jobId={cleanJobId} />
+              <TopApplicantsDisplay applicants={applicants} />
             </div>
           </div>
         </div>
@@ -587,77 +589,65 @@ const JobPostingDetails = () => {
         <div className="w-full max-w-xs bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-2xl border border-white/20 self-start space-y-6 min-h-fit">
           <div>
             <h2 className="text-lg font-semibold mb-4 text-blue-800">Métricas de análisis</h2>
-            {analysisLoading ? (
-                <div className="flex justify-center items-center h-16">
-                  <div className="inline-flex items-center gap-3 text-blue-600">
-                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm">Cargando...</span>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
+              {(analysisResults && analysisResults.length > 0) ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ChartBarIcon className="h-4 w-4 text-blue-500" /> Total Analizados:</p>
+                    <span className="text-blue-900 font-semibold text-sm">{analysisResults.length}</span>
                   </div>
-                </div>
-            ) : analysisError ? (
-                <div className="text-red-600 text-sm mb-2 p-3 bg-red-50 rounded-xl border border-red-200">{analysisError}</div>
-            ) : analysisResults.length === 0 ? (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
-                  <div className="flex flex-col items-center text-center gap-3">
-                    <div className="p-3 rounded-full bg-blue-100">
-                      <ChartBarIcon className="h-6 w-6 text-blue-600" />
-                    </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><CalculatorIcon className="h-4 w-4 text-blue-500" /> Puntaje Promedio:</p>
+                    <span className="text-blue-900 font-semibold text-sm">
+                      {(analysisResults.reduce((sum: number, res: GeminiAnalysisResultWithCreatedAt) => sum + (res.score || 0), 0) / analysisResults.length).toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2 group relative">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowUpIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Alto:</p>
                     <div>
-                      <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
-                      <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
+                      <span className="text-blue-900 font-semibold text-sm">
+                        {Math.max(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0))}
+                      </span>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                        {highestScoreApplicantName}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2 group relative">
+                    <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowDownIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Bajo:</p>
+                    <div>
+                      <span className="text-blue-900 font-semibold text-sm">
+                        {Math.min(...analysisResults.map((res: GeminiAnalysisResultWithCreatedAt) => res.score || 0))}
+                      </span>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                        {lowestScoreApplicantName}
+                      </span>
                     </div>
                   </div>
                 </div>
-            ) : (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
-                  <CVAnalysisMetricsSummary results={analysisResults} />
+              ) : (
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="p-3 rounded-full bg-blue-100">
+                    <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-blue-800 font-semibold mb-1">No hay métricas disponibles</p>
+                    <p className="text-blue-600 text-sm">Para ver métricas, realice un análisis</p>
+                  </div>
                 </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-blue-800">Cargar CVs</h2>
-              <button
-                onClick={() => setShowExtraRequirements(true)}
-                className={`px-4 py-2 rounded-xl text-white font-medium transition-all duration-300 flex items-center gap-2 text-sm ${
-                  hasActiveRequirements() 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
-                    : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
-                } hover:scale-105 shadow-md hover:shadow-lg`}
-              >
-                <AdjustmentsHorizontalIcon className={`h-4 w-4 ${hasActiveRequirements() ? 'animate-pulse' : ''}`} />
-                Requisitos
-              </button>
-            </div>
+            <h2 className="text-lg font-semibold mb-4 text-blue-800">Cargar CVs</h2>
             {!canAddCVs ? (
                 <p className="text-blue-600 text-sm p-3 bg-blue-50 rounded-xl border border-blue-200">No se pueden agregar CVs en este estado.</p>
             ) : (
                 <div className="space-y-4">
 
 
-                  {requirementsUpdateSuccess && (
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-green-100 flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-green-800 font-semibold">{requirementsUpdateSuccess}</p>
-                        </div>
-                        <button 
-                          onClick={() => setRequirementsUpdateSuccess(null)}
-                          className="text-green-400 hover:text-green-600 transition-colors duration-200 flex-shrink-0"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  
 
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                     <CVDropzone
@@ -678,6 +668,18 @@ const JobPostingDetails = () => {
 
           <div>
 
+             </div>
+
+                      <div>
+            <h2 className="text-lg font-semibold mb-4 text-blue-800">Requisitos del análisis</h2>
+              <JobRequirementsDisplay 
+                job={jobToShow} 
+                onUpdate={handleRequirementsUpdate}
+                canEdit={canEditFields}
+              />
+          </div>
+
+           <div>
              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
                <AnalysisButton
                    jobId={jobToShow.pk}
@@ -685,45 +687,11 @@ const JobPostingDetails = () => {
                    onSuccess={() => {
                      setTimeout(() => {
                        refetchApplicants();
-                       refetchAnalysisResults();
                      }, 12000);
                    }}
                />
              </div>
-
-
            </div>
-
-           {/* Panel deslizable de requisitos */}
-           <div className={`fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showExtraRequirements ? 'translate-x-0' : 'translate-x-full'}`}>
-             <div className="h-full flex flex-col">
-               <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                 <h2 className="text-xl font-semibold text-blue-800">Requisitos del Puesto</h2>
-                 <button
-                   onClick={() => setShowExtraRequirements(false)}
-                   className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all duration-300"
-                 >
-                   <XMarkIcon className="h-6 w-6" />
-                 </button>
-               </div>
-               
-               <div className="flex-1 overflow-y-auto p-6">
-                 <JobRequirementsDisplay 
-                   job={jobToShow} 
-                   onUpdate={handleRequirementsUpdate}
-                   canEdit={canEditFields}
-                 />
-               </div>
-             </div>
-           </div>
-
-           {/* Overlay oscuro cuando el panel está abierto */}
-           {showExtraRequirements && (
-             <div
-               className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40"
-               onClick={() => setShowExtraRequirements(false)}
-             />
-           )}
          </div>
        </div>
   );
