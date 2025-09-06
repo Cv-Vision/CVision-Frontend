@@ -106,7 +106,7 @@ const ApplicantRegisterForm = () => {
             // Primero le pega a nuestro backend
             await registerUser({ name: profile.basicInfo.fullName, email: profile.basicInfo.email, password: profile.basicInfo.password, role: 'APPLICANT' });
             const result = await registerApplicant(profile);
-            showToast('Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta.', 'success');
+            showToast('Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta. ', 'success');
             
             // Redirigir a la página de confirmación después de 2 segundos
             // Pasar tanto el username como el email
