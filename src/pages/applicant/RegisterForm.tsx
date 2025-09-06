@@ -102,7 +102,7 @@ const ApplicantRegisterForm = () => {
         }
 
         if (profile.basicInfo.password !== profile.basicInfo.confirmPassword) {
-            showToast('error', 'Las contraseña no');
+            showToast('Las contraseña no coinciden', 'error');
             return;
         }
 

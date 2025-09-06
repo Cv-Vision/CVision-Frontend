@@ -35,7 +35,7 @@ const RecruiterRegisterForm = () => {
         }
 
         if (password !== confirmPassword) {
-            showToast('error', 'Las contraseñas no coinciden');
+            showToast('Las contraseñas no coinciden', 'error'); // Use showToast
             setLoading(false);
             return;
         }
