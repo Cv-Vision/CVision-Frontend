@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.tsx';
 
 interface ProtectedRouteProps {
@@ -8,9 +8,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const role = user?.role as 'applicant' | 'recruiter' | undefined;
-  const location = useLocation();
 
   // En desarrollo, permitimos acceso si el rol coincide o si no hay rol requerido
   if (import.meta.env.DEV) {
@@ -21,12 +20,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <>{children}</>;
   }
 
-  // En producción, mantenemos la lógica de protección
-  if (!role) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (requiredRole && role !== requiredRole) {
+  // Usuarios no autenticados o sin rol requerido redirigen a home
+  if (!isAuthenticated || (requiredRole && role !== requiredRole)) {
     return <Navigate to="/" replace />;
   }
 
