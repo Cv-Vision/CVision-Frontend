@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
+import { useGetJobMetrics } from '@/hooks/useGetJobMetrics';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
@@ -150,6 +151,7 @@ export default function CVAnalysisResults() {
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
   const { applicants } = useGetApplicantsByJobId(jobId || '');
   const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
+  const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(jobId || '');
 
   // Manejar éxito/error de eliminación
   useEffect(() => {
@@ -157,13 +159,14 @@ export default function CVAnalysisResults() {
       showToast('Análisis eliminado exitosamente', 'success'); // Use showToast
       setSelectedCvIds(new Set());
       resetState();
+      refetchMetrics(); // Refetch metrics after deletion
       
       // Redirigir al job posting después de un breve delay para mostrar el toast
       setTimeout(() => {
         navigate(`/recruiter/job/${jobId}`);
       }, 1500);
     }
-  }, [deleteSuccess, jobId, resetState, navigate, showToast]); // Add showToast to dependencies
+  }, [deleteSuccess, jobId, resetState, navigate, showToast, refetchMetrics]); // Add showToast to dependencies
 
   useEffect(() => {
     if (deleteError) {
@@ -211,7 +214,7 @@ export default function CVAnalysisResults() {
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
-  if (isLoading) {
+  if (isLoading || metricsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -222,7 +225,7 @@ export default function CVAnalysisResults() {
     );
   }
 
-  if (error) {
+  if (error || metricsError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
@@ -232,15 +235,15 @@ export default function CVAnalysisResults() {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Error al cargar resultados</h3>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{error || metricsError}</p>
         </div>
       </div>
     );
   }
 
-  const total = results.length;
-  const avg = total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
-  const maxResult = total > 0 ? results[0] : undefined;
+  const total = metrics?.total_analyzed || 0;
+  const avg = metrics?.average_score || 0;
+  const highestScore = metrics?.highest_score || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -283,7 +286,7 @@ export default function CVAnalysisResults() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-100 text-sm font-medium">Mejor Score</p>
-                  <p className="text-3xl font-bold">{maxResult ? maxResult.score + '%' : 'N/A'}</p>
+                  <p className="text-3xl font-bold">{highestScore > 0 ? highestScore : 'N/A'}</p>
                 </div>
                 <TrophyIcon className="h-12 w-12 text-yellow-200" />
               </div>
