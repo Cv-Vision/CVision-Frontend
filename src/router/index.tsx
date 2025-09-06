@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
@@ -58,10 +58,14 @@ export function AppRouter() {
         </ProtectedRoute>
       } />
       <Route path="/applicant/positions" element={
+        <ProtectedRoute requiredRole="applicant">
           <JobListings />
+        </ProtectedRoute>
       } />
       <Route path="/applicant/position/:positionId" element={
+        <ProtectedRoute requiredRole="applicant">
           <JobPosition />
+        </ProtectedRoute>
       } />
       <Route path="/position/:positionId" element={
           <JobPosition />
@@ -91,6 +95,8 @@ export function AppRouter() {
           <JobPostingDetails />
         </ProtectedRoute>
       } />
+      {/* Catch-all route for non-existent routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
