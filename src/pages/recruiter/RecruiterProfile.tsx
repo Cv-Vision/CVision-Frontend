@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react';
 import { getDashboardSummary } from '@/services/recruiterService';
-
-// Ajusta la obtención del token según tu app (ejemplo: desde contexto)
-const getToken = () => localStorage.getItem('access_token') || '';
+import { useAuth } from '@/context/AuthContext';
 
 export default function RecruiterProfile() {
+    const { user } = useAuth();
     const [summary, setSummary] = useState<{ active_postings_count: number; applications_count: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const token = getToken();
+        const token = user?.token;
         if (!token) {
-            setError('No autenticado');
+            setError('No autenticado o token no disponible.');
             return;
         }
         getDashboardSummary(token)
             .then(setSummary)
             .catch(err => setError(err.message));
-    }, []);
+    }, [user]);
 
     if (error) return <div>Error: {error}</div>;
     if (!summary) return <div>Cargando...</div>;
