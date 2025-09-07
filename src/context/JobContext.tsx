@@ -16,6 +16,7 @@ export type Job = {
     industry?: string;
   };
   additional_requirements?: string;
+  isApplied?: boolean;
 };
 
 export type Application = {
