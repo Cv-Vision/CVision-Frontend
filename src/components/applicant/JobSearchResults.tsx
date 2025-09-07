@@ -116,12 +116,12 @@ const JobSearchResults = ({
                                         {isAuthenticated && userRole === 'applicant' && (
                                             <button
                                                 onClick={() => onApply(job.pk)}
-                                                disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
+                                                disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk) || job.isApplied}
                                                 className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                             >
                                                 {isApplying && applyingJobId === job.pk
                                                     ? 'Aplicando...'
-                                                    : appliedJobs.includes(job.pk)
+                                                    : job.isApplied || (appliedJobs.includes(job.pk))
                                                         ? 'Ya aplicado'
                                                         : 'Aplicar'}
                                             </button>

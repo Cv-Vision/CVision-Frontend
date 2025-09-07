@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { CONFIG } from '@/config';
 import { Job } from '@/context/JobContext';
 import { JobSearchFilters } from '@/types/applicant';
+import { fetchWithAuth } from '@/services/fetchWithAuth';
 
 // Hook to call the public advanced search endpoint: GET /job-postings/search
 // It does NOT require authentication.
@@ -35,7 +36,7 @@ export function usePublicJobSearch() {
       const query = params.toString();
       const url = `${CONFIG.apiUrl}/job-postings/search${query ? `?${query}` : ''}`;
 
-      const res = await fetch(url, { method: 'GET' });
+      const res = await fetchWithAuth(url, { method: 'GET' });
       if (!res.ok) {
         if (res.status === 400) {
           throw new Error('Parámetros inválidos de búsqueda');
@@ -62,6 +63,7 @@ export function usePublicJobSearch() {
           ? { required: false, industry: item.industry_experience.industries[0] }
           : undefined,
         additional_requirements: item.additional_requirements ? JSON.stringify(item.additional_requirements) : undefined,
+        isApplied: item.isApplied
       }));
 
       setJobs(mapped);
