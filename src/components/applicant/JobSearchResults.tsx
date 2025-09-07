@@ -55,62 +55,81 @@ const JobSearchResults = ({
     
     // Change page
     const paginate = (pageNumber: number) => onPageChange(pageNumber);
-    
+
+    // Truncation config
+    const MAX_DESCRIPTION_CHARS = 400; // adjust as needed to control preview size
+
     return (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 space-y-6">
             {hasResults ? (
                 <>
                     <div className="space-y-6">
-                        {currentJobs.map((job) => (
-                            <div key={job.pk} className="border-b-2 border-blue-100 pb-6 last:border-0">
-                                <h3 className="text-xl font-bold text-blue-800 mb-2">{job.title}</h3>
-                                <p className="text-blue-700 font-medium mb-3">{job.company}</p>
-                                <p className="text-blue-600 text-base mb-4">{job.description}</p>
-                                <div className="flex flex-wrap gap-3 mb-4">
-                                    {job.experience_level && (
-                                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm px-3 py-1 rounded-xl border border-blue-200 font-medium">
-                                            {job.experience_level}
-                                        </span>
-                                    )}
-                                    {job.english_level && (
-                                        <span className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 text-sm px-3 py-1 rounded-xl border border-green-200 font-medium">
-                                            {job.english_level}
-                                        </span>
-                                    )}
-                                    {job.contract_type && (
-                                        <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 text-sm px-3 py-1 rounded-xl border border-purple-200 font-medium">
-                                            {job.contract_type}
-                                        </span>
-                                    )}
-                                    {job.location && (
-                                        <span className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 text-sm px-3 py-1 rounded-xl border border-yellow-200 font-medium">
-                                            {job.location}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                    <button
-                                        onClick={() => navigate(`/position/${job.pk}`)}
-                                        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                                    >
-                                        Ver detalles
-                                    </button>
-                                    {isAuthenticated && userRole === 'applicant' && (
+                        {currentJobs.map((job) => {
+                            const description = job.description || '';
+                            const shouldTruncate = description.length > MAX_DESCRIPTION_CHARS;
+                            const preview = shouldTruncate ? description.slice(0, MAX_DESCRIPTION_CHARS).trimEnd() + '…' : description;
+                            return (
+                                <div key={job.pk} className="border-b-2 border-blue-100 pb-6 last:border-0">
+                                    <h3 className="text-xl font-bold text-blue-800 mb-2">{job.title}</h3>
+                                    <p className="text-blue-700 font-medium mb-3">{job.company}</p>
+                                    <div className="text-blue-600 text-base mb-2 whitespace-pre-line leading-relaxed">
+                                        {preview}
+                                    </div>
+                                    {shouldTruncate && (
                                         <button
-                                            onClick={() => onApply(job.pk)}
-                                            disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
-                                            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                            onClick={() => navigate(`/position/${job.pk}`)}
+                                            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 mb-3 inline-flex items-center gap-1 group"
                                         >
-                                            {isApplying && applyingJobId === job.pk
-                                                ? 'Aplicando...'
-                                                : appliedJobs.includes(job.pk)
-                                                    ? 'Ya aplicado'
-                                                    : 'Aplicar'}
+                                            Leer más
+                                            <span className="transition-transform group-hover:translate-x-0.5">→</span>
                                         </button>
                                     )}
+                                    <div className="flex flex-wrap gap-3 mb-4">
+                                        {job.experience_level && (
+                                            <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm px-3 py-1 rounded-xl border border-blue-200 font-medium">
+                                                {job.experience_level}
+                                            </span>
+                                        )}
+                                        {job.english_level && (
+                                            <span className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 text-sm px-3 py-1 rounded-xl border border-green-200 font-medium">
+                                                {job.english_level}
+                                            </span>
+                                        )}
+                                        {job.contract_type && (
+                                            <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 text-sm px-3 py-1 rounded-xl border border-purple-200 font-medium">
+                                                {job.contract_type}
+                                            </span>
+                                        )}
+                                        {job.location && (
+                                            <span className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 text-sm px-3 py-1 rounded-xl border border-yellow-200 font-medium">
+                                                {job.location}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-3">
+                                        <button
+                                            onClick={() => navigate(`/position/${job.pk}`)}
+                                            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                        >
+                                            Ver detalles
+                                        </button>
+                                        {isAuthenticated && userRole === 'applicant' && (
+                                            <button
+                                                onClick={() => onApply(job.pk)}
+                                                disabled={appliedJobs.includes(job.pk) || (isApplying && applyingJobId === job.pk)}
+                                                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                            >
+                                                {isApplying && applyingJobId === job.pk
+                                                    ? 'Aplicando...'
+                                                    : appliedJobs.includes(job.pk)
+                                                        ? 'Ya aplicado'
+                                                        : 'Aplicar'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                     {/* Pagination */}
                     {totalPages > 1 && (
