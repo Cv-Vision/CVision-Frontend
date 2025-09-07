@@ -3,9 +3,9 @@ import { useDropzone } from 'react-dropzone';
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid';
 import RejectedCVsModal from './RejectedCVsModal.tsx';
 import CVFilesModal from './CVFilesModal.tsx';
-import { useCVValidation } from '../../hooks/useCVValidation.ts';
+import { useCVValidation } from '@/hooks/useCVValidation.ts';
 import JSZip from 'jszip';
-import { useFileUploader } from '../../hooks/useFileUploader.ts';
+import { useFileUploader } from '@/hooks/useFileUploader.ts';
 
 interface CVDropzoneProps {
   jobId: string;
@@ -15,8 +15,10 @@ interface CVDropzoneProps {
 
 export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete, onError }) => {
   const [files, setFiles] = useState<File[]>([]);
-  const [showRejectedModal, setShowRejectedModal] = useState(false);
   const [showFilesModal, setShowFilesModal] = useState(false);
+  const [showRejectedModal, setShowRejectedModal] = useState(false);
+
+  const handleShowRejectedModal = () => setShowRejectedModal(true);
 
   const { validateFile } = useCVValidation();
   const {
@@ -32,7 +34,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
     const rejected: { name: string; reason: string }[] = [];
 
     for (const file of acceptedFiles) {
-      if (file.type === 'application/zip') {
+      if (file.type === 'application/zip' || file.name.toLowerCase().endsWith('.zip')) {
         try {
           const arrayBuffer = await file.arrayBuffer();
           const zip = await JSZip.loadAsync(arrayBuffer);
@@ -163,6 +165,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         onClose={() => setShowFilesModal(false)}
         onRemove={handleRemove}
         onUploadAll={handleUploadAll}
+        rejectedFiles={rejectedFiles}
       />
 
       {/* Modal de rechazados (tu flujo actual) */}
@@ -172,6 +175,16 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         rejectedFiles={rejectedFiles}
         onClear={() => setRejectedFiles([])}
       />
+
+      {rejectedFiles.length > 0 && (
+        <button
+          type="button"
+          onClick={handleShowRejectedModal}
+          className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
+        >
+          Ver CVs Rechazados ({rejectedFiles.length})
+        </button>
+      )}
     </div>
   );
 };

@@ -1,9 +1,8 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 import { useGetCVDownloadUrl } from '@/hooks/useGetCVDownloadUrl';
 import { useParams } from 'react-router-dom';
-
+import { useGetApplicantDetails } from '@/hooks/useGetApplicantDetails';
 
 interface ApplicantModalProps {
   isOpen: boolean;
@@ -12,8 +11,8 @@ interface ApplicantModalProps {
     fullName: string;
     score: number | null;
     cvId: string;
+    applicationId: string;
   } | null;
-  analysisResults: GeminiAnalysisResult[];
 }
 
 const getScoreColorClass = (score: number | null) => {
@@ -27,29 +26,21 @@ const ApplicantModal = ({
                           isOpen,
                           onClose,
                           selectedApplicant,
-                          analysisResults,
                         }: ApplicantModalProps) => {
   const { jobId } = useParams<{ jobId: string }>();
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useGetCVDownloadUrl(
+  const { data: applicantDetails } = useGetApplicantDetails(
     jobId ?? '',
-    selectedApplicant?.cvId ?? '',
-    !!selectedApplicant?.cvId && isOpen
+    selectedApplicant?.applicationId ?? '',
+    isOpen && !!selectedApplicant?.applicationId
   );
 
-  
+  const { data, isLoading, error } = useGetCVDownloadUrl(
+    applicantDetails?.cv_upload_key ?? '',
+    !!applicantDetails?.cv_upload_key && isOpen
+  );
 
-  const selectedAnalysis = selectedApplicant
-    ? analysisResults.find(
-      (result) =>
-        result.name?.toLowerCase().trim() ===
-        selectedApplicant.fullName.toLowerCase().trim()
-    )
-    : null;
+  const selectedAnalysis = applicantDetails?.cv_analysis_result?.analysis_data;
 
   if (!selectedApplicant) return null;
 
@@ -75,25 +66,39 @@ const ApplicantModal = ({
                 <p className="text-sm text-gray-500 mb-2">Cargando CV...</p>
               ) : error ? (
                 <p className="text-sm text-red-500 mb-2">No se pudo cargar el CV.</p>
-              ) : data?.url ? (
+              ) : data?.download_url ? (
                 <>
-                  <p className="text-sm text-blue-600 mb-2 font-medium">CV Original:</p>
-                  <a
-                    href={data.url}
-                    download={data.filename}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-sm text-blue-700 underline hover:text-blue-900 mb-4"
-                  >
-                    Descargar CV
-                  </a>
+                  
+                  <div className="mb-4">
+                    <a
+                      href={data.download_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg mr-2"
+                    >
+                      Ver CV en nueva pestaña
+                    </a>
+                    <button
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = data.download_url;
+                        link.setAttribute('download', applicantDetails?.cv_upload_key?.split('/').pop() || 'cv');
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-medium transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
+                    >
+                      Descargar CV
+                    </button>
+                  </div>
 
                   {(() => {
-                    const baseUrl = data.url.split('?')[0];
+                    const baseUrl = data.download_url.split('?')[0];
                     if (baseUrl.endsWith('.pdf')) {
                       return (
                         <iframe
-                          src={data.url}
+                          src={data.download_url}
                           title="CV PDF"
                           className="w-full h-[600px] border border-gray-300 rounded-md"
                         />
@@ -101,7 +106,7 @@ const ApplicantModal = ({
                     } else if (baseUrl.match(/\.(png|jpg|jpeg)$/i)) {
                       return (
                         <img
-                          src={data.url}
+                          src={data.download_url}
                           alt="CV Imagen"
                           className="w-full max-h-[600px] object-contain border border-gray-300 rounded-md"
                         />

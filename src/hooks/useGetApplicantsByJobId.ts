@@ -7,12 +7,8 @@ export interface Applicant {
   score: number | null;
   cvId: string;
   rating?: string;
-  analysis: {
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-    detailedFeedback: string;
-  };
+  status?: string;
+  rawReasons: string[];
 }
 
 const S3_BASE_URL = `${CONFIG.bucketUrl}`;
@@ -37,25 +33,22 @@ export const useGetApplicantsByJobId = (jobId: string) => {
 
     try {
       const res = await fetch(
-        `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/applicants`, {
+        `${CONFIG.apiUrl}/job-postings/${jobId}/applicants`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
       });
       if (!res.ok) throw new Error('Error al obtener aplicantes');
       const data = await res.json();
-      const mappedApplicants: Applicant[] = (data.applicants || []).map((item: any) => ({
-        id: item.cv_id,
-        fullName: item.name || '',
-        score: item.score || null,
-        cvUrl: item.cv_s3_key ? `${S3_BASE_URL}${item.cv_s3_key}` : '',
+      const mappedApplicants: Applicant[] = (data || []).map((item: any) => ({
+        id: item.application_id,
+        fullName: item.cv_analysis_result?.analysis_data?.name || '',
+        score: item.cv_analysis_result?.analysis_data?.score || null,
+        cvId: item.cv_hash,
+        cvUrl: item.cv_upload_key ? `${S3_BASE_URL}${item.cv_upload_key}` : '',
         rating: item.valoracion || '',
-        analysis: {
-          strengths: [],
-          weaknesses: [],
-          recommendations: [],
-          detailedFeedback: '',
-        },
+        status: item.status || '',
+        rawReasons: item.cv_analysis_result?.analysis_data?.reasons || [],
       }));
       mappedApplicants.sort((a, b) => {
         if (a.score === null && b.score === null) return 0;

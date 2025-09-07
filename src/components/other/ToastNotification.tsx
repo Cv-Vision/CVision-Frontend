@@ -2,11 +2,11 @@ import React from 'react';
 
 interface ToastNotificationProps {
   message: string;
-  type?: 'success' | 'error';
+  type?: 'success' | 'error' | 'info';
   onClose: () => void;
 }
 
-const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = 'success', onClose }) => {
+const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = 'info', onClose }) => {
   return (
     <div
       className={`
@@ -18,7 +18,9 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = '
         animate-fade-in-out
         ${type === 'success'
           ? 'bg-green-50 border border-green-200 text-green-800'
-          : 'bg-red-50 border border-red-200 text-red-800'}
+          : type === 'error'
+          ? 'bg-red-50 border border-red-200 text-red-800'
+          : 'bg-blue-50 border border-blue-200 text-blue-800'}
       `}
       style={{ minWidth: 280, maxWidth: '90vw' }}
       role="alert"
@@ -28,9 +30,13 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ message, type = '
           <svg className="w-5 h-5 text-green-600 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-        ) : (
+        ) : type === 'error' ? (
           <svg className="w-5 h-5 text-red-600 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5 text-blue-600 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         )}
       </span>
