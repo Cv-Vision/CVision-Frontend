@@ -27,10 +27,10 @@ const JobSearchResults = ({
     applyingJobId,
     isAuthenticated,
     userRole,
-    currentPage,
-    jobsPerPage,
-    onPageChange,
-    totalJobs,
+    // currentPage,
+    // jobsPerPage,
+    // onPageChange,
+    // totalJobs,
 }: JobSearchResultsProps) => {
     const navigate = useNavigate();
     if (isLoading) {
@@ -48,14 +48,13 @@ const JobSearchResults = ({
         );
     }
     // Get current jobs for pagination
-    const indexOfLastJob = currentPage * jobsPerPage;
-    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-    const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-    const totalPages = Math.ceil(totalJobs / jobsPerPage);
+    // const indexOfLastJob = currentPage * jobsPerPage;
+    // const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+    // const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+    // const totalPages = Math.ceil(totalJobs / jobsPerPage);
     
-    console.log(jobs)
     // Change page
-    const paginate = (pageNumber: number) => onPageChange(pageNumber);
+    // const paginate = (pageNumber: number) => onPageChange(pageNumber);
 
     // Truncation config
     const MAX_DESCRIPTION_CHARS = 400; // adjust as needed to control preview size
