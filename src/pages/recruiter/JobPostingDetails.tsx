@@ -4,7 +4,7 @@ import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { CVDropzone } from '@/components/other/CVDropzone.tsx';
 import { useState, useEffect } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
-import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
+import { useGetApplicantsByJobId, useGetTop3ApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetJobMetrics } from '@/hooks/useGetJobMetrics.ts';
 import { useGetAnalysisResults} from '@/hooks/useGetAnalysisResults';
 import TopApplicantsDisplay from '@/components/other/TopApplicantsDisplay.tsx';
@@ -89,6 +89,7 @@ const JobPostingDetails = () => {
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
   const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
+  const { top3Applicants, refetch: refetchTop3Applicants } = useGetTop3ApplicantsByJobId(cleanJobId);
   const { refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
   const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(cleanJobId);
 
@@ -574,7 +575,7 @@ const JobPostingDetails = () => {
               </button>
             </div>
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-              <TopApplicantsDisplay applicants={applicants} />
+              <TopApplicantsDisplay applicants={top3Applicants} />
             </div>
           </div>
         </div>
@@ -694,6 +695,7 @@ const JobPostingDetails = () => {
                    onSuccess={() => {
                      setTimeout(() => {
                        refetchApplicants();
+                       refetchTop3Applicants();
                        refetchMetrics();
                      }, 12000);
                    }}
