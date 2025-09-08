@@ -31,6 +31,9 @@ const JobPosition = () => {
 
   const handleApply = () => {
     if (!isAuthenticated) {
+      // Guardar la URL actual para redirigir después del login/registro
+      const currentUrl = location.pathname;
+      localStorage.setItem('redirectAfterAuth', currentUrl);
       navigate('/applicant-register');
       return;
     }
@@ -135,46 +138,45 @@ const JobPosition = () => {
         <div className="mb-6">
           {isPublicView ? (
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/applicant/positions")}
               className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
             >
               <ArrowLeftIcon className="h-5 w-5 mr-2" />
               Volver al inicio
             </button>
           ) : (
-            <BackButton />
+            <BackButton/>
           )}
           <div className="text-sm text-gray-600 mt-2">
             {isPublicView ? 'Oportunidad de trabajo' : 'Portal - ' + jobPosition.title}
           </div>
         </div>
 
-        {/* Public View Banner */}
-        {isPublicView && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-blue-600 text-sm font-semibold">ℹ️</span>
+        <div className="max-w-6xl mx-auto">
+          {/* Public View Banner */}
+          {isPublicView && (
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-blue-600 text-sm font-semibold">ℹ️</span>
+                  </div>
+                  <div>
+                    <p className="text-blue-800 font-medium">Vista pública</p>
+                    <p className="text-blue-600 text-sm">Cualquiera puede ver esta posición de trabajo</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-blue-800 font-medium">Vista pública</p>
-                  <p className="text-blue-600 text-sm">Cualquiera puede ver esta posición de trabajo</p>
-                </div>
+                <button
+                  onClick={() => navigate('/applicant-register')}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Crear cuenta
+                </button>
               </div>
-              <button
-                onClick={() => navigate('/applicant-register')}
-                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Crear cuenta
-              </button>
             </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Job Content - Left Column */}
-          <div className="lg:col-span-2">
+          )}
+          {/* Main Job Content - Full Width */}
+          <div>
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
               {/* Company and Job Header */}
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -326,32 +328,6 @@ const JobPosition = () => {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Company Information - Right Column */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                Nosotros
-              </h3>
-              <div className="text-gray-700 leading-relaxed space-y-4">
-                <p>
-                  La Universidad Austral es una institución de educación superior comprometida con la excelencia académica y la formación integral de sus estudiantes.
-                </p>
-                <p>
-                  Nuestra misión es formar profesionales competentes, éticos y comprometidos con el desarrollo de la sociedad, a través de una educación de calidad que combine la teoría con la práctica.
-                </p>
-                <p>
-                  Valoramos la innovación, la responsabilidad social y el compromiso con la excelencia en todo lo que hacemos.
-                </p>
-                <p>
-                  Como empleador, ofrecemos un ambiente de trabajo dinámico y colaborativo, donde cada miembro del equipo puede desarrollar su potencial y contribuir al crecimiento de la organización.
-                </p>
-                <p>
-                  Creemos en la diversidad, la inclusión y el respeto mutuo como pilares fundamentales de nuestra cultura organizacional.
-                </p>
               </div>
             </div>
           </div>
