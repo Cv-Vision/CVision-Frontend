@@ -47,12 +47,13 @@ export const useUpdateJobPostingData = () => {
       });
 
       if (!response.ok) {
-        let errorBody: any = null;
+        let errorBody: unknown = null;
         try { errorBody = await response.json(); } catch { /* ignore */ }
-        // Prefer explicit field validation errors; fallback to message or generic
-        const validationMsg = errorBody && typeof errorBody === 'object'
-          ? (errorBody.message || Object.values(errorBody)[0]?.[0] || 'Error al actualizar el puesto')
-          : 'Error al actualizar el puesto';
+        let validationMsg = 'Error al actualizar el puesto';
+        if (errorBody && typeof errorBody === 'object') {
+          const err = errorBody as { message?: string };
+          if (err.message) validationMsg = err.message;
+        }
         throw new Error(validationMsg);
       }
 
