@@ -10,6 +10,7 @@ interface Questions {
   id: string;
   text: string;
   type: QuestionType;
+  order: number;
 }
 
 export default function CreateJob() {
@@ -68,7 +69,8 @@ export default function CreateJob() {
       payload.questions = validQs.map(q => ({
         id: q.id,
         text: q.text,
-        type: q.type
+        type: q.type,
+        order: q.order
       }));
     }
 
@@ -81,11 +83,23 @@ export default function CreateJob() {
     }
   }, [success, navigate, title]);
 
-  const addQuestion = () =>
-    setQuestions(prev => [...prev, { id: crypto.randomUUID(), text: '', type: 'YES_NO' }]);
+  const addQuestion = () => {
+      const newOrder = questions.length + 1;
+      setQuestions(prev => [...prev, {
+        id: crypto.randomUUID(),
+        text: '',
+        type: 'YES_NO',
+        order: newOrder
+      }]);
+    };
 
-  const removeQuestion = (id: string) =>
-    setQuestions(prev => prev.filter(q => q.id !== id));
+    const removeQuestion = (id: string) => {
+      setQuestions(prev => {
+        const filtered = prev.filter(q => q.id !== id);
+        // Reordenar después de eliminar
+        return filtered.map((q, index) => ({ ...q, order: index + 1 }));
+      });
+    };
 
   const updateQuestion = (id: string, patch: Partial<Questions>) =>
     setQuestions(prev => prev.map(q => (q.id === id ? { ...q, ...patch } : q)));
