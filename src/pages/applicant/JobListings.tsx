@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
 import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
 import JobSearchResults from "@/components/applicant/JobSearchResults";
@@ -14,9 +14,9 @@ import BackButton from '@/components/other/BackButton.tsx';
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [jobsPerPage] = useState(10);
-  const { jobs, isLoading: isLoadingSearch, error: searchError, search } = usePublicJobSearch();
+  const { jobs, isLoading: isLoadingSearch, error: searchError, search, hasMore } = usePublicJobSearch();
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -27,8 +27,9 @@ const JobSearch = () => {
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
 
   useEffect(() => {
-    search({});
-  }, [search]);
+    search(filters, 1, 10, false);
+    setPage(1);
+  }, [filters, search]);
 
   useEffect(() => {
     if (success) {
@@ -56,13 +57,25 @@ const JobSearch = () => {
     }
   }, [searchError]);
 
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const loadMore = useCallback(() => {
+    if (!isLoadingSearch && hasMore) {
+      setPage(prev => {
+        const next = prev + 1;
+        search(filters, next, 10, true);
+        return next;
+      });
+    }
+  }, [isLoadingSearch, hasMore, search, filters]);
+
   const handleChange = (field: keyof JobSearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSearch = () => {
     search(filters);
-    setCurrentPage(1);
+    setPage(1);
   };
 
   const handleConfirmApply = () => {
@@ -79,6 +92,26 @@ const JobSearch = () => {
     setSelectedJobId(jobId);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!hasMore) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoadingSearch) {
+          loadMore();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const el = observerRef.current;
+    if (el) observer.observe(el);
+
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [loadMore, hasMore, isLoadingSearch]);
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
@@ -118,9 +151,9 @@ const JobSearch = () => {
               applyingJobId={selectedJobId}
               isAuthenticated={isAuthenticated}
               userRole={user?.role}
-              currentPage={currentPage}
+              currentPage={page}
               jobsPerPage={jobsPerPage}
-              onPageChange={setCurrentPage}
+              onPageChange={setPage}
               totalJobs={jobs.length}
             />
             <ApplyConfirmationModal
@@ -135,6 +168,10 @@ const JobSearch = () => {
                 type={toastType}
                 onClose={() => setShowToast(false)}
               />
+            )}
+            <div ref={observerRef} className="h-10" />
+            {isLoadingSearch && (
+              <p className="text-center text-gray-500 mt-4">Cargando más...</p>
             )}
           </div>
         </div>
