@@ -1,4 +1,3 @@
-// src/components/applicant/JobQuestionsModal.tsx
 import { useState, useEffect } from 'react';
 import {
   XMarkIcon,
@@ -36,11 +35,11 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsMod
     }
   }, [isOpen]);
 
-  // === NUEVO: cambiar de pestaña ya y cargar en background ===
+
   const handleProceedToQuestions = () => {
     setHasConfirmed(true);
-    setCurrentTab('questions');     // anima al instante
-    fetchQuestions(jobId);          // carga en 2º plano -> se ve el loader
+    setCurrentTab('questions');
+    fetchQuestions(jobId);
   };
 
   const handleSkip = () => onClose();
@@ -118,7 +117,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsMod
           <div
             className="flex h-full transition-transform duration-500 ease-in-out"
             style={{
-              // === FIX: con 200% de ancho, la 2ª mitad se ve con -50% ===
+
               transform: currentTab === 'intro' ? 'translateX(0%)' : 'translateX(-50%)',
               width: '200%'
             }}
@@ -130,7 +129,6 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsMod
 
             {/* Pestaña 2: Preguntas */}
             <div className="w-1/2 flex-shrink-0 overflow-y-auto">
-              {/* Montada ya al pasar (hasConfirmed true) para mostrar loader */}
               {hasConfirmed && (
                 <QuestionsTab
                   questions={questions}
@@ -149,7 +147,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsMod
   );
 };
 
-// Pestaña de introducción (tu UI original)
+// Pestaña de introducción
 const IntroTab = ({ onProceed, onSkip }: { onProceed: () => void; onSkip: () => void }) => {
   return (
     <div className="p-8">
@@ -198,7 +196,7 @@ const IntroTab = ({ onProceed, onSkip }: { onProceed: () => void; onSkip: () => 
   );
 };
 
-// Pestaña de preguntas (con tipos y loader)
+// Pestaña de preguntas
 const QuestionsTab = ({
                         questions,
                         answers,
@@ -250,7 +248,7 @@ const QuestionsTab = ({
 
   return (
     <div className="p-6">
-      {/* Header informativo */}
+      {/*Header*/}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
         <div className="flex items-center space-x-2">
           <span className="text-amber-600">ℹ️</span>
