@@ -1,13 +1,10 @@
 // src/components/applicant/JobQuestionsModal.tsx
-import { useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   XMarkIcon,
   QuestionMarkCircleIcon,
   DocumentTextIcon,
-  ChevronLeftIcon,
-  ClipboardDocumentCheckIcon,
-  ClockIcon,
-  ShieldCheckIcon
+  ChevronLeftIcon
 } from '@heroicons/react/24/outline';
 import { useGetJobQuestions, JobQuestion } from '@/hooks/useGetJobQuestions';
 
@@ -23,39 +20,14 @@ interface QuestionAnswer {
   answer: string;
 }
 
-const TypeBadge = ({ type }: { type: JobQuestion['questionType'] }) => {
-  const label =
-    type === 'YES_NO' ? 'Sí/No' : type === 'NUMERICAL' ? 'Numérica' : 'Texto';
-  return (
-    <span className="ml-2 inline-flex items-center rounded-full border px-2 py-0.5 text-xs text-gray-600">
-      {label}
-    </span>
-  );
-};
-
-const Skeleton = () => (
-  <div className="animate-pulse space-y-4">
-    {[...Array(4)].map((_, i) => (
-      <div key={i} className="rounded-xl border border-gray-200 p-4">
-        <div className="mb-3 h-4 w-40 rounded bg-gray-200" />
-        <div className="h-10 w-full rounded border bg-gray-100" />
-      </div>
-    ))}
-  </div>
-);
-
-export default function JobQuestionsModal({
-                                            isOpen,
-                                            onClose,
-                                            jobId,
-                                            jobTitle
-                                          }: JobQuestionsModalProps) {
+const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsModalProps) => {
   const [currentTab, setCurrentTab] = useState<'intro' | 'questions'>('intro');
-  const [, setHasConfirmed] = useState(false);
   const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
+  const [hasConfirmed, setHasConfirmed] = useState(false);
+
   const { questions, isLoading, error, fetchQuestions } = useGetJobQuestions();
 
-  // Reset al abrir
+  // Reset modal state when it opens/closes
   useEffect(() => {
     if (isOpen) {
       setCurrentTab('intro');
@@ -64,307 +36,302 @@ export default function JobQuestionsModal({
     }
   }, [isOpen]);
 
+  // === NUEVO: cambiar de pestaña ya y cargar en background ===
+  const handleProceedToQuestions = () => {
+    setHasConfirmed(true);
+    setCurrentTab('questions');     // anima al instante
+    fetchQuestions(jobId);          // carga en 2º plano -> se ve el loader
+  };
+
+  const handleSkip = () => onClose();
+
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers(prev => {
-      const idx = prev.findIndex(a => a.questionId === questionId);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = { ...copy[idx], answer };
-        return copy;
+      const existing = prev.find(a => a.questionId === questionId);
+      if (existing) {
+        return prev.map(a => (a.questionId === questionId ? { ...a, answer } : a));
       }
       return [...prev, { questionId, answer }];
     });
   };
 
-  const answersMap = useMemo(
-    () =>
-      answers.reduce<Record<string, string>>((acc, a) => {
-        acc[a.questionId] = a.answer;
-        return acc;
-      }, {}),
-    [answers]
-  );
-
-  const handleProceedToQuestions = () => {
-    setHasConfirmed(true);
-    setCurrentTab('questions');     // animación fluida; se ve el loader adentro
-    fetchQuestions(jobId);
-  };
-
-  const handleSkip = () => {
-    // Si preferís no cerrar, podés dejar un noop o trackear "saltado".
+  const handleSubmit = async () => {
+    console.log('Respuestas enviadas:', answers);
     onClose();
   };
 
-  const handleBackToIntro = () => {
+  const handleGoBack = () => {
     setCurrentTab('intro');
-  };
-
-  const onSubmit = async () => {
-    // TODO: POST al backend si corresponde
-    console.log('Respuestas:', answers);
-    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 sm:p-6">
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <div className="flex items-center gap-3">
-            <DocumentTextIcon className="h-6 w-6 text-indigo-600" />
-            <div>
-              <h3 className="text-base font-semibold">Responde las preguntas</h3>
-              <p className="text-xs text-gray-500">{jobTitle ?? '—'}</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
-          >
-            <XMarkIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex items-center gap-2 px-5 pt-3 pb-1">
-          <span
-            className={
-              'h-2 w-2 rounded-full ' +
-              (currentTab === 'intro' ? 'bg-indigo-600' : 'bg-gray-300')
-            }
-          />
-          <span
-            className={
-              'h-2 w-2 rounded-full ' +
-              (currentTab === 'questions' ? 'bg-indigo-600' : 'bg-gray-300')
-            }
-          />
-        </div>
-
-        {/* Slides container */}
-        <div className="relative overflow-hidden" style={{ height: 'calc(90vh - 140px)' }}>
-          <div
-            className="flex h-full transition-transform duration-500 ease-in-out transform-gpu will-change-transform"
-            style={{
-              width: '200%',
-              transform: currentTab === 'intro' ? 'translateX(0%)' : 'translateX(-50%)'
-            }}
-          >
-            {/* ---------- INTRO SLIDE (re-diseñado) ---------- */}
-            <div className="w-1/2 flex-shrink-0 overflow-y-auto px-5 pb-6">
-              <div className="pt-4">
-                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                  {/* Banner degradado */}
-                  <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 px-5 py-4 text-white">
-                    <div className="flex items-center gap-3">
-                      <ClipboardDocumentCheckIcon className="h-6 w-6" />
-                      <div>
-                        <h4 className="text-sm font-semibold">
-                          ¿Querés completar preguntas para este puesto?
-                        </h4>
-                        <p className="text-[12px] opacity-90">
-                          Te tomarán sólo unos minutos y ayudan al reclutador a conocerte mejor.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bullets / beneficios */}
-                  <div className="px-5 py-5">
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="flex items-start gap-2 rounded-xl border border-gray-200 p-3">
-                        <QuestionMarkCircleIcon className="mt-0.5 h-5 w-5 text-indigo-600" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Opcionales</p>
-                          <p className="text-xs text-gray-600">
-                            Respondé sólo las que quieras.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-2 rounded-xl border border-gray-200 p-3">
-                        <ClockIcon className="mt-0.5 h-5 w-5 text-indigo-600" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Rápidas</p>
-                          <p className="text-xs text-gray-600">
-                            Menos de 3–5 minutos en promedio.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-2 rounded-xl border border-gray-200 p-3">
-                        <ShieldCheckIcon className="mt-0.5 h-5 w-5 text-indigo-600" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Privadas</p>
-                          <p className="text-xs text-gray-600">
-                            Sólo el equipo de reclutamiento puede verlas.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Aviso */}
-                    <div className="mt-4 flex items-start gap-3 rounded-xl bg-amber-50 p-4">
-                      <QuestionMarkCircleIcon className="mt-0.5 h-5 w-5 text-amber-600" />
-                      <p className="text-sm text-amber-800">
-                        <strong>Todas las preguntas son opcionales.</strong> Podés
-                        omitirlas ahora y volver más tarde.
-                      </p>
-                    </div>
-
-                    {/* CTAs */}
-                    <div className="mt-6 flex flex-col items-stretch justify-end gap-3 sm:flex-row">
-                      <button
-                        onClick={handleSkip}
-                        className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                      >
-                        No, ahora no
-                      </button>
-                      <button
-                        onClick={handleProceedToQuestions}
-                        className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                      >
-                        Sí, quiero responder
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ---------- QUESTIONS SLIDE ---------- */}
-            <div className="w-1/2 flex-shrink-0 overflow-y-auto px-5 pb-6">
-              <div className="flex items-center gap-2 py-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        {/* Header dinámico (igual que tu versión anterior) */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {/* Botón de volver sólo visible en la segunda pestaña */}
+              {currentTab === 'questions' && hasConfirmed && (
                 <button
-                  onClick={handleBackToIntro}
-                  className="mr-1 inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={handleGoBack}
+                  className="mr-3 p-1 rounded-full hover:bg-white/20 transition-colors"
                 >
-                  <ChevronLeftIcon className="h-4 w-4" />
-                  Volver
+                  <ChevronLeftIcon className="h-6 w-6" />
                 </button>
-                <h4 className="text-sm font-semibold text-gray-800">Preguntas del puesto</h4>
-              </div>
-
-              {error && (
-                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {error}
-                </div>
               )}
 
-              {isLoading ? (
-                <Skeleton />
-              ) : questions.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 p-6 text-center text-sm text-gray-500">
-                  Este puesto no tiene preguntas configuradas.
-                </div>
+              {currentTab === 'intro' ? (
+                <QuestionMarkCircleIcon className="h-8 w-8 mr-3" />
               ) : (
-                <div className="space-y-4">
-                  {questions.map((q, idx) => (
-                    <QuestionItem
-                      key={q.id}
-                      q={q}
-                      index={idx + 1}
-                      value={answersMap[q.id] ?? ''}
-                      onChange={handleAnswerChange}
-                    />
+                <DocumentTextIcon className="h-8 w-8 mr-3" />
+              )}
+
+              <div>
+                <h2 className="text-xl font-bold">
+                  {currentTab === 'intro' ? 'Preguntas adicionales' : 'Responde las preguntas'}
+                </h2>
+                {jobTitle && <p className="text-blue-100 text-sm mt-1">{jobTitle}</p>}
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Indicador de progreso */}
+          <div className="flex items-center mt-4 space-x-2">
+            <div className={`w-3 h-3 rounded-full ${currentTab === 'intro' ? 'bg-white' : 'bg-white/50'}`}></div>
+            <div className={`h-0.5 w-8 ${hasConfirmed ? 'bg-white' : 'bg-white/30'}`}></div>
+            <div className={`w-3 h-3 rounded-full ${currentTab === 'questions' && hasConfirmed ? 'bg-white' : 'bg-white/30'}`}></div>
+          </div>
+        </div>
+
+        {/* Contenido con transición */}
+        <div className="relative overflow-hidden" style={{ height: 'calc(90vh - 140px)' }}>
+          <div
+            className="flex h-full transition-transform duration-500 ease-in-out"
+            style={{
+              // === FIX: con 200% de ancho, la 2ª mitad se ve con -50% ===
+              transform: currentTab === 'intro' ? 'translateX(0%)' : 'translateX(-50%)',
+              width: '200%'
+            }}
+          >
+            {/* Pestaña 1: Introducción (estilo original) */}
+            <div className="w-1/2 flex-shrink-0 overflow-y-auto">
+              <IntroTab onProceed={handleProceedToQuestions} onSkip={handleSkip} />
+            </div>
+
+            {/* Pestaña 2: Preguntas */}
+            <div className="w-1/2 flex-shrink-0 overflow-y-auto">
+              {/* Montada ya al pasar (hasConfirmed true) para mostrar loader */}
+              {hasConfirmed && (
+                <QuestionsTab
+                  questions={questions}
+                  answers={answers}
+                  isLoading={isLoading}
+                  error={error}
+                  onAnswerChange={handleAnswerChange}
+                  onSubmit={handleSubmit}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Pestaña de introducción (tu UI original)
+const IntroTab = ({ onProceed, onSkip }: { onProceed: () => void; onSkip: () => void }) => {
+  return (
+    <div className="p-8">
+      <div className="text-center mb-8">
+        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <QuestionMarkCircleIcon className="h-10 w-10 text-blue-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">¡Ayúdanos a conocerte mejor!</h3>
+        <p className="text-gray-600 leading-relaxed text-lg">
+          El reclutador ha preparado algunas preguntas adicionales que lo ayudarán a conocer
+          más sobre tu perfil y experiencia.
+        </p>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 mb-8">
+        <div className="flex items-start space-x-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <span className="text-white text-sm font-bold">💡</span>
+          </div>
+          <div>
+            <h4 className="font-semibold text-blue-900 mb-2">¿Por qué es importante?</h4>
+            <ul className="text-blue-800 text-sm space-y-1">
+              <li>• Ayuda al reclutador a conocer mejor tu perfil</li>
+              <li>• Puede mejorar tus posibilidades de ser seleccionado</li>
+              <li>• Todas las preguntas son completamente opcionales</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <button
+          onClick={onSkip}
+          className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+        >
+          No, omitir
+        </button>
+        <button
+          onClick={onProceed}
+          className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
+          ¡Sí, responder!
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Pestaña de preguntas (con tipos y loader)
+const QuestionsTab = ({
+                        questions,
+                        answers,
+                        isLoading,
+                        error,
+                        onAnswerChange,
+                        onSubmit
+                      }: {
+  questions: JobQuestion[];
+  answers: QuestionAnswer[];
+  isLoading: boolean;
+  error: string | null;
+  onAnswerChange: (questionId: string, answer: string) => void;
+  onSubmit: () => void;
+}) => {
+  if (isLoading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-6"></div>
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">Cargando preguntas...</h3>
+        <p className="text-gray-500">Por favor espera un momento</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-red-600 text-2xl">⚠️</span>
+        </div>
+        <h3 className="text-lg font-semibold text-red-600 mb-2">Error al cargar</h3>
+        <p className="text-gray-600 mb-4">{error}</p>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <DocumentTextIcon className="h-8 w-8 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">Sin preguntas adicionales</h3>
+        <p className="text-gray-500">No hay preguntas adicionales para esta posición.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      {/* Header informativo */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+        <div className="flex items-center space-x-2">
+          <span className="text-amber-600">ℹ️</span>
+          <p className="text-amber-800 text-sm font-medium">
+            Recuerda: <strong>Todas las preguntas son opcionales.</strong> Responde solo las que consideres relevantes.
+          </p>
+        </div>
+      </div>
+
+      {/* Lista de preguntas */}
+      <div className="space-y-6 mb-8">
+        {questions.map((question, index) => {
+          const currentAnswer = answers.find(a => a.questionId === question.id)?.answer || '';
+
+          return (
+            <div
+              key={question.id}
+              className="border border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors"
+            >
+              <div className="mb-4">
+                <label className="block text-gray-800 font-semibold mb-3">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white text-sm font-bold rounded-full mr-3">
+                    {index + 1}
+                  </span>
+                  {question.question}
+                </label>
+              </div>
+
+              {question.questionType === 'OPEN' && (
+                <textarea
+                  value={currentAnswer}
+                  onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                  placeholder="Escribe tu respuesta aquí..."
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all"
+                  rows={4}
+                />
+              )}
+
+              {question.questionType === 'YES_NO' && (
+                <div className="flex gap-6">
+                  {['Sí', 'No'].map((option) => (
+                    <label key={option} className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={option}
+                        checked={currentAnswer === option}
+                        onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                        className="mr-3 w-5 h-5 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700 font-medium">{option}</span>
+                    </label>
                   ))}
                 </div>
               )}
 
-              {/* Footer submit */}
-              <div className="sticky bottom-0 mt-6 border-t border-gray-200 bg-white py-4">
-                <div className="flex justify-end">
-                  <button
-                    onClick={onSubmit}
-                    className="rounded-lg bg-green-600 px-6 py-2.5 font-medium text-white hover:bg-green-700"
-                  >
-                    Enviar respuestas
-                  </button>
-                </div>
-              </div>
+              {question.questionType === 'NUMERICAL' && (
+                <input
+                  type="number"
+                  value={currentAnswer}
+                  onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                  placeholder="Ingresa un número..."
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              )}
             </div>
-            {/* ---------- /QUESTIONS SLIDE ---------- */}
-          </div>
-        </div>
+          );
+        })}
+      </div>
+
+      {/* Botón de envío */}
+      <div className="flex justify-end pt-6 border-t border-gray-200">
+        <button
+          onClick={onSubmit}
+          className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
+          Enviar respuestas
+        </button>
       </div>
     </div>
   );
-}
+};
 
-/* ---------- Item de pregunta por tipo ---------- */
-function QuestionItem({
-                        q,
-                        index,
-                        value,
-                        onChange
-                      }: {
-  q: JobQuestion;
-  index: number;
-  value: string;
-  onChange: (id: string, val: string) => void;
-}) {
-  return (
-    <div className="rounded-xl border border-gray-200 p-4">
-      <div className="mb-2 flex items-start gap-3">
-        <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full border bg-white text-xs font-semibold text-gray-700">
-          {index}
-        </span>
-        <div className="flex-1">
-          <div className="flex items-center">
-            <p className="text-sm font-medium text-gray-900">{q.question}</p>
-            <TypeBadge type={q.questionType} />
-          </div>
-        </div>
-      </div>
-
-      {q.questionType === 'YES_NO' ? (
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => onChange(q.id, 'YES')}
-            className={
-              'rounded-lg border px-4 py-2 text-sm ' +
-              (value === 'YES'
-                ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-50')
-            }
-          >
-            Sí
-          </button>
-          <button
-            type="button"
-            onClick={() => onChange(q.id, 'NO')}
-            className={
-              'rounded-lg border px-4 py-2 text-sm ' +
-              (value === 'NO'
-                ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-50')
-            }
-          >
-            No
-          </button>
-        </div>
-      ) : q.questionType === 'NUMERICAL' ? (
-        <input
-          type="number"
-          inputMode="numeric"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Ingresá un número (opcional)"
-          value={value}
-          onChange={e => onChange(q.id, e.target.value)}
-        />
-      ) : (
-        <textarea
-          rows={3}
-          className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Tu respuesta (opcional)"
-          value={value}
-          onChange={e => onChange(q.id, e.target.value)}
-        />
-      )}
-    </div>
-  );
-}
+export default JobQuestionsModal;
