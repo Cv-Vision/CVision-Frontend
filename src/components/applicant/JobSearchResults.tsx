@@ -53,6 +53,7 @@ const JobSearchResults = ({
     const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
     const totalPages = Math.ceil(totalJobs / jobsPerPage);
     
+    console.log(jobs)
     // Change page
     const paginate = (pageNumber: number) => onPageChange(pageNumber);
 
@@ -64,7 +65,7 @@ const JobSearchResults = ({
             {hasResults ? (
                 <>
                     <div className="space-y-6">
-                        {currentJobs.map((job) => {
+                        {jobs.map((job) => {
                             const description = job.description || '';
                             const shouldTruncate = description.length > MAX_DESCRIPTION_CHARS;
                             const preview = shouldTruncate ? description.slice(0, MAX_DESCRIPTION_CHARS).trimEnd() + '…' : description;
@@ -132,7 +133,7 @@ const JobSearchResults = ({
                         })}
                     </div>
                     {/* Pagination */}
-                    {totalPages > 1 && (
+                    {/* {totalPages > 1 && (
                         <div className="flex justify-center mt-6">
                             <nav className="flex items-center gap-1">
                                 <button 
@@ -160,7 +161,7 @@ const JobSearchResults = ({
                                 </button>
                             </nav>
                         </div>
-                    )}
+                    )} */}
                 </>
             ) : (
                 <p className="text-gray-500 text-center py-8">No se encontraron resultados que coincidan con tus criterios de búsqueda.</p>
