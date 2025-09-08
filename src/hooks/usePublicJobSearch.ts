@@ -25,6 +25,9 @@ export function usePublicJobSearch() {
         if ((filters.contract_type || filters.contractType)?.trim()) {
           params.append("contract_type", (filters.contract_type || filters.contractType)!.trim());
         }
+        if ((filters.modal || filters.modality)?.trim()) {
+          params.append("modal", (filters.modal || filters.modality)!.trim());
+        }
         if (filters.title?.trim()) params.append("title", filters.title.trim());
 
         params.append('page', String(page));
@@ -59,7 +62,8 @@ export function usePublicJobSearch() {
           additional_requirements: item.additional_requirements
             ? JSON.stringify(item.additional_requirements)
             : undefined,
-          isApplied: item.isApplied
+          isApplied: item.isApplied,
+          modal: item.modal
         }));
 
         setJobs(prev => {

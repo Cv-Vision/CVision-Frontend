@@ -44,7 +44,8 @@ export function useGetJobById(jobId: string) {
         contract_type: jobData.contract_type,
         location: jobData.location,
         industry_experience: jobData.industry_experience,
-        additional_requirements: jobData.additional_requirements
+        additional_requirements: jobData.additional_requirements,
+        modal: jobData.modal // Nuevo mapeo de campo
       };
       
       setJob(mappedJob);
