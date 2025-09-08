@@ -273,11 +273,11 @@ const QuestionsTab = ({
                   <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white text-sm font-bold rounded-full mr-3">
                     {index + 1}
                   </span>
-                  {question.question}
+                  {question.text}
                 </label>
               </div>
 
-              {question.questionType === 'OPEN' && (
+              {question.type === 'OPEN' && (
                 <textarea
                   value={currentAnswer}
                   onChange={(e) => onAnswerChange(question.id, e.target.value)}
@@ -287,7 +287,7 @@ const QuestionsTab = ({
                 />
               )}
 
-              {question.questionType === 'YES_NO' && (
+              {question.type === 'YES_NO' && (
                 <div className="flex gap-6">
                   {['Sí', 'No'].map((option) => (
                     <label key={option} className="flex items-center cursor-pointer">
@@ -305,7 +305,7 @@ const QuestionsTab = ({
                 </div>
               )}
 
-              {question.questionType === 'NUMERICAL' && (
+              {question.type === 'NUMERICAL' && (
                 <input
                   type="number"
                   value={currentAnswer}
