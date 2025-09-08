@@ -7,6 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import ToastNotification from '@/components/other/ToastNotification';
+import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
+
 
 const JobPosition = () => {
   const { positionId } = useParams<{ positionId: string }>();
@@ -14,7 +16,8 @@ const JobPosition = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { jobPosition, isLoading, error } = useGetJobPosition(positionId!);
-  
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+
   // Determinar si es una vista pública o privada
   const isPublicView = location.pathname.startsWith('/position/');
   
@@ -46,8 +49,13 @@ const JobPosition = () => {
       setToastType("success");
       setShowToast(true);
       setAppliedJobs(prev => [...prev, positionId!]);
+
+      // Mostrar modal de preguntas después de aplicación exitosa
+      if (jobPosition) {
+        setShowQuestionsModal(true);
+      }
     }
-  }, [success, positionId]);
+  }, [success, positionId, jobPosition]);
 
   // Manejar error de la aplicación
   useEffect(() => {
@@ -366,6 +374,12 @@ const JobPosition = () => {
           onClose={() => setShowToast(false)}
         />
       )}
+      <JobQuestionsModal
+        isOpen={showQuestionsModal}
+        onClose={() => setShowQuestionsModal(false)}
+        jobId={positionId || ''}
+        jobTitle={jobPosition?.title}
+      />
     </div>
   );
 };
