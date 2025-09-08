@@ -21,6 +21,7 @@ const ApplicantRegisterForm = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showFormFields, setShowFormFields] = useState(false);
     const { showToast } = useToast();
 
     const handleBasicInfoChange = (field: keyof ApplicantProfile["basicInfo"], value: string) => {
@@ -75,18 +76,24 @@ const ApplicantRegisterForm = () => {
     };
 
     const handleCVProcessed = (cvData: any) => {
-    setProfile(prev => ({
-        ...prev,
-        cvUrl: cvData.cvUrl || prev.cvUrl,
-        userId: cvData.userId || prev.userId,
-        basicInfo: {
-        ...prev.basicInfo,
-        fullName: cvData.fullName || prev.basicInfo.fullName,
-        email: cvData.email || prev.basicInfo.email,
-        },
-        workExperience: cvData.workExperience || prev.workExperience,
-        education: cvData.education || prev.education,
-    }));
+        setProfile(prev => ({
+            ...prev,
+            cvUrl: cvData.cvUrl || prev.cvUrl,
+            userId: cvData.userId || prev.userId,
+            basicInfo: {
+                ...prev.basicInfo,
+                fullName: cvData.fullName || prev.basicInfo.fullName,
+                email: cvData.email || prev.basicInfo.email,
+            },
+            workExperience: cvData.workExperience || prev.workExperience,
+            education: cvData.education || prev.education,
+        }));
+        
+        // Mostrar los campos del formulario después de procesar el CV
+        setShowFormFields(true);
+        
+        // Mostrar mensaje de éxito
+        showToast('CV procesado exitosamente. Los campos se han completado automáticamente.', 'success');
     };
 
     const handleSubmit = async () => {
@@ -130,29 +137,39 @@ const ApplicantRegisterForm = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
             <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-4">
                     Crear Perfil de Aplicante
                 </h1>
-                <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
-                {/* Adjuntar CV debajo de la información básica */}
-                <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
-                <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
-                <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+                <p className="text-lg text-gray-600 text-center mb-8">
+                    ¡Solo tenés que subir tu CV!
+                </p>
                 
-                {/* <-- Aquí centré el botón (justify-center en lugar de justify-end) --> */}
-                <div className="flex justify-center pt-6">
-                    <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting || profile.basicInfo.password !== profile.basicInfo.confirmPassword}
-                        className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ${
-                            isSubmitting 
-                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                                : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
-                        }`}
-                    >
-                        {isSubmitting ? 'Guardando...' : 'Guardar Perfil'}
-                    </button>
-                </div>
+                {/* Mostrar siempre el componente de subida de CV */}
+                <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
+                
+                {/* Mostrar el resto de campos solo después de subir el CV */}
+                {showFormFields && (
+                    <div className="animate-fadeIn">
+                        <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
+                        <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
+                        <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+                        
+                        {/* Botón de guardar */}
+                        <div className="flex justify-center pt-6">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={isSubmitting || profile.basicInfo.password !== profile.basicInfo.confirmPassword}
+                                className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ${
+                                    isSubmitting 
+                                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
+                                }`}
+                            >
+                                {isSubmitting ? 'Guardando...' : 'Guardar Perfil'}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
