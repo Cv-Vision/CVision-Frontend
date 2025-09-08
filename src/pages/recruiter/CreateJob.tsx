@@ -5,11 +5,12 @@ import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts'
 import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
 
-type QuestionType = 'YES_NO' | 'OPEN';
-interface ApplicantQuestion {
+type QuestionType = 'YES_NO' | 'OPEN' | 'NUMERICAL';
+interface Questions {
   id: string;
   text: string;
   type: QuestionType;
+  order: number;
 }
 
 export default function CreateJob() {
@@ -24,7 +25,7 @@ export default function CreateJob() {
   const [jobLocation, setJobLocation] = useState('');
 
   // Preguntas para aplicantes
-  const [questions, setQuestions] = useState<ApplicantQuestion[]>([]);
+  const [questions, setQuestions] = useState<Questions[]>([]);
 
   const navigate = useNavigate();
 
@@ -60,15 +61,16 @@ export default function CreateJob() {
     if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
     if (jobLocation.trim()) payload.job_location = jobLocation.trim();
 
-    //incluir applicant_questions solo si hay válidas
+    //incluir questions solo si hay válidas
     const validQs = questions
       .map(q => ({ ...q, text: q.text.trim() }))
-      .filter(q => q.text.length > 0 && (q.type === 'YES_NO' || q.type === 'OPEN'));
+      .filter(q => q.text.length > 0 && (q.type === 'YES_NO' || q.type === 'OPEN' || q.type === 'NUMERICAL'));
     if (validQs.length > 0) {
-      payload.applicant_questions = validQs.map(q => ({
+      payload.questions = validQs.map(q => ({
         id: q.id,
         text: q.text,
-        type: q.type
+        type: q.type,
+        order: q.order
       }));
     }
 
@@ -81,13 +83,25 @@ export default function CreateJob() {
     }
   }, [success, navigate, title]);
 
-  const addQuestion = () =>
-    setQuestions(prev => [...prev, { id: crypto.randomUUID(), text: '', type: 'YES_NO' }]);
+  const addQuestion = () => {
+      const newOrder = questions.length + 1;
+      setQuestions(prev => [...prev, {
+        id: crypto.randomUUID(),
+        text: '',
+        type: 'YES_NO',
+        order: newOrder
+      }]);
+    };
 
-  const removeQuestion = (id: string) =>
-    setQuestions(prev => prev.filter(q => q.id !== id));
+    const removeQuestion = (id: string) => {
+      setQuestions(prev => {
+        const filtered = prev.filter(q => q.id !== id);
+        // Reordenar después de eliminar
+        return filtered.map((q, index) => ({ ...q, order: index + 1 }));
+      });
+    };
 
-  const updateQuestion = (id: string, patch: Partial<ApplicantQuestion>) =>
+  const updateQuestion = (id: string, patch: Partial<Questions>) =>
     setQuestions(prev => prev.map(q => (q.id === id ? { ...q, ...patch } : q)));
 
   return (
@@ -285,6 +299,7 @@ export default function CreateJob() {
                   >
                     <option value="YES_NO">Sí / No</option>
                     <option value="OPEN">Desarrollo (respuesta libre)</option>
+                    <option value="NUMERICAL">Numérica (respuesta numérica)</option>
                   </select>
                 </div>
               ))}

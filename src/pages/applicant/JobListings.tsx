@@ -10,6 +10,7 @@ import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
 import BackButton from '@/components/other/BackButton.tsx';
+import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
@@ -25,6 +26,8 @@ const JobSearch = () => {
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const { user, isAuthenticated } = useAuth();
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
 
   useEffect(() => {
     search(filters, 1, 10, false);
@@ -38,8 +41,15 @@ const JobSearch = () => {
       setToastType("success");
       setShowToast(true);
       setAppliedJobs(prev => [...prev, selectedJobId]);
+
+      // Mostrar modal de preguntas después de aplicación exitosa
+      const selectedJob = jobs.find(job => job.pk === selectedJobId);
+      if (selectedJob) {
+        setSelectedJobForQuestions({ id: selectedJobId, title: selectedJob.title });
+        setShowQuestionsModal(true);
+      }
     }
-  }, [success, selectedJobId]);
+  }, [success, selectedJobId, jobs]);
 
   useEffect(() => {
     if (applyError) {
@@ -175,6 +185,15 @@ const JobSearch = () => {
             )}
           </div>
         </div>
+        <JobQuestionsModal
+          isOpen={showQuestionsModal}
+          onClose={() => {
+            setShowQuestionsModal(false);
+            setSelectedJobForQuestions(null);
+          }}
+          jobId={selectedJobForQuestions?.id || ''}
+          jobTitle={selectedJobForQuestions?.title}
+        />
       </div>
   );
 };

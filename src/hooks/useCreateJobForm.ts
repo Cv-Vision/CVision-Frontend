@@ -11,10 +11,10 @@ export type CreateJobPayload = {
   contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
   additional_requirements?: string;
   job_location?: string;
-  applicant_questions?: {
+  questions?: {
     id: string;
     text: string;
-    type: 'YES_NO' | 'OPEN';
+    type: 'YES_NO' | 'OPEN' | 'NUMERICAL';
   }[];
 };
 
