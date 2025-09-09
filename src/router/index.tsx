@@ -22,6 +22,7 @@ import ApplicantConfirmAccount from "@/pages/applicant/ConfirmAccount.tsx";
 import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
 import JobPosition from '@/pages/applicant/JobPosition.tsx';
 import JobApplication from '@/pages/applicant/JobApplication.tsx';
+import {UserApplicationsView} from "@/components/applicant/UserApplicationsView.tsx";
 
 
 export function AppRouter() {
@@ -57,6 +58,11 @@ export function AppRouter() {
           <ApplicantProfile />
         </ProtectedRoute>
       } />
+        <Route path="/mis-postulaciones" element={
+            <ProtectedRoute requiredRole="applicant">
+                <UserApplicationsView />
+            </ProtectedRoute>
+        } />
       <Route path="/applicant/positions" element={
           <JobListings />
       } />
