@@ -1,22 +1,21 @@
-import { useEffect, useState } from 'react';
 import { BriefcaseIcon } from '@heroicons/react/24/outline';
+import { useUserApplications } from '../../hooks/useUserApplications';
+
+function traducirEstado(status: string) {
+    switch (status) {
+        case 'Pending':
+            return 'Pendiente';
+        case 'Accepted':
+            return 'Aceptada';
+        case 'Rejected':
+            return 'Rechazada';
+        default:
+            return status;
+    }
+}
 
 export function UserApplicationsView() {
-    const [applications, setApplications] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetch('/applications')
-            .then(res => res.ok ? res.json() : [])
-            .then(data => {
-                setApplications(Array.isArray(data) ? data : []);
-                setLoading(false);
-            })
-            .catch(() => {
-                setApplications([]);
-                setLoading(false);
-            });
-    }, []);
+    const { applications, loading, error } = useUserApplications();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex items-center justify-center py-10 px-2">
@@ -34,6 +33,8 @@ export function UserApplicationsView() {
                         <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
                         <span className="text-blue-700 font-medium">Cargando tus postulaciones...</span>
                     </div>
+                ) : error ? (
+                    <div className="text-red-600 font-semibold py-10">{error}</div>
                 ) : applications.length === 0 ? (
                     <div className="flex flex-col items-center gap-4 py-10">
                         <div className="p-4 rounded-full bg-gradient-to-br from-blue-100 to-blue-200">
@@ -51,11 +52,24 @@ export function UserApplicationsView() {
                             >
                                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                                     <div>
-                                        <h3 className="text-lg font-bold text-blue-800">{app.positionTitle}</h3>
-                                        <p className="text-sm text-gray-600">{app.company || 'Empresa no especificada'}</p>
+                                        <h3 className="text-lg font-bold text-blue-800">{app.jobPosting.title}</h3>
+                                        {app.jobPosting.company && (
+                                            <p className="text-sm text-gray-600">Compañía: {app.jobPosting.company}</p>
+                                        )}
+                                        {app.createdAt && (
+                                            <p className="text-sm text-gray-500">
+                                                Fecha: {new Date(app.createdAt).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                        {app.jobPosting.description && (
+                                            <p className="text-sm text-gray-700 mt-2">{app.jobPosting.description}</p>
+                                        )}
+                                        {app.jobPosting.location && (
+                                            <p className="text-sm text-gray-500">Ubicación: {app.jobPosting.location}</p>
+                                        )}
                                     </div>
                                     <div className="text-sm text-blue-600 mt-2 md:mt-0">
-                                        Estado: <span className="font-semibold">{app.status || 'Pendiente'}</span>
+                                        Estado: <span className="font-semibold">{traducirEstado(app.status) || 'Pendiente'}</span>
                                     </div>
                                 </div>
                             </li>
