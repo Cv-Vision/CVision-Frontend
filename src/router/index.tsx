@@ -12,6 +12,7 @@ import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
+import RecruiterProfile from "@/pages/recruiter/RecruiterProfile.tsx";
 
 // Applicant related imports
 import ApplicantDashboard from '@/pages/applicant/Dashboard';
@@ -97,6 +98,11 @@ export function AppRouter() {
       <Route path="/recruiter/job/:jobId" element={
         <ProtectedRoute requiredRole="recruiter">
           <JobPostingDetails />
+        </ProtectedRoute>
+      } />
+      <Route path="/perfil-reclutador" element={
+        <ProtectedRoute requiredRole="recruiter">
+          <RecruiterProfile />
         </ProtectedRoute>
       } />
       {/* Catch-all route for non-existent routes */}
