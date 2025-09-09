@@ -23,6 +23,7 @@ export default function CreateJob() {
   const [contractType, setContractType] = useState<'Full-time' | 'Part-time' | 'Freelance' | 'Temporal' | ''>('');
   const [additionalRequirements, setAdditionalRequirements] = useState('');
   const [jobLocation, setJobLocation] = useState('');
+  const [modal, setModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>(''); // NEW modal state
 
   // Preguntas para aplicantes
   const [questions, setQuestions] = useState<Questions[]>([]);
@@ -55,6 +56,9 @@ export default function CreateJob() {
     if (contractType) {
       const mapped = mapContractTypeToAPI(contractType);
       if (mapped) payload.contract_type = mapped as CreateJobPayload['contract_type'];
+    }
+    if (modal) {
+      payload.modal = modal; // add modal to payload if selected
     }
 
     payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText : undefined };
@@ -216,6 +220,19 @@ export default function CreateJob() {
                 className="w-full text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
                 placeholder="Ej: Buenos Aires, Madrid..."
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-teal-800 mb-1">Modalidad</label>
+              <select
+                value={modal}
+                onChange={e => setModal(e.target.value as 'REMOTE' | 'ONSITE' | 'HYBRID' | '')}
+                className="w-full text-sm border-2 border-teal-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-teal-400 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-all duration-200 hover:border-teal-300"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="REMOTE">Remoto</option>
+                <option value="ONSITE">Presencial</option>
+                <option value="HYBRID">Híbrido</option>
+              </select>
             </div>
           </div>
 

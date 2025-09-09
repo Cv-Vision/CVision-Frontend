@@ -35,7 +35,21 @@ const getStatusColorClass = (status: string) => {
     }
 };
 
-export function JobRow({ 
+// Color classes para modalidad
+const getModalColorClass = (modal: string) => {
+    switch (modal) {
+        case 'REMOTE':
+            return 'bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800 border border-indigo-300';
+        case 'HYBRID':
+            return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300';
+        case 'ONSITE':
+            return 'bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border border-teal-300';
+        default:
+            return 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300';
+    }
+};
+
+export function JobRow({
     job, 
     onRowClick, 
     //onView, 
@@ -58,6 +72,19 @@ export function JobRow({
             <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">
                 {job.description}
             </p>
+        </TableCell>,
+
+        // NEW Modalidad column
+        <TableCell key="modal">
+            <div className="flex items-center justify-center">
+                {job.modal ? (
+                    <span className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getModalColorClass(job.modal)}`}>
+                        {job.modal}
+                    </span>
+                ) : (
+                    <span className="text-xs text-gray-400 italic">—</span>
+                )}
+            </div>
         </TableCell>,
 
         <TableCell key="status">

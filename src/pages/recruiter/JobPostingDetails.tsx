@@ -25,6 +25,16 @@ function seniorityLabel(level?: string) {
     default: return level || '';
   }
 }
+
+function modalLabel(level?: string) {
+  switch (level) {
+    case 'REMOTE': return 'Remoto';
+    case 'ONSITE': return 'Presencial';
+    case 'HYBRID': return 'Hibrido';
+    default: return level || '';
+  }
+}
+
 function contractTypeLabel(type?: string) {
   switch (type) {
     case 'FULL_TIME': return 'Full-Time';
@@ -76,6 +86,7 @@ const JobPostingDetails = () => {
   const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
   const [fieldsSaveSuccess, setFieldsSaveSuccess] = useState(false);
   const [fieldsSaveError, setFieldsSaveError] = useState<string | null>(null);
+  const [newModal, setNewModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>('');
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
@@ -287,6 +298,7 @@ const JobPostingDetails = () => {
                     setNewUbicacion(jobToShow.location || '');
                     setNewEmpresa(jobToShow.company || '');
                     setNewEnglishLevel((jobToShow.english_level as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED') || '');
+                    setNewModal((jobToShow.modal as 'REMOTE' | 'ONSITE' | 'HYBRID') || '');
                   }}
                   disabled={!canEditFields}
                   className="ml-2 px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
@@ -304,7 +316,8 @@ const JobPostingDetails = () => {
                           contract_type: newTipoContrato || undefined,
                           location: newUbicacion || undefined,
                           company: newEmpresa || undefined,
-                          english_level: newEnglishLevel || undefined, // Added company to the update payload
+                          english_level: newEnglishLevel || undefined,
+                          modal: newModal === '' ? null : newModal,
                         });
                         setLocalJob({
                           ...jobToShow,
@@ -312,7 +325,8 @@ const JobPostingDetails = () => {
                           contract_type: newTipoContrato,
                           location: newUbicacion,
                           company: newEmpresa,
-                          english_level: newEnglishLevel, // Ensure local state reflects the updated company
+                          english_level: newEnglishLevel,
+                          modal: newModal || undefined,
                         });
                         setIsEditingFields(false);
                         setFieldsSaveSuccess(true);
@@ -425,6 +439,23 @@ const JobPostingDetails = () => {
                   />
                 ) : (
                   <div className="text-blue-900">{jobToShow.company || <span className="text-gray-400">No especificado</span>}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">Modalidad</label>
+                {isEditingFields ? (
+                  <select
+                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                    value={newModal}
+                    onChange={e => setNewModal(e.target.value as 'REMOTE' | 'ONSITE' | 'HYBRID' | '')}
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="REMOTE">Remoto</option>
+                    <option value="ONSITE">Presencial</option>
+                    <option value="HYBRID">Híbrido</option>
+                  </select>
+                ) : (
+                  <div className="text-blue-900">{modalLabel(jobToShow.modal) || <span className="text-gray-400">No especificado</span>}</div>
                 )}
               </div>
             </div>
