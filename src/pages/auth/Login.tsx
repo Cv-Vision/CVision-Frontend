@@ -45,10 +45,17 @@ const Login = () => {
         login(userData);
       }
 
-      if (role === 'applicant') {
-        navigate('/applicant/dashboard');
+      // Verificar si hay una URL de redirección guardada
+      const redirectUrl = localStorage.getItem('redirectAfterAuth');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectAfterAuth');
+        navigate(redirectUrl);
       } else {
-        navigate('/recruiter/dashboard');
+        if (role === 'applicant') {
+          navigate('/applicant/dashboard');
+        } else {
+          navigate('/recruiter/dashboard');
+        }
       }
     } catch (err: any) {
       console.error("Error al hacer login:", err);

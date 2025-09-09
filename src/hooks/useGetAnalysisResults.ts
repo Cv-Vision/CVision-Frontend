@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getGeminiAnalysisResults, GeminiAnalysisResult } from '@/services/geminiAnalysisService';
 
 // Extiendo el tipo para soportar created_at
-interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
+export interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
   created_at?: string;
 }
 

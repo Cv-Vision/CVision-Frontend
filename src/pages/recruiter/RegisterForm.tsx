@@ -2,35 +2,20 @@ import React, { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerRecruiter } from '@/services/recruiterService.ts';
-import Toast from '@/components/other/Toast.tsx';
 import { registerUser } from '@/services/registrationService';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 const RecruiterRegisterForm = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [company, setCompany] = useState('');
     const [position, setPosition] = useState('');
     const [loading, setLoading] = useState(false);
-    const [toast, setToast] = useState<{
-        isVisible: boolean;
-        type: 'success' | 'error';
-        message: string;
-    }>({
-        isVisible: false,
-        type: 'success',
-        message: ''
-    });
+    const { showToast } = useToast(); // Use the new useToast hook
 
     const navigate = useNavigate();
-
-    const showToast = (type: 'success' | 'error', message: string) => {
-        setToast({
-            isVisible: true,
-            type,
-            message
-        });
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,13 +23,19 @@ const RecruiterRegisterForm = () => {
 
         // Validar campos obligatorios
         if (!fullName.trim() || !email.trim() || !password.trim()) {
-            showToast('error', 'Por favor completa todos los campos obligatorios');
+            showToast('Por favor completa todos los campos obligatorios', 'error'); // Use showToast
             setLoading(false);
             return;
         }
 
         if (password.length < 8) {
-            showToast('error', 'La contraseña debe tener al menos 8 caracteres');
+            showToast('La contraseña debe tener al menos 8 caracteres', 'error'); // Use showToast
+            setLoading(false);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showToast('Las contraseñas no coinciden', 'error'); // Use showToast
             setLoading(false);
             return;
         }
@@ -63,7 +54,7 @@ const RecruiterRegisterForm = () => {
                 position: position.trim() || undefined
             });
 
-            showToast('success', 'Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.');
+            showToast('Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.', 'success'); // Use showToast
             
             // Redirigir a la página de confirmación después de 2 segundos
             setTimeout(() => {
@@ -72,7 +63,7 @@ const RecruiterRegisterForm = () => {
             
         } catch (err: any) {
             console.error('Error al crear cuenta:', err);
-            showToast('error', err.message || 'Error al crear la cuenta. Intenta nuevamente.');
+            showToast(err.message || 'Error al crear la cuenta. Intenta nuevamente.', 'error'); // Use showToast
         } finally {
             setLoading(false);
         }
@@ -138,6 +129,18 @@ const RecruiterRegisterForm = () => {
                     </div>
 
                     <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700 ml-1">Confirmar contraseña *</label>
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
                             Empresa (opcional)
                         </label>
@@ -166,7 +169,7 @@ const RecruiterRegisterForm = () => {
                     <button
                         type="submit"
                         className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                        disabled={loading}
+                        disabled={loading || password !== confirmPassword}
                     >
                         {loading ? (
                             <div className="flex items-center justify-center gap-2">
@@ -191,13 +194,6 @@ const RecruiterRegisterForm = () => {
                     </p>
                 </div>
             </div>
-
-            <Toast
-                type={toast.type}
-                message={toast.message}
-                isVisible={toast.isVisible}
-                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
-            />
         </div>
     );
 };

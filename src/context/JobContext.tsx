@@ -16,6 +16,8 @@ export type Job = {
     industry?: string;
   };
   additional_requirements?: string;
+  isApplied?: boolean;
+  modal?: string; // NEW optional work modality (REMOTE, HYBRID, ONSITE)
 };
 
 export type Application = {
@@ -77,4 +79,4 @@ export const useJobs = () => {
   const context = useContext(JobContext);
   if (!context) throw new Error('useJobs must be used within a JobProvider');
   return context;
-}; 
+};

@@ -1,6 +1,7 @@
 export interface BasicInfo {
     email: string;
     password: string;
+    confirmPassword?: string;
     fullName: string;
 }
 
@@ -35,6 +36,7 @@ export interface JobSearchFilters {
     location?: string; // NEW backend partial match
     experience_level?: string; // ENUM: JUNIOR | SEMISENIOR | SENIOR
     contract_type?: string; // ENUM: FULL_TIME | PART_TIME | CONTRACT | FREELANCE | INTERNSHIP
+    modal?: string; // NEW: REMOTE | ONSITE | HYBRID (public search API)
     // ------------------------------------------------------------------
     // Deprecated legacy UI-only fields kept temporarily to avoid breakage
     // TODO: Remove these once components are refactored to only use the new ones.
@@ -43,5 +45,5 @@ export interface JobSearchFilters {
     contractType?: string; // duplicate of contract_type (deprecated)
     seniorityLevel?: string; // duplicate of experience_level (deprecated)
     industry?: string; // deprecated (not in new search API)
-    modality?: string; // deprecated (not in new search API)
+    modality?: string; // deprecated (replaced by modal in new search API)
 }

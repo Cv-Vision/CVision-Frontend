@@ -1,38 +1,41 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import type { ExtraRequirements } from '@/components/other/ExtraRequirementsForm.tsx';
-import { MagnifyingGlassIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { CONFIG } from '@/config';
+import { useToast } from '../../context/ToastContext';
 
 interface AnalysisButtonProps {
   jobId: string;
   onSuccess?: () => void;
   onError?: (error: string) => void;
-  extraRequirements?: ExtraRequirements;
+  extraRequirements?: any;
 }
 
 const AnalysisButton: React.FC<AnalysisButtonProps> = ({ 
   jobId, 
   onSuccess, 
   onError,
+  extraRequirements,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { showToast } = useToast();
 
   const handleAnalysis = async () => {
     try {
       setIsLoading(true);
-      setShowSuccess(false);
       const token = sessionStorage.getItem('idToken'); // Obtener el token del sessionStorage
       
       if (!token) {
         throw new Error('No hay token de autenticación. Por favor, inicie sesión nuevamente.');
       }
 
-      const payload: Record<string, any> = { job_id: jobId };
-      // Ya no se envían requisitos adicionales
+      const payload: Record<string, any> = {};
+      if (extraRequirements && extraRequirements.additional_requirements) {
+        payload.additional_requirements = extraRequirements.additional_requirements;
+      }
+      
       const response = await axios.post(
-        `${CONFIG.apiUrl}/recruiter/call-cv-batch-invoker`,
+        `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
         payload,
         {
           headers: {
@@ -42,16 +45,26 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         }
       );
 
-      if (response.status === 200) {
-        setShowSuccess(true);
+      if (response.status === 200 || response.status === 202) {
+        showToast('Análisis iniciado correctamente.', 'success');
         onSuccess?.();
-        // Ocultar el mensaje después de 5 segundos
-        setTimeout(() => setShowSuccess(false), 5000);
       } else {
         throw new Error('Error al iniciar el análisis');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      let errorMessage = 'Error desconocido';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data.message || error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      // Customize the error message
+      if (errorMessage.includes("No CVs found for job_id")) {
+        errorMessage = "CVs no encontrados para este puesto";
+      }
+
+      showToast(errorMessage, 'error');
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
@@ -83,20 +96,6 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
           </>
         )}
       </button>
-      
-      {showSuccess && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-center animate-fade-in-out">
-          <div className="flex items-center justify-center text-green-800">
-            <CheckCircleIcon className="w-6 h-6 mr-3 text-green-600" />
-            <div className="text-left">
-              <p className="text-sm font-semibold text-green-800">¡Análisis iniciado!</p>
-              <p className="text-xs text-green-600 mt-1">
-                Los CVs han sido enviados a analizar. Por favor espere unos minutos.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

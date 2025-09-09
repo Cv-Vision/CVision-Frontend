@@ -48,7 +48,8 @@ export function useGetJobs() {
                 contract_type: item.contract_type,
                 location: item.location,
                 industry_experience: item.industry_experience,
-                additional_requirements: item.additional_requirements
+                additional_requirements: item.additional_requirements,
+                modal: item.modal // newly added field
             }));
             setJobs(mappedJobs);
             

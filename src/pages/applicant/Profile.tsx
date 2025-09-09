@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ApplicantProfile as ApplicantProfileType } from '@/types/applicant.ts';
 import WorkExperienceSection from '@/components/applicant/WorkExperienceSection.tsx';
 import EducationSection from '@/components/applicant/EducationSection.tsx';
@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext.tsx';
 import { UserIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/other/BackButton.tsx';
 import ApplicantCVDropzone from '@/components/applicant/ApplicantCVDropzone.tsx';
+import { getApplicantProfile, updateApplicantProfile } from '@/services/applicantService';
 
 export function ApplicantProfile() {
   const { user } = useAuth();
@@ -17,9 +18,32 @@ export function ApplicantProfile() {
       fullName: user?.name || "",
       password: "",
     },
-    workExperience: user?.workExperience || [],
-    education: user?.education || []
+    workExperience: [],
+    education: []
   });
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // Cargar datos del perfil al montar el componente
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const profileData = await getApplicantProfile();
+        setProfile(profileData);
+        setError(null);
+      } catch (err) {
+        console.error('Error al cargar el perfil:', err);
+        setError('No se pudo cargar el perfil. Inténtalo de nuevo más tarde.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfile();
+  }, []);
 
   const handleWorkChange = (index: number, field: keyof ApplicantProfileType['workExperience'][0], value: string) => {
     setProfile(prev => {
@@ -73,10 +97,22 @@ export function ApplicantProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Call backend API to update applicant profile
-    // Example:
-    // await CandidateService.updateProfile(profile);
-    console.log('Perfil actualizado:', profile);
+    try {
+      setLoading(true);
+      await updateApplicantProfile(profile);
+      setSuccessMessage('Perfil actualizado correctamente');
+      setError(null);
+      // Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (err) {
+      console.error('Error al actualizar el perfil:', err);
+      setError('No se pudo actualizar el perfil. Inténtalo de nuevo más tarde.');
+      setSuccessMessage(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Autocompletar datos desde el CV
@@ -115,22 +151,40 @@ export function ApplicantProfile() {
           Perfil de Aplicante
         </h1>
         
-        <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
-          <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} />
-          {/* Adjuntar CV debajo de la información básica */}
-          <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
-          <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
-          <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-          <div className="flex justify-center pt-6">
-            <button
-              type="submit"
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 hover:scale-105"
-            >
-              Guardar Cambios
-            </button>
+        {loading && !profile.basicInfo.email ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
-        </form>
-        {/* TODO: Show success/error messages from backend response here */}
+        ) : (
+          <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
+            {/* Mensajes de error o éxito */}
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
+                <p className="text-green-700">{successMessage}</p>
+              </div>
+            )}
+            
+            <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={false} />
+            {/* Adjuntar CV debajo de la información básica */}
+            <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
+            <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
+            <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+            <div className="flex justify-center pt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}`}
+              >
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

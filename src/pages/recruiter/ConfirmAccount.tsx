@@ -1,44 +1,28 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Toast from '@/components/other/Toast';
 import { CONFIG } from '@/config';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 const RecruiterConfirmAccount = () => {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<{
-    isVisible: boolean;
-    type: 'success' | 'error';
-    message: string;
-  }>({
-    isVisible: false,
-    type: 'success',
-    message: ''
-  });
+  const { showToast } = useToast(); // Use the new useToast hook
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const username = searchParams.get('username');
 
-  const showToast = (type: 'success' | 'error', message: string) => {
-    setToast({
-      isVisible: true,
-      type,
-      message
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!code.trim()) {
-      showToast('error', 'Por favor ingresa el código de verificación');
+      showToast('Por favor ingresa el código de verificación', 'error'); // Use showToast
       return;
     }
 
     if (!email) {
-      showToast('error', 'Email no encontrado en la URL');
+      showToast('Email no encontrado en la URL', 'error'); // Use showToast
       return;
     }
 
@@ -54,13 +38,13 @@ const RecruiterConfirmAccount = () => {
         const error = await response.json();
         throw new Error(error.message || 'Error al confirmar la cuenta');
       }
-      showToast('success', 'Cuenta confirmada exitosamente. Redirigiendo al login...');
+      showToast('Cuenta confirmada exitosamente. Redirigiendo al login...', 'success'); // Use showToast
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (error: any) {
       console.error('Error confirmando cuenta:', error);
-      showToast('error', error.message || 'Error al confirmar la cuenta');
+      showToast(error.message || 'Error al confirmar la cuenta', 'error'); // Use showToast
     } finally {
       setIsSubmitting(false);
     }
@@ -68,16 +52,16 @@ const RecruiterConfirmAccount = () => {
 
   const handleResendCode = async () => {
     if (!username) {
-      showToast('error', 'Username no encontrado en la URL');
+      showToast('Username no encontrado en la URL', 'error'); // Use showToast
       return;
     }
 
     try {
       // Aquí podrías implementar la función para reenviar código
       // usando el username correcto
-      showToast('success', 'Código reenviado. Revisa tu email.');
+      showToast('Código reenviado. Revisa tu email.', 'success'); // Use showToast
     } catch (error: unknown) {
-      showToast('error', error instanceof Error ? error.message : 'Error al reenviar código');
+      showToast(error instanceof Error ? error.message : 'Error al reenviar código', 'error'); // Use showToast
     }
   };
 
@@ -141,13 +125,6 @@ const RecruiterConfirmAccount = () => {
           </button>
         </div>
       </div>
-
-      <Toast
-        type={toast.type}
-        message={toast.message}
-        isVisible={toast.isVisible}
-        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
-      />
     </div>
   );
 };
