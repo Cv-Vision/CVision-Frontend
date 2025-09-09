@@ -19,10 +19,8 @@ const getScoreColorClass = (score: number | null) => {
 };
 
 const TopApplicantsDisplay: React.FC<TopApplicantsDisplayProps> = ({ applicants }) => {
-  const sortedApplicants = [...applicants].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const top3Applicants = sortedApplicants.slice(0, 3);
 
-  if (top3Applicants.length === 0) {
+  if (applicants.length === 0) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-6 text-center">
         <p className="text-gray-600">No hay aplicantes para mostrar.</p>
@@ -32,7 +30,7 @@ const TopApplicantsDisplay: React.FC<TopApplicantsDisplayProps> = ({ applicants 
 
   return (
     <div className="space-y-4">
-      {top3Applicants.map(applicant => (
+      {applicants.map(applicant => (
         <div key={applicant.id} className="flex flex-col p-3 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold text-gray-900">{applicant.fullName}</span>

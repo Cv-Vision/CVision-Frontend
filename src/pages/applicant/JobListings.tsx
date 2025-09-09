@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
 import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
 import JobSearchResults from "@/components/applicant/JobSearchResults";
@@ -10,13 +10,14 @@ import ToastNotification from '@/components/other/ToastNotification';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
 import BackButton from '@/components/other/BackButton.tsx';
+import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [jobsPerPage] = useState(10);
-  const { jobs, isLoading: isLoadingSearch, error: searchError, search } = usePublicJobSearch();
+  const { jobs, isLoading: isLoadingSearch, error: searchError, search, hasMore } = usePublicJobSearch();
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -25,10 +26,13 @@ const JobSearch = () => {
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const { user, isAuthenticated } = useAuth();
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
 
   useEffect(() => {
-    search({});
-  }, [search]);
+    search(filters, 1, 10, false);
+    setPage(1);
+  }, [filters, search]);
 
   useEffect(() => {
     if (success) {
@@ -37,8 +41,15 @@ const JobSearch = () => {
       setToastType("success");
       setShowToast(true);
       setAppliedJobs(prev => [...prev, selectedJobId]);
+
+      // Mostrar modal de preguntas después de aplicación exitosa
+      const selectedJob = jobs.find(job => job.pk === selectedJobId);
+      if (selectedJob) {
+        setSelectedJobForQuestions({ id: selectedJobId, title: selectedJob.title });
+        setShowQuestionsModal(true);
+      }
     }
-  }, [success, selectedJobId]);
+  }, [success, selectedJobId, jobs]);
 
   useEffect(() => {
     if (applyError) {
@@ -56,13 +67,25 @@ const JobSearch = () => {
     }
   }, [searchError]);
 
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const loadMore = useCallback(() => {
+    if (!isLoadingSearch && hasMore) {
+      setPage(prev => {
+        const next = prev + 1;
+        search(filters, next, 10, true);
+        return next;
+      });
+    }
+  }, [isLoadingSearch, hasMore, search, filters]);
+
   const handleChange = (field: keyof JobSearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSearch = () => {
     search(filters);
-    setCurrentPage(1);
+    setPage(1);
   };
 
   const handleConfirmApply = () => {
@@ -79,6 +102,26 @@ const JobSearch = () => {
     setSelectedJobId(jobId);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!hasMore) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoadingSearch) {
+          loadMore();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const el = observerRef.current;
+    if (el) observer.observe(el);
+
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [loadMore, hasMore, isLoadingSearch]);
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
@@ -118,9 +161,9 @@ const JobSearch = () => {
               applyingJobId={selectedJobId}
               isAuthenticated={isAuthenticated}
               userRole={user?.role}
-              currentPage={currentPage}
+              currentPage={page}
               jobsPerPage={jobsPerPage}
-              onPageChange={setCurrentPage}
+              onPageChange={setPage}
               totalJobs={jobs.length}
             />
             <ApplyConfirmationModal
@@ -136,8 +179,21 @@ const JobSearch = () => {
                 onClose={() => setShowToast(false)}
               />
             )}
+            <div ref={observerRef} className="h-10" />
+            {isLoadingSearch && (
+              <p className="text-center text-gray-500 mt-4">Cargando más...</p>
+            )}
           </div>
         </div>
+        <JobQuestionsModal
+          isOpen={showQuestionsModal}
+          onClose={() => {
+            setShowQuestionsModal(false);
+            setSelectedJobForQuestions(null);
+          }}
+          jobId={selectedJobForQuestions?.id || ''}
+          jobTitle={selectedJobForQuestions?.title}
+        />
       </div>
   );
 };

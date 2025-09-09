@@ -27,10 +27,10 @@ const JobSearchResults = ({
     applyingJobId,
     isAuthenticated,
     userRole,
-    currentPage,
-    jobsPerPage,
-    onPageChange,
-    totalJobs,
+    // currentPage,
+    // jobsPerPage,
+    // onPageChange,
+    // totalJobs,
 }: JobSearchResultsProps) => {
     const navigate = useNavigate();
     if (isLoading) {
@@ -48,13 +48,13 @@ const JobSearchResults = ({
         );
     }
     // Get current jobs for pagination
-    const indexOfLastJob = currentPage * jobsPerPage;
-    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-    const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-    const totalPages = Math.ceil(totalJobs / jobsPerPage);
+    // const indexOfLastJob = currentPage * jobsPerPage;
+    // const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+    // const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+    // const totalPages = Math.ceil(totalJobs / jobsPerPage);
     
     // Change page
-    const paginate = (pageNumber: number) => onPageChange(pageNumber);
+    // const paginate = (pageNumber: number) => onPageChange(pageNumber);
 
     // Truncation config
     const MAX_DESCRIPTION_CHARS = 400; // adjust as needed to control preview size
@@ -64,7 +64,7 @@ const JobSearchResults = ({
             {hasResults ? (
                 <>
                     <div className="space-y-6">
-                        {currentJobs.map((job) => {
+                        {jobs.map((job) => {
                             const description = job.description || '';
                             const shouldTruncate = description.length > MAX_DESCRIPTION_CHARS;
                             const preview = shouldTruncate ? description.slice(0, MAX_DESCRIPTION_CHARS).trimEnd() + '…' : description;
@@ -132,7 +132,7 @@ const JobSearchResults = ({
                         })}
                     </div>
                     {/* Pagination */}
-                    {totalPages > 1 && (
+                    {/* {totalPages > 1 && (
                         <div className="flex justify-center mt-6">
                             <nav className="flex items-center gap-1">
                                 <button 
@@ -160,7 +160,7 @@ const JobSearchResults = ({
                                 </button>
                             </nav>
                         </div>
-                    )}
+                    )} */}
                 </>
             ) : (
                 <p className="text-gray-500 text-center py-8">No se encontraron resultados que coincidan con tus criterios de búsqueda.</p>
