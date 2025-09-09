@@ -52,7 +52,7 @@ const JobPostings: React.FC = () => {
     }
   }, [location]);
 
-  const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
+  const headers = ['Título', 'Descripción', 'Modalidad', 'Estado', 'Acciones'];
 
   const handleRowClick = (id: string) => {
     nav(`/recruiter/job/${id}`);

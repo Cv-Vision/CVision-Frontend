@@ -11,8 +11,7 @@ interface Props {
 const JobSearchAdvancedFilters: FC<Props> = ({ filters, onChange }) => {
     const experienceLevels = ["JUNIOR", "SEMISENIOR", "SENIOR"]; // backend enums
     const contractTypes = ["FULL_TIME", "PART_TIME", "CONTRACT", "FREELANCE", "INTERNSHIP"]; // backend enums
-    // Todo: Agregar filtro de modalidad cuando esté en el backend
-    // const modalities = ["Remoto", "Híbrido", "Presencial"]; // deprecated
+    const modal = ["REMOTE", "ONSITE", "HYBRID"]; // backend enums
 
     return (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-lg border border-blue-100 w-full flex flex-col gap-6">
@@ -20,10 +19,7 @@ const JobSearchAdvancedFilters: FC<Props> = ({ filters, onChange }) => {
             <FormInput label="Ubicación" value={filters.location || ""} onChange={(v) => onChange("location", v)} />
             <FormSelect label="Nivel de experiencia" value={filters.experience_level || filters.seniorityLevel || ""} onChange={(v) => onChange("experience_level", v)} options={experienceLevels} />
             <FormSelect label="Tipo de contrato" value={filters.contract_type || filters.contractType || ""} onChange={(v) => onChange("contract_type", v)} options={contractTypes} />
-            {/* TODO: Agregar filtro de modalidad cuando esté en el backend
-             <FormSelect label="Modalidad (Deprecado)" value={filters.modality || ""} onChange={(v) => onChange("modality", v)} options={modalities} />
-
-            */}
+            <FormSelect label="Modalidad" value={filters.modal || ""} onChange={(v) => onChange("modal", v)} options={modal} />
         </div>
     );
 };

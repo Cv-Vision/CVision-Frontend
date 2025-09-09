@@ -105,6 +105,11 @@ const JobSearchResults = ({
                                                 {job.location}
                                             </span>
                                         )}
+                                        {job.modal && (
+                                            <span className="bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 text-sm px-3 py-1 rounded-xl border border-teal-200 font-medium">
+                                                {job.modal}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex flex-wrap gap-3">
                                         <button

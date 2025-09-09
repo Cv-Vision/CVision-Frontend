@@ -58,9 +58,7 @@ export function AppRouter() {
         </ProtectedRoute>
       } />
       <Route path="/applicant/positions" element={
-        <ProtectedRoute requiredRole="applicant">
           <JobListings />
-        </ProtectedRoute>
       } />
       <Route path="/applicant/position/:positionId" element={
         <ProtectedRoute requiredRole="applicant">
