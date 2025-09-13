@@ -10,7 +10,6 @@ export default function RecruiterProfile() {
     const [summary, setSummary] = useState<{ active_postings_count: number; applications_count: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const [fullName, setFullName] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [company, setCompany] = useState('');
@@ -36,7 +35,6 @@ export default function RecruiterProfile() {
     useEffect(() => {
         const fetchAndSetProfile = async () => {
             const token = user?.token;
-            let backendFullName = '';
             let backendCompany = '';
             let backendEmail = '';
             let backendUsername = '';
@@ -46,7 +44,6 @@ export default function RecruiterProfile() {
                     const res = await axios.get('http://localhost:8000/recruiter/profile', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    backendFullName = res.data.full_name || '';
                     backendCompany = res.data.company || '';
                     backendEmail = res.data.email || '';
                     backendUsername = res.data.name || '';
@@ -57,7 +54,6 @@ export default function RecruiterProfile() {
 
             // Fallbacks locales
             const userEmail = user?.email || '';
-            const userFullName = (user)?.name || '';
             const userCompany = (user)?.company || '';
             const userUsername = (user)?.username || '';
 
@@ -70,12 +66,11 @@ export default function RecruiterProfile() {
                 }
             } catch { /* noop */ }
 
-            setFullName(backendFullName || userFullName);
             setCompany(backendCompany || userCompany);
             setEmail(backendEmail || userEmail || sessionEmail);
             setUsername(backendUsername || userUsername);
 
-            if (!(backendFullName || userFullName) || !(backendCompany || userCompany)) {
+            if (!(backendUsername || userUsername) || !(backendCompany || userCompany)) {
                 setShowToast(true);
                 const t = setTimeout(() => setShowToast(false), 5000);
                 return () => clearTimeout(t);
@@ -102,7 +97,7 @@ export default function RecruiterProfile() {
                     email,
                     company,
                     position: '',
-                    full_name: fullName
+                    name: username
                 },
                 {
                     headers: {
@@ -142,10 +137,7 @@ export default function RecruiterProfile() {
                 <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8">
                     <div className="flex flex-col items-center gap-2">
                         <UserIcon className="h-20 w-20 text-blue-500 drop-shadow-lg bg-white rounded-full p-2 border-4 border-blue-200"/>
-                        <h1 className="text-3xl font-extrabold text-blue-800 mt-2">{fullName || 'Nombre no disponible'}</h1>
-                        <span className="text-base text-blue-600 font-medium bg-blue-50 px-4 py-1 rounded-full border border-blue-200">
-                            @{username || 'usuario'}
-                        </span>
+                        <h1 className="text-3xl font-extrabold text-blue-800 mt-2">{username || 'Nombre de usuario no disponible'}</h1>
                         <span className="text-sm text-gray-500">{email}</span>
                         <span className="text-sm text-indigo-700 font-semibold">{company}</span>
                     </div>
@@ -179,34 +171,23 @@ export default function RecruiterProfile() {
                             </div>
                         )}
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-blue-800">Nombre completo</label>
-                            <input
-                                type="text"
-                                placeholder="Ingresa tu nombre completo"
-                                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                                value={fullName}
-                                onChange={e => setFullName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
                             <label className="block text-sm font-semibold text-blue-800">Nombre de usuario</label>
                             <input
                                 type="text"
-                                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-lg bg-gray-50 text-gray-700"
+                                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-lg bg-gray-50 text-gray-700 pointer-events-none select-none"
                                 value={username}
                                 readOnly
+                                tabIndex={-1}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-blue-800">Correo electrónico</label>
                             <input
                                 type="email"
-                                placeholder="tu@email.com"
-                                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-lg bg-gray-50 text-gray-700 pointer-events-none select-none"
                                 value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                required
+                                readOnly
+                                tabIndex={-1}
                             />
                             {!email && (
                                 <p className="text-sm text-orange-600">
