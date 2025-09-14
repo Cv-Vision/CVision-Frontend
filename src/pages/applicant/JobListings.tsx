@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
 import BackButton from '@/components/other/BackButton.tsx';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
+import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
 
 const JobSearch = () => {
   const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
@@ -28,6 +29,8 @@ const JobSearch = () => {
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [selectedJobForGuest, setSelectedJobForGuest] = useState<{id: string, title: string} | null>(null);
 
   useEffect(() => {
     search(filters, 1, 10, false);
@@ -92,10 +95,25 @@ const JobSearch = () => {
     apply(selectedJobId);
   };
 
+  const handleGuestApply = async (applicationData: GuestApplicationData) => {
+    // TODO: Implementar hook de aplicación de invitado
+    console.log('Guest application data:', applicationData);
+    
+    // Por ahora, simular éxito
+    setToastMessage("Aplicación enviada exitosamente como invitado");
+    setToastType("success");
+    setShowToast(true);
+    setAppliedJobs(prev => [...prev, applicationData.jobId]);
+  };
+
   const handleApply = (jobId: string) => {
     if (!isAuthenticated) {
-      // Redirect to login page with state
-      window.location.href = "/login?fromJobListings=true";
+      // Show guest modal instead of redirecting
+      const selectedJob = jobs.find(job => job.pk === jobId);
+      if (selectedJob) {
+        setSelectedJobForGuest({ id: jobId, title: selectedJob.title });
+        setShowGuestModal(true);
+      }
       return;
     }
 
@@ -193,6 +211,16 @@ const JobSearch = () => {
           }}
           jobId={selectedJobForQuestions?.id || ''}
           jobTitle={selectedJobForQuestions?.title}
+        />
+        <GuestApplicantModal
+          isOpen={showGuestModal}
+          onClose={() => {
+            setShowGuestModal(false);
+            setSelectedJobForGuest(null);
+          }}
+          jobId={selectedJobForGuest?.id || ''}
+          jobTitle={selectedJobForGuest?.title || ''}
+          onApply={handleGuestApply}
         />
       </div>
   );

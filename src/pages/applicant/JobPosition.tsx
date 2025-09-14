@@ -8,6 +8,7 @@ import { useApplyToJob } from '@/hooks/useApplyToJob';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import ToastNotification from '@/components/other/ToastNotification';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
+import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
 
 
 const JobPosition = () => {
@@ -28,13 +29,12 @@ const JobPosition = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [showGuestModal, setShowGuestModal] = useState(false);
 
   const handleApply = () => {
     if (!isAuthenticated) {
-      // Guardar la URL actual para redirigir después del login/registro
-      const currentUrl = location.pathname;
-      localStorage.setItem('redirectAfterAuth', currentUrl);
-      navigate('/applicant-register');
+      // Show guest modal instead of redirecting
+      setShowGuestModal(true);
       return;
     }
     setIsModalOpen(true);
@@ -42,6 +42,17 @@ const JobPosition = () => {
 
   const handleConfirmApply = () => {
     apply(positionId!);
+  };
+
+  const handleGuestApply = async (applicationData: GuestApplicationData) => {
+    // TODO: Implementar hook de aplicación de invitado
+    console.log('Guest application data:', applicationData);
+    
+    // Por ahora, simular éxito
+    setToastMessage("Aplicación enviada exitosamente como invitado");
+    setToastType("success");
+    setShowToast(true);
+    setAppliedJobs(prev => [...prev, applicationData.jobId]);
   };
 
   // Manejar éxito de la aplicación
@@ -355,6 +366,13 @@ const JobPosition = () => {
         onClose={() => setShowQuestionsModal(false)}
         jobId={positionId || ''}
         jobTitle={jobPosition?.title}
+      />
+      <GuestApplicantModal
+        isOpen={showGuestModal}
+        onClose={() => setShowGuestModal(false)}
+        jobId={positionId || ''}
+        jobTitle={jobPosition?.title || ''}
+        onApply={handleGuestApply}
       />
     </div>
   );
