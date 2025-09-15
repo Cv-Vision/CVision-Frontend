@@ -49,7 +49,7 @@ const getModalColorClass = (modal: string) => {
     }
 };
 
-export function JobRow({
+export function JobRow({ 
     job, 
     onRowClick, 
     //onView, 
