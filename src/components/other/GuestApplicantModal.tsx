@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import ApplicantCVDropzone from '@/components/applicant/ApplicantCVDropzone';
+import { useGuestApplication } from '@/hooks/useGuestApplication';
 
 interface GuestApplicantModalProps {
   isOpen: boolean;
@@ -35,8 +36,9 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
   });
   const [cvData, setCvData] = useState<any>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  
+  const { applyAsGuest, isLoading, error, clearError } = useGuestApplication();
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -103,7 +105,7 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
+    clearError();
     
     try {
       const applicationData: GuestApplicationData = {
@@ -113,7 +115,11 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
         cvData
       };
 
-      await onApply(applicationData);
+      // Call the real hook instead of the mock
+      await applyAsGuest(applicationData);
+      
+      // Call the parent callback with the result
+      onApply(applicationData);
       
       // Mostrar mensaje de éxito
       setShowSuccess(true);
@@ -129,18 +135,17 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
       
     } catch (error) {
       console.error('Error al enviar aplicación:', error);
-      setErrors({ submit: 'Error al enviar la aplicación. Inténtalo de nuevo.' });
-    } finally {
-      setIsSubmitting(false);
+      setErrors({ submit: error instanceof Error ? error.message : 'Error al enviar la aplicación. Inténtalo de nuevo.' });
     }
   };
 
   const handleClose = () => {
-    if (!isSubmitting) {
+    if (!isLoading) {
       setFormData({ name: '', email: '' });
       setCvData(null);
       setErrors({});
       setShowSuccess(false);
+      clearError();
       onClose();
     }
   };
@@ -158,7 +163,7 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
           </div>
           <button
             onClick={handleClose}
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200 disabled:opacity-50"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -200,7 +205,7 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
                       errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="Ingresa tu nombre completo"
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                   />
                   {errors.name && (
                     <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -222,7 +227,7 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
                       errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="tu@email.com"
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                   />
                   {errors.email && (
                     <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -252,9 +257,9 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
               </div>
 
               {/* Submit error */}
-              {errors.submit && (
+              {(errors.submit || error) && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <p className="text-sm text-red-600">{errors.submit}</p>
+                  <p className="text-sm text-red-600">{errors.submit || error}</p>
                 </div>
               )}
 
@@ -263,17 +268,17 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                   className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors duration-200 disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !cvData?.cvUrl}
+                  disabled={isLoading || !cvData?.cvUrl}
                   className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? (
+                  {isLoading ? (
                     <div className="flex items-center">
                       <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

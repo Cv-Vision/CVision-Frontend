@@ -96,10 +96,7 @@ const JobSearch = () => {
   };
 
   const handleGuestApply = async (applicationData: GuestApplicationData) => {
-    // TODO: Implementar hook de aplicación de invitado
-    console.log('Guest application data:', applicationData);
-    
-    // Por ahora, simular éxito
+    // The modal already handles the API call, we just need to show success
     setToastMessage("Aplicación enviada exitosamente como invitado");
     setToastType("success");
     setShowToast(true);
