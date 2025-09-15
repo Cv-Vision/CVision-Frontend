@@ -819,15 +819,6 @@ const JobPostingDetails = () => {
                >
                  🔄 Refrescar Datos
                </button>
-               
-               {/* Debug panel */}
-               <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-600">
-                 <div><strong>Debug Info:</strong></div>
-                 <div>Pending: {isAnalysisPending ? 'Yes' : 'No'}</div>
-                 <div>Analysis Results: {analysisResults?.length || 0}</div>
-                 <div>Metrics Total: {metrics?.total_analyzed || 0}</div>
-                 <div>Polling: {pollingIntervalRef.current ? 'Active' : 'Inactive'}</div>
-               </div>
              </div>
            </div>
          </div>
