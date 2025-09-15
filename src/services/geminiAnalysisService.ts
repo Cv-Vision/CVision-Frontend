@@ -2,7 +2,7 @@ import { CONFIG } from '@/config';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export interface GeminiAnalysisResult {
-  score: number;
+  score: number | null;
   name: string;
   reasons: string[];
   timestamp: string;
@@ -28,7 +28,12 @@ export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAna
       const analysisData = applicant.cv_analysis_result?.analysis_data;
       const createdAt = applicant.cv_analysis_result?.created_at; // Get created_at from the parent
       if (analysisData) {
-        return { ...analysisData, created_at: createdAt }; // Add created_at to analysisData
+        // Handle N/A scores properly
+        let score = analysisData.score;
+        if (score === "N/A" || score === null || score === undefined) {
+          score = null; // Convert N/A to null for consistent handling
+        }
+        return { ...analysisData, score, created_at: createdAt }; // Add created_at to analysisData
       }
       return undefined;
     })

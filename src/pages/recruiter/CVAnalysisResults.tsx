@@ -34,7 +34,8 @@ const CVAnalysisResultCard = ({
   onSelect: (id: string, selected: boolean) => void;
   cvId: string;
 }) => {
-  const getScoreColorClass = (score: number) => {
+  const getScoreColorClass = (score: number | null) => {
+    if (score === null || score === undefined) return 'bg-gradient-to-r from-gray-500 to-gray-600 text-white';
     if (score >= 70) return 'bg-gradient-to-r from-green-500 to-green-600 text-white';
     if (score >= 40) return 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white';
     return 'bg-gradient-to-r from-red-500 to-red-600 text-white';
@@ -81,7 +82,7 @@ const CVAnalysisResultCard = ({
         </div>
         <div className="flex items-center">
             <div className={`text-3xl font-bold px-6 py-3 rounded-xl shadow-lg ${getScoreColorClass(result.score)}`}>
-            {result.score}%
+            {result.score !== null && result.score !== undefined ? `${result.score}%` : 'N/A'}
           </div>
         </div>
       </div>
@@ -276,7 +277,7 @@ export default function CVAnalysisResults() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-100 text-sm font-medium">Promedio</p>
-                  <p className="text-3xl font-bold">{total > 0 ? avg + '%' : 'N/A'}</p>
+                  <p className="text-3xl font-bold">{total > 0 ? avg.toFixed(1) + '%' : 'N/A'}</p>
                 </div>
                 <ChartBarIcon className="h-12 w-12 text-green-200" />
               </div>
@@ -286,7 +287,7 @@ export default function CVAnalysisResults() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-100 text-sm font-medium">Mejor Score</p>
-                  <p className="text-3xl font-bold">{highestScore > 0 ? highestScore : 'N/A'}</p>
+                  <p className="text-3xl font-bold">{highestScore > 0 ? highestScore.toFixed(1) : 'N/A'}</p>
                 </div>
                 <TrophyIcon className="h-12 w-12 text-yellow-200" />
               </div>

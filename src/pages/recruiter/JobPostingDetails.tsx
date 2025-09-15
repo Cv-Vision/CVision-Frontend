@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { CVDropzone } from '@/components/other/CVDropzone.tsx';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AnalysisButton from '@/components/other/AnalysisButton.tsx';
 import { useGetApplicantsByJobId, useGetTop3ApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetJobMetrics } from '@/hooks/useGetJobMetrics.ts';
@@ -94,6 +94,8 @@ const JobPostingDetails = () => {
   const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isAnalysisPending, setIsAnalysisPending] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   
 
@@ -101,7 +103,7 @@ const JobPostingDetails = () => {
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
   const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
   const { top3Applicants, refetch: refetchTop3Applicants } = useGetTop3ApplicantsByJobId(cleanJobId);
-  const { refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+  const { results: analysisResults, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
   const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(cleanJobId);
 
   // Navigate to full analysis view
@@ -114,6 +116,34 @@ const JobPostingDetails = () => {
       setSelectedStatus(jobToShow.status as JobPostingStatus);
     }
   }, [jobToShow?.status]);
+
+  // Clear pending state when we have analysis results or metrics
+  useEffect(() => {
+    if (isAnalysisPending) {
+      const hasAnalysisResults = analysisResults && analysisResults.length > 0;
+      const hasMetrics = metrics && metrics.total_analyzed > 0;
+      
+      if (hasAnalysisResults || hasMetrics) {
+        console.log('✅ Analysis results detected, clearing pending state');
+        setIsAnalysisPending(false);
+        
+        // Clear the polling interval
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      }
+    }
+  }, [analysisResults, metrics, isAnalysisPending]);
+
+  // Cleanup polling interval on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Permissions based on current status
   const { canEditFields, canAddCVs, canChangeStatus } = getPermissionsByStatus(selectedStatus);
@@ -581,7 +611,13 @@ const JobPostingDetails = () => {
                 Aplicantes
               </h2>
               <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden" style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                <ApplicantList jobId={cleanJobId} onApplicantDeleted={() => { refetchApplicants(); refetchAnalysisResults(); refetchMetrics(); }} />
+                <ApplicantList jobId={cleanJobId} onApplicantDeleted={() => { 
+                  // Silent refresh of all components
+                  refetchApplicants(); 
+                  refetchTop3Applicants();
+                  refetchAnalysisResults(); 
+                  refetchMetrics(); 
+                }} />
               </div>
             </div>
           </div>
@@ -606,7 +642,17 @@ const JobPostingDetails = () => {
               </button>
             </div>
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-              <TopApplicantsDisplay applicants={top3Applicants} />
+              {isAnalysisPending ? (
+                <div className="flex flex-col items-center justify-center p-8 gap-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
+                  <div className="text-center">
+                    <p className="text-blue-800 font-semibold mb-1">Procesando análisis</p>
+                    <p className="text-blue-600 text-sm">Los mejores candidatos aparecerán aquí</p>
+                  </div>
+                </div>
+              ) : (
+                <TopApplicantsDisplay applicants={top3Applicants} />
+              )}
             </div>
           </div>
         </div>
@@ -629,6 +675,14 @@ const JobPostingDetails = () => {
                   <p className="text-red-800 font-semibold">Error al cargar métricas</p>
                   <p className="text-red-600 text-sm">{metricsError}</p>
                 </div>
+              ) : isAnalysisPending ? (
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
+                  <div>
+                    <p className="text-blue-800 font-semibold mb-1">Análisis en progreso</p>
+                    <p className="text-blue-600 text-sm">Los resultados aparecerán automáticamente</p>
+                  </div>
+                </div>
               ) : metrics && metrics.total_analyzed > 0 ? (
                 <div className="space-y-4">
                   <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
@@ -638,14 +692,14 @@ const JobPostingDetails = () => {
                   <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2">
                     <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><CalculatorIcon className="h-4 w-4 text-blue-500" /> Puntaje Promedio:</p>
                     <span className="text-blue-900 font-semibold text-sm">
-                      {metrics.average_score}
+                      {typeof metrics.average_score === 'number' ? metrics.average_score.toFixed(1) : metrics.average_score}
                     </span>
                   </div>
                   <div className="flex items-center gap-x-4 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200 mb-2 group relative">
                     <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowUpIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Alto:</p>
                     <div>
                       <span className="text-blue-900 font-semibold text-sm">
-                        {metrics.highest_score}
+                        {typeof metrics.highest_score === 'number' ? metrics.highest_score.toFixed(1) : metrics.highest_score}
                       </span>
                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                         {metrics.highest_score_applicant_name}
@@ -656,7 +710,7 @@ const JobPostingDetails = () => {
                     <p className="text-blue-800 font-medium text-sm flex items-center gap-2 flex-1"><ArrowDownIcon className="h-4 w-4 text-blue-500" /> Puntaje Más Bajo:</p>
                     <div>
                       <span className="text-blue-900 font-semibold text-sm">
-                        {metrics.lowest_score}
+                        {typeof metrics.lowest_score === 'number' ? metrics.lowest_score.toFixed(1) : metrics.lowest_score}
                       </span>
                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                         {metrics.lowest_score_applicant_name}
@@ -719,18 +773,61 @@ const JobPostingDetails = () => {
           </div>
 
            <div>
-             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4 space-y-4">
                <AnalysisButton
                    jobId={jobToShow.pk}
                    extraRequirements={extraRequirements}
                    onSuccess={() => {
-                     setTimeout(() => {
+                     setIsAnalysisPending(true);
+                     
+                     // Clear any existing interval
+                     if (pollingIntervalRef.current) {
+                       clearInterval(pollingIntervalRef.current);
+                     }
+                     
+                     // Set up polling to check for results
+                     pollingIntervalRef.current = setInterval(() => {
+                       console.log('🔄 Polling for analysis results...');
                        refetchApplicants();
                        refetchTop3Applicants();
                        refetchMetrics();
-                     }, 12000);
+                       refetchAnalysisResults();
+                     }, 3000); // Poll every 3 seconds for faster response
+                     
+                     // Stop polling after 5 minutes
+                     setTimeout(() => {
+                       if (pollingIntervalRef.current) {
+                         clearInterval(pollingIntervalRef.current);
+                         pollingIntervalRef.current = null;
+                       }
+                       setIsAnalysisPending(false);
+                       console.log('⏰ Polling stopped after 5 minutes');
+                     }, 300000);
                    }}
                />
+               
+               {/* Manual refresh button for testing */}
+               <button
+                 onClick={() => {
+                   console.log('🔄 Manual refresh triggered');
+                   refetchApplicants();
+                   refetchTop3Applicants();
+                   refetchMetrics();
+                   refetchAnalysisResults();
+                 }}
+                 className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 text-sm font-medium"
+               >
+                 🔄 Refrescar Datos
+               </button>
+               
+               {/* Debug panel */}
+               <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-600">
+                 <div><strong>Debug Info:</strong></div>
+                 <div>Pending: {isAnalysisPending ? 'Yes' : 'No'}</div>
+                 <div>Analysis Results: {analysisResults?.length || 0}</div>
+                 <div>Metrics Total: {metrics?.total_analyzed || 0}</div>
+                 <div>Polling: {pollingIntervalRef.current ? 'Active' : 'Inactive'}</div>
+               </div>
              </div>
            </div>
          </div>
