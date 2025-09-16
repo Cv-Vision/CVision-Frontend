@@ -22,6 +22,8 @@ const ApplicantRegisterForm = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showFormFields, setShowFormFields] = useState(false);
+    const [isWorkCollapsed, setIsWorkCollapsed] = useState(true);
+    const [isEducationCollapsed, setIsEducationCollapsed] = useState(true);
     const { showToast } = useToast();
 
     const handleBasicInfoChange = (field: keyof ApplicantProfile["basicInfo"], value: string) => {
@@ -91,9 +93,12 @@ const ApplicantRegisterForm = () => {
         
         // Mostrar los campos del formulario después de procesar el CV
         setShowFormFields(true);
+        // Colapsar secciones largas por defecto
+        setIsWorkCollapsed(true);
+        setIsEducationCollapsed(true);
         
         // Mostrar mensaje de éxito
-        showToast('CV procesado exitosamente. Los campos se han completado automáticamente.', 'success');
+        showToast('Extracción de datos completa, ¡revisa bien tu información!', 'success');
     };
 
     const handleSubmit = async () => {
@@ -151,11 +156,47 @@ const ApplicantRegisterForm = () => {
                 {showFormFields && (
                     <div className="animate-fadeIn">
                         <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
-                        <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
-                        <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+
+                        {/* Sección colapsable: Experiencia Laboral */}
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsWorkCollapsed(prev => !prev)}
+                                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
+                            >
+                                <span>Experiencia Laboral</span>
+                                <span className="text-sm text-blue-600">
+                                    {isWorkCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.workExperience.length} items
+                                </span>
+                            </button>
+                            {!isWorkCollapsed && (
+                                <div className="mt-3">
+                                    <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sección colapsable: Educación */}
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsEducationCollapsed(prev => !prev)}
+                                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
+                            >
+                                <span>Educación</span>
+                                <span className="text-sm text-blue-600">
+                                    {isEducationCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.education.length} items
+                                </span>
+                            </button>
+                            {!isEducationCollapsed && (
+                                <div className="mt-3">
+                                    <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+                                </div>
+                            )}
+                        </div>
                         
                         {/* Botón de guardar */}
-                        <div className="flex justify-center pt-6">
+                        <div className="flex justify-center pt-6 sticky bottom-0 bg-white/50 backdrop-blur-sm py-4 rounded-b-2xl">
                             <button
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || profile.basicInfo.password !== profile.basicInfo.confirmPassword}
