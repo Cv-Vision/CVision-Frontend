@@ -12,6 +12,7 @@ import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
+import Metrics from "../pages/admin/Metrics";
 
 // Applicant related imports
 import ApplicantDashboard from '@/pages/applicant/Dashboard';
@@ -93,6 +94,7 @@ export function AppRouter() {
           <JobPostingDetails />
         </ProtectedRoute>
       } />
+      <Route path="/admin/metrics" element={<Metrics />} />
       {/* Catch-all route for non-existent routes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
