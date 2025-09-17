@@ -13,6 +13,7 @@ import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
 import Metrics from "../pages/admin/Metrics";
+import RecruiterProfile from "@/pages/recruiter/RecruiterProfile.tsx";
 
 // Applicant related imports
 import ApplicantDashboard from '@/pages/applicant/Dashboard';
@@ -23,6 +24,7 @@ import ApplicantConfirmAccount from "@/pages/applicant/ConfirmAccount.tsx";
 import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
 import JobPosition from '@/pages/applicant/JobPosition.tsx';
 import JobApplication from '@/pages/applicant/JobApplication.tsx';
+import {UserApplicationsView} from "@/components/applicant/UserApplicationsView.tsx";
 
 
 export function AppRouter() {
@@ -58,6 +60,11 @@ export function AppRouter() {
           <ApplicantProfile />
         </ProtectedRoute>
       } />
+        <Route path="/mis-postulaciones" element={
+            <ProtectedRoute requiredRole="applicant">
+                <UserApplicationsView />
+            </ProtectedRoute>
+        } />
       <Route path="/applicant/positions" element={
           <JobListings />
       } />
@@ -92,6 +99,11 @@ export function AppRouter() {
       <Route path="/recruiter/job/:jobId" element={
         <ProtectedRoute requiredRole="recruiter">
           <JobPostingDetails />
+        </ProtectedRoute>
+      } />
+      <Route path="/perfil-reclutador" element={
+        <ProtectedRoute requiredRole="recruiter">
+          <RecruiterProfile />
         </ProtectedRoute>
       } />
       <Route path="/admin/metrics" element={<Metrics />} />

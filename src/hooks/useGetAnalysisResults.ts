@@ -19,8 +19,9 @@ export const useGetAnalysisResults = (jobId: string) => {
 
     try {
       const data = await getGeminiAnalysisResults(jobId);
-      // Ordenar resultados de mayor a menor score
-      const sortedResults = [...data].sort((a, b) => b.score - a.score);
+      // Ordenar resultados de mayor a menor score, manejando nulls
+      const scoreOf = (x: GeminiAnalysisResult) => (x.score ?? Number.NEGATIVE_INFINITY);
+      const sortedResults = [...data].sort((a, b) => scoreOf(b) - scoreOf(a));
       setResults(sortedResults);
     } catch (err: any) {
       setError(err.message);
