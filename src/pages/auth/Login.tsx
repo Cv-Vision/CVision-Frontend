@@ -3,6 +3,7 @@ import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { decodeJwt, useAuth } from "@/context/AuthContext.tsx";
+import { useToast } from '@/context/ToastContext';
 import { UserRole } from '@/types/auth.ts';
 
 
@@ -15,6 +16,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
 
   const fromJobListings = searchParams.get('fromJobListings') === 'true';
 
@@ -52,7 +54,7 @@ const Login = () => {
         navigate(redirectUrl);
       } else {
         if (role === 'applicant') {
-          navigate('/applicant/dashboard');
+          navigate('/applicant/dashboard', { state: { justLoggedIn: true, userName: decodedToken?.name || email.split('@')[0] } });
         } else {
           navigate('/recruiter/dashboard');
         }
@@ -60,6 +62,7 @@ const Login = () => {
     } catch (err: any) {
       console.error("Error al hacer login:", err);
       setError(err.message);
+      showToast(err.message || 'Error al iniciar sesión', 'error');
     } finally {
       setLoading(false);
     }

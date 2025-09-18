@@ -6,7 +6,7 @@ import BackButton from '@/components/other/BackButton';
 import { useAuth } from '@/context/AuthContext';
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
-import ToastNotification from '@/components/other/ToastNotification';
+import { useToast } from '@/context/ToastContext';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
 
@@ -25,9 +25,7 @@ const JobPosition = () => {
   // Estados para manejar la aplicación al trabajo
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const { showToast } = useToast();
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showGuestModal, setShowGuestModal] = useState(false);
 
@@ -46,9 +44,7 @@ const JobPosition = () => {
 
   const handleGuestApply = async (applicationData: GuestApplicationData) => {
     // The modal already handles the API call, we just need to show success
-    setToastMessage("Aplicación enviada exitosamente como invitado");
-    setToastType("success");
-    setShowToast(true);
+    showToast('Aplicación enviada exitosamente', 'success');
     setAppliedJobs(prev => [...prev, applicationData.jobId]);
   };
 
@@ -56,9 +52,7 @@ const JobPosition = () => {
   useEffect(() => {
     if (success) {
       setIsModalOpen(false);
-      setToastMessage("Te postulaste con éxito");
-      setToastType("success");
-      setShowToast(true);
+      showToast('Te postulaste con éxito', 'success');
       setAppliedJobs(prev => [...prev, positionId!]);
 
       // Mostrar modal de preguntas después de aplicación exitosa
@@ -71,9 +65,7 @@ const JobPosition = () => {
   // Manejar error de la aplicación
   useEffect(() => {
     if (applyError) {
-      setToastMessage(applyError);
-      setToastType("error");
-      setShowToast(true);
+      showToast(applyError, 'error');
     }
   }, [applyError]);
 
@@ -350,14 +342,7 @@ const JobPosition = () => {
         isLoading={isApplying}
       />
 
-      {/* Notificaciones Toast */}
-      {showToast && (
-        <ToastNotification
-          message={toastMessage}
-          type={toastType}
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {/* Toasts globales via provider */}
       <JobQuestionsModal
         isOpen={showQuestionsModal}
         onClose={() => setShowQuestionsModal(false)}

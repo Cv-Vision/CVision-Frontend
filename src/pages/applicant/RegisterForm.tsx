@@ -125,11 +125,11 @@ const ApplicantRegisterForm = () => {
             const result = await registerApplicant(profile);
             showToast('Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta. ', 'success');
             
-            // Redirigir a la página de confirmación después de 2 segundos
+            // Redirigir a la página de confirmación después de 5 segundos
             // Pasar tanto el username como el email
             setTimeout(() => {
                 navigate(`/applicant-confirm?username=${encodeURIComponent(profile.basicInfo.fullName)}&email=${encodeURIComponent(result.email)}`);
-            }, 2000);
+            }, 5000);
             
         } catch (error: any) {
             console.error('Error al guardar perfil:', error);

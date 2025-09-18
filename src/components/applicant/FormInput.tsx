@@ -6,12 +6,15 @@ interface FormInputProps {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    required?: boolean;
 }
 
-const FormInput: FC<FormInputProps> = ({ label, type = "text", value, onChange, placeholder }) => {
+const FormInput: FC<FormInputProps> = ({ label, type = "text", value, onChange, placeholder, required = false }) => {
     return (
         <div className="flex flex-col gap-2 w-full">
-            <label className="text-base font-semibold text-blue-800">{label}</label>
+            <label className="text-base font-semibold text-blue-800">
+                {label} {required && <span className="text-red-600" title="Obligatorio">*</span>}
+            </label>
             <input
                 type={type}
                 value={value}

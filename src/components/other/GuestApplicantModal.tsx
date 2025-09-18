@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import ApplicantCVDropzone from '@/components/applicant/ApplicantCVDropzone';
 import { useGuestApplication } from '@/hooks/useGuestApplication';
+import { useToast } from '../../context/ToastContext';
 
 interface GuestApplicantModalProps {
   isOpen: boolean;
@@ -39,6 +40,20 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
   const [showSuccess, setShowSuccess] = useState(false);
   
   const { applyAsGuest, isLoading, error, clearError } = useGuestApplication();
+  const { showToast } = useToast();
+
+  // Mostrar errores del backend como toast (traducidos) y limpiar estado local
+  useEffect(() => {
+    if (!error) return;
+    const msg = typeof error === 'string' ? error : String(error);
+    const normalized = msg.toLowerCase();
+    let friendly = msg;
+    if (normalized.includes('already') && normalized.includes('appl')) {
+      friendly = 'Ya te has postulado a este trabajo.';
+    }
+    showToast(friendly, 'error');
+    clearError();
+  }, [error, showToast, clearError]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -135,7 +150,13 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
       
     } catch (error) {
       console.error('Error al enviar aplicación:', error);
-      setErrors({ submit: error instanceof Error ? error.message : 'Error al enviar la aplicación. Inténtalo de nuevo.' });
+      const msg = error instanceof Error ? error.message : 'Error al enviar la aplicación. Inténtalo de nuevo.';
+      const normalized = msg.toLowerCase();
+      let friendly = msg;
+      if (normalized.includes('already') && normalized.includes('appl')) {
+        friendly = 'Ya te has postulado a este trabajo.';
+      }
+      showToast(friendly, 'error');
     }
   };
 
@@ -256,12 +277,7 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
                 </div>
               </div>
 
-              {/* Submit error */}
-              {(errors.submit || error) && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <p className="text-sm text-red-600">{errors.submit || error}</p>
-                </div>
-              )}
+              {/* Errores de envío ahora se muestran con toasts centrados */}
 
               {/* Submit button */}
               <div className="flex justify-end space-x-4 pt-4">

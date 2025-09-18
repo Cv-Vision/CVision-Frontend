@@ -9,6 +9,7 @@ import { UserIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/other/BackButton.tsx';
 import ApplicantCVDropzone from '@/components/applicant/ApplicantCVDropzone.tsx';
 import { getApplicantProfile, updateApplicantProfile } from '@/services/applicantService';
+import { useToast } from '../../context/ToastContext';
 
 export function ApplicantProfile() {
   const { user } = useAuth();
@@ -23,8 +24,7 @@ export function ApplicantProfile() {
   });
   
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
   const [isWorkCollapsed, setIsWorkCollapsed] = useState(true);
   const [isEducationCollapsed, setIsEducationCollapsed] = useState(true);
   
@@ -35,17 +35,16 @@ export function ApplicantProfile() {
         setLoading(true);
         const profileData = await getApplicantProfile();
         setProfile(profileData);
-        setError(null);
       } catch (err) {
         console.error('Error al cargar el perfil:', err);
-        setError('No se pudo cargar el perfil. Inténtalo de nuevo más tarde.');
+        showToast('No se pudo cargar el perfil. Inténtalo de nuevo más tarde.', 'error');
       } finally {
         setLoading(false);
       }
     };
     
     fetchProfile();
-  }, []);
+  }, [showToast]);
 
   const handleWorkChange = (index: number, field: keyof ApplicantProfileType['workExperience'][0], value: string) => {
     setProfile(prev => {
@@ -102,16 +101,10 @@ export function ApplicantProfile() {
     try {
       setLoading(true);
       await updateApplicantProfile(profile);
-      setSuccessMessage('Perfil actualizado correctamente');
-      setError(null);
-      // Limpiar mensaje de éxito después de 3 segundos
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 3000);
+      showToast('Perfil actualizado correctamente', 'success');
     } catch (err) {
       console.error('Error al actualizar el perfil:', err);
-      setError('No se pudo actualizar el perfil. Inténtalo de nuevo más tarde.');
-      setSuccessMessage(null);
+      showToast('No se pudo actualizar el perfil. Inténtalo de nuevo más tarde.', 'error');
     } finally {
       setLoading(false);
     }
@@ -159,17 +152,7 @@ export function ApplicantProfile() {
           </div>
         ) : (
           <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
-            {/* Mensajes de error o éxito */}
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-                <p className="text-red-700">{error}</p>
-              </div>
-            )}
-            {successMessage && (
-              <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
-                <p className="text-green-700">{successMessage}</p>
-              </div>
-            )}
+            {/* Mensajes ahora via toasts centrados */}
             
             <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={false} />
             {/* Adjuntar CV debajo de la información básica */}
