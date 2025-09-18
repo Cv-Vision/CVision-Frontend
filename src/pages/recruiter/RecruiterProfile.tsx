@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getDashboardSummary } from '@/services/recruiterService';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { UserIcon, BriefcaseIcon, UsersIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/other/BackButton';
 import axios from "axios";
@@ -8,13 +9,12 @@ import axios from "axios";
 export default function RecruiterProfile() {
     const { user } = useAuth();
     const [summary, setSummary] = useState<{ active_postings_count: number; applications_count: number } | null>(null);
-    const [error, setError] = useState<string | null>(null);
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [company, setCompany] = useState('');
     const [showToast, setShowToast] = useState(false);
-    const [success, setSuccess] = useState<string | null>(null);
+    const { showToast: showGlobalToast } = useToast();
 
     useEffect(() => {
         document.body.style.overflow = 'unset';
@@ -24,12 +24,11 @@ export default function RecruiterProfile() {
     useEffect(() => {
         const token = user?.token;
         if (!token) {
-            setError('No autenticado o token no disponible.');
             return;
         }
         getDashboardSummary(token)
             .then(setSummary)
-            .catch(err => setError(err.message));
+            .catch(err => showGlobalToast(err.message, 'error'));
     }, [user]);
 
     useEffect(() => {
@@ -81,13 +80,11 @@ export default function RecruiterProfile() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
 
         try {
             const token = user?.token;
             if (!token) {
-                setError('No autenticado o token no disponible.');
+                showGlobalToast('No autenticado o token no disponible.', 'error');
                 return;
             }
 
@@ -106,17 +103,15 @@ export default function RecruiterProfile() {
                     },
                 }
             );
-            setSuccess('Perfil actualizado correctamente');
-            setTimeout(() => setSuccess(null), 3000);
+            showGlobalToast('Perfil actualizado correctamente', 'success');
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
-                setError(
-                    err.response?.data?.error ||
+                const errorMsg = err.response?.data?.error ||
                     err.response?.data?.message ||
-                    'Error al actualizar el perfil'
-                );
+                    'Error al actualizar el perfil';
+                showGlobalToast(errorMsg, 'error');
             } else {
-                setError('Error al actualizar el perfil');
+                showGlobalToast('Error al actualizar el perfil', 'error');
             }
         }
     };
@@ -160,16 +155,7 @@ export default function RecruiterProfile() {
                         <BackButton/>
                     </div>
                     <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-                        {success && (
-                            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-2 rounded text-green-700">
-                                {success}
-                            </div>
-                        )}
-                        {error && (
-                            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-2 rounded text-red-700">
-                                {error}
-                            </div>
-                        )}
+                        {/* Mensajes via toasts */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-blue-800">Nombre de usuario</label>
                             <input
