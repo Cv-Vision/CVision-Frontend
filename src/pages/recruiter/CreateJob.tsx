@@ -34,7 +34,6 @@ export default function CreateJob() {
   const {
     createJob,
     isSubmitting,
-    error,
     success
   } = useCreateJobForm();
   const { showToast } = useToast();
