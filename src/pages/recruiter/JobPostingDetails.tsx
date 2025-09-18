@@ -14,7 +14,7 @@ import ApplicantList from '@/components/other/ApplicantList.tsx';
 import JobRequirementsDisplay from '@/components/other/JobRequirementsDisplay.tsx';
 import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
-import ToastNotification from "@/components/other/ToastNotification.tsx";
+import { useToast } from '@/context/ToastContext';
 
 // Helpers for displaying enum labels
 function seniorityLabel(level?: string) {
@@ -74,8 +74,6 @@ const JobPostingDetails = () => {
   const [newDescription, setNewDescription] = useState('');
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(true);
   const [isSavingDescription, setIsSavingDescription] = useState(false);
-  const [descriptionSaveSuccess, setDescriptionSaveSuccess] = useState(false);
-  const [descriptionSaveError, setDescriptionSaveError] = useState<string | null>(null);
 
   // New editable fields state
   const [isEditingFields, setIsEditingFields] = useState(false);
@@ -84,18 +82,15 @@ const JobPostingDetails = () => {
   const [newUbicacion, setNewUbicacion] = useState('');
   const [newEmpresa, setNewEmpresa] = useState('');
   const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
-  const [fieldsSaveSuccess, setFieldsSaveSuccess] = useState(false);
-  const [fieldsSaveError, setFieldsSaveError] = useState<string | null>(null);
+  
   const [newModal, setNewModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>('');
 
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
+  
   const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined); // Changed type to any as per new_code
-  const [showToast, setShowToast] = useState(false);
   const [localJob, setLocalJob] = useState<Job | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [isAnalysisPending, setIsAnalysisPending] = useState(false);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { showToast } = useToast();
 
   
 
@@ -154,8 +149,7 @@ const JobPostingDetails = () => {
     if (jobToShow && newStatus) {
       setSelectedStatus(newStatus);
       await updateJobPostingData(jobToShow.pk, { status: newStatus });
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 2000);
+      showToast('Estado actualizado correctamente', 'success');
     }
   };
 
@@ -170,15 +164,14 @@ const JobPostingDetails = () => {
   const handleSaveDescription = async () => {
     if (jobToShow && canEditFields) {
       setIsSavingDescription(true);
-      setDescriptionSaveError(null);
-      setDescriptionSaveSuccess(false);
+      
       try {
         await updateJobPostingData(jobToShow.pk, { description: newDescription });
         setIsEditingDescription(false);
-        setDescriptionSaveSuccess(true);
-        setTimeout(() => setDescriptionSaveSuccess(false), 3000);
+        showToast('Descripción actualizada correctamente', 'success');
       } catch (err: any) {
-        setDescriptionSaveError(err?.response?.data?.message || err.message || 'Error al actualizar la descripción.');
+        const msg = err?.response?.data?.message || err.message || 'Error al actualizar la descripción.';
+        showToast(msg, 'error');
       } finally {
         setIsSavingDescription(false);
       }
@@ -188,39 +181,7 @@ const JobPostingDetails = () => {
     setExtraRequirements(updates);
   };
 
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (uploadSuccessMessage) {
-      setShowToast(true);
-      const timer = setTimeout(() => {
-        setUploadSuccessMessage(null);
-      }, 4000); // 4 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [uploadSuccessMessage]);
   
-  // Handle toast notification
-  useEffect(() => {
-    if (!showToast) return;
-    
-    const timer = setTimeout(() => {
-      setShowToast(false);
-    }, 2000); // 2 seconds as per requirements
-    
-    return () => clearTimeout(timer);
-  }, [showToast]);
-
-  // Auto-dismiss error message
-  useEffect(() => {
-    if (uploadError) {
-      setShowToast(true);
-      const timer = setTimeout(() => {
-        setUploadError(null);
-      }, 6000); // 6 seconds for errors
-      return () => clearTimeout(timer);
-    }
-  }, [uploadError]);
 
   
 
@@ -261,14 +222,7 @@ const JobPostingDetails = () => {
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 flex flex-row gap-8 items-start">
-        {/* Toast Notification for CV uploads */}
-        {showToast && (uploadSuccessMessage || uploadError) && (
-          <ToastNotification 
-            message={uploadSuccessMessage || uploadError || ""}
-            type={uploadSuccessMessage ? "success" : "error"}
-            onClose={() => setShowToast(false)}
-          />
-        )}
+          {/* Toasts globales via provider */}
         
         <div className="flex-1 w-full bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 space-y-4 relative">
           {/* Status Selector con estilos */}
@@ -295,11 +249,6 @@ const JobPostingDetails = () => {
             </select>
 
             {statusError && <span className="text-red-500 text-xs">{statusError}</span>}
-            {showSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-xl shadow-lg text-sm animate-fade-in-out">
-                Estado actualizado correctamente.
-              </div>
-            )}
           </div>
 
           <BackButton />
@@ -339,7 +288,6 @@ const JobPostingDetails = () => {
                 <div className="ml-2 flex gap-2">
                   <button
                     onClick={async () => {
-                      setFieldsSaveError(null);
                       try {
                         await updateJobPostingData(jobToShow.pk, {
                           experience_level: newSeniority || undefined,
@@ -359,10 +307,10 @@ const JobPostingDetails = () => {
                           modal: newModal || undefined,
                         });
                         setIsEditingFields(false);
-                        setFieldsSaveSuccess(true);
-                        setTimeout(() => setFieldsSaveSuccess(false), 3000);
+                        showToast('Campos del puesto actualizados', 'success');
                       } catch (err: any) {
-                        setFieldsSaveError(err?.response?.data?.message || err.message || 'Error al actualizar los campos.');
+                        const msg = err?.response?.data?.message || err.message || 'Error al actualizar los campos.';
+                        showToast(msg, 'error');
                       }
                     }}
                     disabled={!canEditFields}
@@ -373,7 +321,6 @@ const JobPostingDetails = () => {
                   <button
                     onClick={() => {
                       setIsEditingFields(false);
-                      setFieldsSaveError(null);
                     }}
                     disabled={!canEditFields}
                     className="px-4 py-1 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
@@ -383,12 +330,7 @@ const JobPostingDetails = () => {
                 </div>
               )}
             </h2>
-            {fieldsSaveSuccess && (
-              <div className="mb-2 p-2 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm">Campos actualizados correctamente</div>
-            )}
-            {fieldsSaveError && (
-              <div className="mb-2 p-2 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm">{fieldsSaveError}</div>
-            )}
+            {/* Mensajes via toasts */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-2">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">Seniority</label>
@@ -536,7 +478,6 @@ const JobPostingDetails = () => {
                       onClick={() => {
                         setIsEditingDescription(false);
                         setNewDescription(jobToShow?.description ?? '');
-                        setDescriptionSaveError(null);
                       }}
                       disabled={!canEditFields || isSavingDescription}
                       className="px-4 py-1 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 font-medium"
@@ -547,40 +488,7 @@ const JobPostingDetails = () => {
                 )}
               </h2>
               
-              {/* Success/Error feedback for description editing */}
-              {descriptionSaveSuccess && (
-                <div className="mb-4 p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1 rounded-full bg-green-100 flex-shrink-0">
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <p className="text-green-800 font-medium text-sm">Descripción actualizada correctamente</p>
-                  </div>
-                </div>
-              )}
-              
-              {descriptionSaveError && (
-                <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1 rounded-full bg-red-100 flex-shrink-0">
-                      <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <p className="text-red-800 font-medium text-sm">{descriptionSaveError}</p>
-                    <button 
-                      onClick={() => setDescriptionSaveError(null)}
-                      className="text-red-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Mensajes via toasts */}
 
               {isEditingDescription ? (
                 <textarea
@@ -746,12 +654,10 @@ const JobPostingDetails = () => {
                     <CVDropzone
                         jobId={jobToShow.pk.startsWith('JD#') ? jobToShow.pk : `JD#${jobToShow.pk}`}
                         onUploadComplete={() => {
-                          setUploadError(null);
-                          setUploadSuccessMessage('CVs subidos exitosamente');
+                          showToast('CVs subidos exitosamente', 'success');
                         }}
                         onError={(errorMsg) => {
-                          setUploadError(errorMsg);
-                          setUploadSuccessMessage(null);
+                          showToast(errorMsg || 'Error al subir CVs', 'error');
                         }}
                     />
                   </div>

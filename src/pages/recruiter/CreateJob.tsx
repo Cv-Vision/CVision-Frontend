@@ -4,6 +4,7 @@ import BackButton from '@/components//other/BackButton.tsx';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts';
 import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
+import { useToast } from '@/context/ToastContext';
 
 type QuestionType = 'YES_NO' | 'OPEN' | 'NUMERICAL';
 interface Questions {
@@ -33,9 +34,9 @@ export default function CreateJob() {
   const {
     createJob,
     isSubmitting,
-    error,
     success
   } = useCreateJobForm();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,9 +84,10 @@ export default function CreateJob() {
 
   useEffect(() => {
     if (success) {
+      showToast('¡Puesto creado exitosamente!', 'success');
       navigate('/recruiter/job-postings', { state: { jobCreated: true, jobTitle: title } });
     }
-  }, [success, navigate, title]);
+  }, [success, navigate, title, showToast]);
 
   const addQuestion = () => {
       const newOrder = questions.length + 1;
@@ -323,19 +325,7 @@ export default function CreateJob() {
             </div>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-              <p className="text-red-600 text-base font-medium">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-              <p className="text-green-600 text-base font-medium">¡Puesto creado exitosamente!</p>
-            </div>
-          )}
+          {/* Mensajes via toasts */}
 
           {/* Buttons */}
           <div className="flex justify-end gap-6 pt-6">

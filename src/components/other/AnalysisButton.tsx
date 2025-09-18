@@ -64,7 +64,7 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         errorMessage = "CVs no encontrados para este puesto";
       }
 
-      showToast(errorMessage, 'error');
+      showToast(errorMessage || 'Error al iniciar el análisis', 'error');
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);

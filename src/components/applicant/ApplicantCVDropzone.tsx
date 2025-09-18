@@ -50,11 +50,16 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
         });
         
         setError(null);
-        // Finalizar progreso y colapsar el uploader
+        // Finalizar progreso y mostrar estado de éxito brevemente antes de colapsar
         setIsSimulating(false);
         setProgress(100);
         setProgressPhase('idle');
-        setExpanded(false);
+        // Mantener expandido para que se vea el estado verde de éxito
+        setExpanded(true);
+        // Colapsar automáticamente luego de un breve delay
+        setTimeout(() => {
+          setExpanded(false);
+        }, 1200);
       } catch (err: any) {
         setError(err.message || 'Error al subir o procesar el CV.');
         console.error('Error uploading CV:', err);

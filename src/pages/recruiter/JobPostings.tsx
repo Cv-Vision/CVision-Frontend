@@ -6,7 +6,7 @@ import { BriefcaseIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroi
 import BackButton from '@/components/other/BackButton.tsx';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useMemo, useEffect } from 'react';
-import ToastNotification from '@/components/other/ToastNotification';
+import { useToast } from '@/context/ToastContext';
 import { SortDropdown, SortOption } from '@/components/other/SortDropdown';
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
@@ -23,8 +23,7 @@ const JobPostings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const { showToast } = useToast();
   
   // Sorting state - supports multiple criteria
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -50,13 +49,12 @@ const JobPostings: React.FC = () => {
   useEffect(() => {
     const state = location.state as { jobCreated?: boolean; jobTitle?: string } | null;
     if (state?.jobCreated && state?.jobTitle) {
-      setToastMessage(`¡El puesto "${state.jobTitle}" se ha creado exitosamente!`);
-      setShowToast(true);
+      showToast(`¡El puesto "${state.jobTitle}" se ha creado exitosamente!`, 'success');
       
       // Limpiar el estado de la ubicación para evitar que el toast aparezca al recargar
       window.history.replaceState({}, document.title);
     }
-  }, [location]);
+  }, [location, showToast]);
 
   const headers = ['Título', 'Descripción', 'Modalidad', 'Estado', 'Acciones'];
   
@@ -116,8 +114,10 @@ const JobPostings: React.FC = () => {
     try {
       await updateJobPostingData(jobToDelete, { status: 'DELETED' });
       refetch(true);
+      showToast('Puesto eliminado correctamente', 'success');
     } catch (err) {
       console.error('Error al eliminar:', err);
+      showToast('Error al eliminar el puesto', 'error');
     }
     setShowConfirm(false);
     setJobToDelete(null);
@@ -201,13 +201,7 @@ const JobPostings: React.FC = () => {
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4">
-        {showToast && (
-          <ToastNotification 
-            message={toastMessage} 
-            type="success" 
-            onClose={() => setShowToast(false)} 
-          />
-        )}
+        {/* Toasts globales via provider */}
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <BackButton to="/recruiter/dashboard" />

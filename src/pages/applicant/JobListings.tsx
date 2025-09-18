@@ -6,7 +6,7 @@ import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
 import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
-import ToastNotification from '@/components/other/ToastNotification';
+import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
 import BackButton from '@/components/other/BackButton.tsx';
@@ -22,9 +22,7 @@ const JobSearch = () => {
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const { showToast } = useToast();
   const { user, isAuthenticated } = useAuth();
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
@@ -40,9 +38,7 @@ const JobSearch = () => {
   useEffect(() => {
     if (success) {
       setIsModalOpen(false);
-      setToastMessage("Te postulaste con éxito");
-      setToastType("success");
-      setShowToast(true);
+      showToast('Te postulaste con éxito', 'success');
       setAppliedJobs(prev => [...prev, selectedJobId]);
 
       // Mostrar modal de preguntas después de aplicación exitosa
@@ -56,17 +52,13 @@ const JobSearch = () => {
 
   useEffect(() => {
     if (applyError) {
-      setToastMessage(applyError);
-      setToastType("error");
-      setShowToast(true);
+      showToast(applyError, 'error');
     }
   }, [applyError]);
   
   useEffect(() => {
     if (searchError) {
-      setToastMessage(searchError);
-      setToastType("error");
-      setShowToast(true);
+      showToast(searchError, 'error');
     }
   }, [searchError]);
 
@@ -97,9 +89,7 @@ const JobSearch = () => {
 
   const handleGuestApply = async (applicationData: GuestApplicationData) => {
     // The modal already handles the API call, we just need to show success
-    setToastMessage("Aplicación enviada exitosamente como invitado");
-    setToastType("success");
-    setShowToast(true);
+    showToast('Aplicación enviada exitosamente', 'success');
     setAppliedJobs(prev => [...prev, applicationData.jobId]);
   };
 
@@ -187,13 +177,7 @@ const JobSearch = () => {
               onConfirm={handleConfirmApply}
               isLoading={isApplying}
             />
-            {showToast && (
-              <ToastNotification
-                message={toastMessage}
-                type={toastType}
-                onClose={() => setShowToast(false)}
-              />
-            )}
+            {/* Toasts globales via provider */}
             <div ref={observerRef} className="h-10" />
             {isLoadingSearch && (
               <p className="text-center text-gray-500 mt-4">Cargando más...</p>
