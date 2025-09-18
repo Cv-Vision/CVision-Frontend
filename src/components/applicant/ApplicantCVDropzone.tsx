@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { uploadCV } from '@/services/applicantService.ts';
 import { CONFIG } from '@/config';
@@ -12,6 +12,9 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
   const [uploading, setUploading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [uploadedCVUrl, setUploadedCVUrl] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [progressPhase, setProgressPhase] = useState<'idle' | 'ramp' | 'hold' | 'to98' | 'wait'>('idle');
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -27,12 +30,14 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
         return;
       }
       setUploading(true);
+      setProgress(5);
+      setIsSimulating(true);
+      setProgressPhase('ramp');
       try {
         // Subir el CV usando el servicio
         const cvrResponse = await uploadCV(file);
         setUploadedCVUrl(cvrResponse.cvUrl);
-
-        
+        // Obtener info extraída
         const cvRes = await fetch(`${CONFIG.apiUrl}/cv/information/${cvrResponse.s3Key}`);
         const cvData = (await cvRes.json()).data;
 
@@ -45,15 +50,65 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
         });
         
         setError(null);
+        // Finalizar progreso y colapsar el uploader
+        setIsSimulating(false);
+        setProgress(100);
+        setProgressPhase('idle');
+        setExpanded(false);
       } catch (err: any) {
         setError(err.message || 'Error al subir o procesar el CV.');
         console.error('Error uploading CV:', err);
       } finally {
-        setUploading(false);
+        setTimeout(() => {
+          setUploading(false);
+          setIsSimulating(false);
+          setProgressPhase('idle');
+        }, 300);
       }
     },
     [onCVProcessed]
   );
+
+  // Simulacion de progreso en barra de carga mientras se espera extraccion de datos del CV
+  useEffect(() => {
+    if (!uploading || !isSimulating || progressPhase !== 'ramp') return;
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 75) {
+          return 75;
+        }
+        const increment = Math.random() * 3 + 1; // 1% - 4%
+        const next = prev + increment;
+        if (next >= 75) {
+          // Pasar a fase de espera en 75%
+          setProgressPhase('hold');
+          return 75;
+        }
+        return next;
+      });
+    }, 700);
+    return () => clearInterval(interval);
+  }, [uploading, isSimulating, progressPhase]);
+
+  // Tras 1.5s en 75%, subir a 90%
+  useEffect(() => {
+    if (!uploading || !isSimulating || progressPhase !== 'hold') return;
+    const t = setTimeout(() => {
+      setProgress(90);
+      setProgressPhase('to98');
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [uploading, isSimulating, progressPhase]);
+
+  // Luego de un tiempo, subir a 98% y esperar fin real
+  useEffect(() => {
+    if (!uploading || !isSimulating || progressPhase !== 'to98') return;
+    const t = setTimeout(() => {
+      setProgress(98);
+      setProgressPhase('wait');
+    }, 1800);
+    return () => clearTimeout(t);
+  }, [uploading, isSimulating, progressPhase]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -126,14 +181,20 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
               </div>
             )}
             {uploading && (
-              <div className="mt-4 text-center">
-                <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-medium">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Subiendo y procesando...
+              <div className="mt-4">
+                <div className="w-full bg-blue-100 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  ></div>
                 </div>
+                <p className="text-center text-sm text-blue-700 font-medium mt-2 flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  Extrayendo datos de tu CV por ti...
+                </p>
               </div>
             )}
             {error && (
