@@ -1,4 +1,3 @@
-// src/components/GuestApplicationConfirmationModal.tsx
 import { useState } from "react";
 import axios from "axios";
 import { CONFIG } from "@/config.ts";
@@ -15,14 +14,15 @@ export default function GuestApplicationConfirmationModal({ email, onClose }: Pr
 
     const handleResend = async () => {
         setResending(true);
+        setResent(false);
         setError(null);
         try {
             await axios.post(`${CONFIG.apiUrl}/guest/resend-link`, { email });
             setResent(true);
-        } catch (err: any) {
+        } catch (err) {
             setError("No se pudo reenviar el mail. Intenta nuevamente.");
         } finally {
-            setResending(false);
+            setTimeout(() => setResending(false), 5000); // Bloquea por 5 segundos
         }
     };
 
@@ -52,7 +52,7 @@ export default function GuestApplicationConfirmationModal({ email, onClose }: Pr
                 <button
                     className="bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition"
                     onClick={handleResend}
-                    disabled={resending || resent}
+                    disabled={resending}
                 >
                     {resending ? "Reenviando..." : "Reenviar mail"}
                 </button>
