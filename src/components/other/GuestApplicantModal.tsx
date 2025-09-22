@@ -48,9 +48,14 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
     const msg = typeof error === 'string' ? error : String(error);
     const normalized = msg.toLowerCase();
     let friendly = msg;
-    if (normalized.includes('already') && normalized.includes('appl')) {
+    
+    // Manejar específicamente el error de email ya registrado
+    if (msg === 'EMAIL_ALREADY_REGISTERED') {
+      friendly = 'Este email ya está registrado en nuestra plataforma. Por favor, inicia sesión para aplicar a este trabajo.';
+    } else if (normalized.includes('already') && normalized.includes('appl')) {
       friendly = 'Ya te has postulado a este trabajo.';
     }
+    
     showToast(friendly, 'error');
     clearError();
   }, [error, showToast, clearError]);
@@ -153,9 +158,14 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
       const msg = error instanceof Error ? error.message : 'Error al enviar la aplicación. Inténtalo de nuevo.';
       const normalized = msg.toLowerCase();
       let friendly = msg;
-      if (normalized.includes('already') && normalized.includes('appl')) {
+      
+      // Manejar específicamente el error de email ya registrado
+      if (msg === 'EMAIL_ALREADY_REGISTERED') {
+        friendly = 'Este email ya está registrado en nuestra plataforma. Por favor, inicia sesión para aplicar a este trabajo.';
+      } else if (normalized.includes('already') && normalized.includes('appl')) {
         friendly = 'Ya te has postulado a este trabajo.';
       }
+      
       showToast(friendly, 'error');
     }
   };
