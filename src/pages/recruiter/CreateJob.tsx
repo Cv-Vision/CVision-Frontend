@@ -23,7 +23,8 @@ export default function CreateJob() {
   const [industryText, setIndustryText] = useState('');
   const [contractType, setContractType] = useState<'Full-time' | 'Part-time' | 'Freelance' | 'Temporal' | ''>('');
   const [additionalRequirements, setAdditionalRequirements] = useState('');
-  const [jobLocation, setJobLocation] = useState('');
+  const [province, setProvince] = useState('');
+  const [city, setCity] = useState('');
   const [modal, setModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>(''); // NEW modal state
 
   // Preguntas para aplicantes
@@ -44,6 +45,8 @@ export default function CreateJob() {
     const payload: CreateJobPayload = {
       title,
       description,
+      province,
+      city,
     };
 
     if (seniority) {
@@ -64,7 +67,6 @@ export default function CreateJob() {
 
     payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText : undefined };
     if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
-    if (jobLocation.trim()) payload.job_location = jobLocation.trim();
 
     //incluir questions solo si hay válidas
     const validQs = questions
@@ -215,13 +217,24 @@ export default function CreateJob() {
             </div>
             <div>
               <label className="block text-sm font-medium text-orange-800 mb-1">Ubicación del Puesto</label>
-              <input
-                type="text"
-                value={jobLocation}
-                onChange={e => setJobLocation(e.target.value)}
-                className="w-full text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
-                placeholder="Ej: Buenos Aires, Madrid..."
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  value={province}
+                  onChange={e => setProvince(e.target.value)}
+                  className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
+                  placeholder="Provincia"
+                  required
+                />
+                <input
+                  type="text"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
+                  placeholder="Ciudad"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-teal-800 mb-1">Modalidad</label>

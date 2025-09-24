@@ -92,14 +92,17 @@ const JobPosition = () => {
     }
   };
 
-  const getWorkModeDisplay = (location?: string) => {
-    if (location?.toLowerCase().includes('remoto') || location?.toLowerCase().includes('remote')) {
+  const getWorkModeDisplay = (modal?: string) => {
+    if (modal?.toUpperCase() === 'REMOTE') {
       return 'Remoto';
     }
-    if (location?.toLowerCase().includes('híbrido') || location?.toLowerCase().includes('hybrid')) {
+    if (modal?.toUpperCase() === 'HYBRID') {
       return 'Híbrido';
     }
-    return 'Presencial';
+    if (modal?.toUpperCase() === 'ONSITE') {
+      return 'Presencial';
+    }
+    return 'Presencial'; // Default fallback
   };
 
   if (isLoading) {
@@ -195,7 +198,11 @@ const JobPosition = () => {
                   <div className="space-y-3">
                     <div className="flex items-center text-gray-600">
                       <MapPinIcon className="h-5 w-5 mr-2" />
-                      <span>{jobPosition.job_location || jobPosition.location || 'Ubicación no especificada'}</span>
+                      <span>
+                        {jobPosition.city && jobPosition.province 
+                          ? `${jobPosition.city}, ${jobPosition.province}` 
+                          : 'Ubicación no especificada'}
+                      </span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <BriefcaseIcon className="h-5 w-5 mr-2" />
@@ -248,7 +255,7 @@ const JobPosition = () => {
                 <div className="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded-full">
                   <BuildingOfficeIcon className="h-4 w-4 mr-2" />
                   <span className="text-sm font-medium">
-                    {getWorkModeDisplay(jobPosition.location)}
+                    {getWorkModeDisplay(jobPosition.modal)}
                   </span>
                 </div>
               </div>

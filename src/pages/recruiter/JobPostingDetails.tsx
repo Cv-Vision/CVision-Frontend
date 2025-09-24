@@ -79,7 +79,8 @@ const JobPostingDetails = () => {
   const [isEditingFields, setIsEditingFields] = useState(false);
   const [newSeniority, setNewSeniority] = useState<'JUNIOR' | 'SEMISENIOR' | 'SENIOR' | ''>('');
   const [newTipoContrato, setNewTipoContrato] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | ''>('');
-  const [newUbicacion, setNewUbicacion] = useState('');
+  const [newProvince, setNewProvince] = useState('');
+  const [newCity, setNewCity] = useState('');
   const [newEmpresa, setNewEmpresa] = useState('');
   const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
   
@@ -274,7 +275,8 @@ const JobPostingDetails = () => {
                     setIsEditingFields(true);
                     setNewSeniority((jobToShow.experience_level as 'JUNIOR' | 'SEMISENIOR' | 'SENIOR') || '');
                     setNewTipoContrato((jobToShow.contract_type as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP') || '');
-                    setNewUbicacion(jobToShow.location || '');
+                    setNewProvince(jobToShow.province || '');
+                    setNewCity(jobToShow.city || '');
                     setNewEmpresa(jobToShow.company || '');
                     setNewEnglishLevel((jobToShow.english_level as 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED') || '');
                     setNewModal((jobToShow.modal as 'REMOTE' | 'ONSITE' | 'HYBRID') || '');
@@ -292,7 +294,8 @@ const JobPostingDetails = () => {
                         await updateJobPostingData(jobToShow.pk, {
                           experience_level: newSeniority || undefined,
                           contract_type: newTipoContrato || undefined,
-                          location: newUbicacion || undefined,
+                          province: newProvince || undefined,
+                          city: newCity || undefined,
                           company: newEmpresa || undefined,
                           english_level: newEnglishLevel || undefined,
                           modal: newModal === '' ? null : newModal,
@@ -301,7 +304,8 @@ const JobPostingDetails = () => {
                           ...jobToShow,
                           experience_level: newSeniority,
                           contract_type: newTipoContrato,
-                          location: newUbicacion,
+                          province: newProvince,
+                          city: newCity,
                           company: newEmpresa,
                           english_level: newEnglishLevel,
                           modal: newModal || undefined,
@@ -390,14 +394,26 @@ const JobPostingDetails = () => {
               <div>
                 <label className="block text-blue-700 font-medium mb-1">Ubicación del Puesto</label>
                 {isEditingFields ? (
-                  <input
-                    className="w-full border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
-                    value={newUbicacion}
-                    onChange={e => setNewUbicacion(e.target.value)}
-                    placeholder="Ej: Remoto, Buenos Aires, etc."
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      className="border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                      value={newProvince}
+                      onChange={e => setNewProvince(e.target.value)}
+                      placeholder="Provincia"
+                    />
+                    <input
+                      className="border-2 border-blue-200 rounded-xl px-3 py-2 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50"
+                      value={newCity}
+                      onChange={e => setNewCity(e.target.value)}
+                      placeholder="Ciudad"
+                    />
+                  </div>
                 ) : (
-                  <div className="text-blue-900">{jobToShow.location || <span className="text-gray-400">No especificado</span>}</div>
+                  <div className="text-blue-900">
+                    {jobToShow.city && jobToShow.province 
+                      ? `${jobToShow.city}, ${jobToShow.province}` 
+                      : jobToShow.city || jobToShow.province || <span className="text-gray-400">No especificado</span>}
+                  </div>
                 )}
               </div>
               <div>

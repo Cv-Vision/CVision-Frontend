@@ -18,7 +18,10 @@ export function usePublicJobSearch() {
       try {
         const params = new URLSearchParams();
         if (filters.company?.trim()) params.append("company", filters.company.trim());
+        // Support both legacy location and new province/city filters
         if (filters.location?.trim()) params.append("location", filters.location.trim());
+        if (filters.province?.trim()) params.append("province", filters.province.trim());
+        if (filters.city?.trim()) params.append("city", filters.city.trim());
         if ((filters.experience_level || filters.seniorityLevel)?.trim()) {
           params.append("experience_level", (filters.experience_level || filters.seniorityLevel)!.trim());
         }
@@ -55,7 +58,9 @@ export function usePublicJobSearch() {
           experience_level: item.experience_level,
           english_level: item.english_level,
           contract_type: item.contract_type,
-          location: item.location,
+          country: item.country,
+          province: item.province,
+          city: item.city,
           industry_experience: item.industry_experience?.industries?.length
             ? { required: false, industry: item.industry_experience.industries[0] }
             : undefined,

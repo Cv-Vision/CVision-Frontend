@@ -46,10 +46,12 @@ export function useGetJobs() {
                 experience_level: item.experience_level,
                 english_level: item.english_level,
                 contract_type: item.contract_type,
-                location: item.location,
+                country: item.country,
+                province: item.province,
+                city: item.city,
                 industry_experience: item.industry_experience,
                 additional_requirements: item.additional_requirements,
-                modal: item.modal // newly added field
+                modal: item.modal
             }));
             setJobs(mappedJobs);
             

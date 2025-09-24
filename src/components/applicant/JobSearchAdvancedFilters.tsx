@@ -16,7 +16,10 @@ const JobSearchAdvancedFilters: FC<Props> = ({ filters, onChange }) => {
     return (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-lg border border-blue-100 w-full flex flex-col gap-6">
             <FormInput label="Empresa" value={filters.company || ""} onChange={(v) => onChange("company", v)} />
-            <FormInput label="Ubicación" value={filters.location || ""} onChange={(v) => onChange("location", v)} />
+            <div className="grid grid-cols-2 gap-3">
+                <FormInput label="Provincia" value={filters.province || ""} onChange={(v) => onChange("province", v)} />
+                <FormInput label="Ciudad" value={filters.city || ""} onChange={(v) => onChange("city", v)} />
+            </div>
             <FormSelect label="Nivel de experiencia" value={filters.experience_level || filters.seniorityLevel || ""} onChange={(v) => onChange("experience_level", v)} options={experienceLevels} />
             <FormSelect label="Tipo de contrato" value={filters.contract_type || filters.contractType || ""} onChange={(v) => onChange("contract_type", v)} options={contractTypes} />
             <FormSelect label="Modalidad" value={filters.modal || ""} onChange={(v) => onChange("modal", v)} options={modal} />

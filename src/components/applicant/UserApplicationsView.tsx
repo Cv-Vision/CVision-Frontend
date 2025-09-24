@@ -64,8 +64,10 @@ export function UserApplicationsView() {
                                         {app.jobPosting.description && (
                                             <p className="text-sm text-gray-700 mt-2">{app.jobPosting.description}</p>
                                         )}
-                                        {app.jobPosting.location && (
-                                            <p className="text-sm text-gray-500">Ubicación: {app.jobPosting.location}</p>
+                                        {(app.jobPosting.city || app.jobPosting.province) && (
+                                            <p className="text-sm text-gray-500">
+                                                Ubicación: {app.jobPosting.city && app.jobPosting.province ? `${app.jobPosting.city}, ${app.jobPosting.province}` : app.jobPosting.city || app.jobPosting.province}
+                                            </p>
                                         )}
                                     </div>
                                     <div className="text-sm text-blue-600 mt-2 md:mt-0">

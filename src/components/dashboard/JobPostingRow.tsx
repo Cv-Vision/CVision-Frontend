@@ -100,7 +100,7 @@ const englishLevelMap: Record<string, string> = {
     'NATIVE': 'Nativo',
 };
 
-export function JobRow({
+export function JobRow({ 
     job, 
     onRowClick, 
     //onView, 
