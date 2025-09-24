@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import {CONFIG} from "@/config.ts";
 
 export interface Application {
     id: string;
@@ -8,7 +9,8 @@ export interface Application {
         title: string;
         company: string;
         description?: string;
-        location?: string;
+        province?: string;
+        city?: string;
     };
 }
 
@@ -18,7 +20,7 @@ export function useUserApplications() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/applications', {
+        fetch(`${CONFIG.apiUrl}/applications`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
