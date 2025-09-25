@@ -2,10 +2,12 @@ import { TrashIcon, UsersIcon as UsersOutlineIcon, ArrowTrendingUpIcon, ClockIco
 import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotaApplicants } from '@/hooks/useGetTotaApplicants.ts';
+import { useDeleteJobPosting } from '@/hooks/useDeleteJobPosting';
 import { useEffect, useMemo, useState } from 'react';
 import { StatsSidebar } from '@/components/rebranding/StatsSidebar';
 import { JobPostingsContainer } from '@/components/rebranding/JobPostingsContainer';
 import { JobPostingHeader } from '@/components/rebranding/JobPostingHeader';
+import { useToast } from '@/context/ToastContext';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
@@ -16,6 +18,8 @@ const RecruiterDashboard = () => {
   const { jobs, isLoading: jobsLoading, error: jobsError, refetch: refetchJobs } = useGetJobs();
   const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
   const { totalApplicants } = useGetTotaApplicants();
+  const { deleteJobPosting } = useDeleteJobPosting();
+  const { showToast } = useToast();
 
   // Filtering and sorting states
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +28,18 @@ const RecruiterDashboard = () => {
 
   const handleJobClick = (jobId: string) => {
     navigate(`/recruiter/job/${jobId}`);
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este puesto de trabajo?')) {
+      try {
+        await deleteJobPosting(jobId);
+        showToast('Puesto eliminado exitosamente', 'success');
+        refetchJobs(); // Recargar la lista de puestos
+      } catch (error) {
+        showToast('Error al eliminar el puesto', 'error');
+      }
+    }
   };
 
   // Handle header actions
@@ -132,7 +148,7 @@ const RecruiterDashboard = () => {
             <div className="flex gap-3">
               <button
                 className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105"
-                onClick={() => navigate('/recruiter/job-postings')}
+                onClick={() => navigate('/perfil-reclutador')}
               >
                 Mi Perfil
               </button>
@@ -157,6 +173,7 @@ const RecruiterDashboard = () => {
             error={jobsError}
             refetch={refetchJobs}
             onJobClick={handleJobClick}
+            onDeleteJob={handleDeleteJob}
           />
         </div>
       </main>

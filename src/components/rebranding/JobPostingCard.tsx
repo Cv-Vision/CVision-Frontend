@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   MapPinIcon,
   CalendarIcon,
   UserGroupIcon,
   EllipsisVerticalIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 
 interface JobPostingCardProps {
@@ -19,6 +20,7 @@ interface JobPostingCardProps {
   candidatesCount: number;
   salaryRange: string; // e.g. "45.000 - 65.000 €"
   onJobClick?: (jobId: string) => void;
+  onDelete?: (jobId: string) => void;
 }
 
 export const JobPostingCard: React.FC<JobPostingCardProps> = ({
@@ -34,7 +36,25 @@ export const JobPostingCard: React.FC<JobPostingCardProps> = ({
   candidatesCount,
   salaryRange,
   onJobClick,
+  onDelete,
 }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar menú cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Helper para estilos de estado
   const statusColors: Record<string, string> = {
     Activo: "bg-green-100 text-green-700",
@@ -54,6 +74,19 @@ export const JobPostingCard: React.FC<JobPostingCardProps> = ({
     }
   };
 
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevenir que se active el click del card
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevenir que se active el click del card
+    if (onDelete) {
+      onDelete(id);
+    }
+    setIsMenuOpen(false);
+  };
+
   return (
     <div 
       className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer"
@@ -65,9 +98,29 @@ export const JobPostingCard: React.FC<JobPostingCardProps> = ({
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="text-sm text-gray-500">{company}</p>
         </div>
-        <button className="p-1 text-gray-500 hover:text-gray-700">
-          <EllipsisVerticalIcon className="w-5 h-5" />
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button 
+            className="p-1 text-gray-500 hover:text-gray-700"
+            onClick={handleMenuClick}
+          >
+            <EllipsisVerticalIcon className="w-5 h-5" />
+          </button>
+          
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+              <div className="py-1">
+                <button
+                  onClick={handleDeleteClick}
+                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  <TrashIcon className="w-4 h-4 mr-2" />
+                  Eliminar puesto
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tags */}

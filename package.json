@@ -20,6 +20,7 @@
     "aws-amplify": "^6.15.0",
     "axios": "^1.9.0",
     "jszip": "^3.10.1",
+    "lucide-react": "^0.544.0",
     "react": "^18.3.1",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.3.8",

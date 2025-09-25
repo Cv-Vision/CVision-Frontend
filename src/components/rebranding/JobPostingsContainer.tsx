@@ -21,6 +21,7 @@ interface JobPostingsContainerProps {
   error: unknown;
   refetch: () => void;
   onJobClick?: (jobId: string) => void;
+  onDeleteJob?: (jobId: string) => void;
 }
 
 export const JobPostingsContainer: React.FC<JobPostingsContainerProps> = ({
@@ -29,6 +30,7 @@ export const JobPostingsContainer: React.FC<JobPostingsContainerProps> = ({
   error,
   refetch,
   onJobClick,
+  onDeleteJob,
 }) => {
   if (isLoading) {
     return <p className="p-6 text-gray-500">Cargando trabajos...</p>;
@@ -59,6 +61,7 @@ export const JobPostingsContainer: React.FC<JobPostingsContainerProps> = ({
           key={job.id} 
           {...job} 
           onJobClick={onJobClick}
+          onDelete={onDeleteJob}
         />
       ))}
     </div>
