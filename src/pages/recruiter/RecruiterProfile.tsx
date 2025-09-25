@@ -5,6 +5,7 @@ import { useToast } from '@/context/ToastContext';
 import { UserIcon, BriefcaseIcon, UsersIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import BackButton from '@/components/other/BackButton';
 import axios from "axios";
+import {CONFIG} from "@/config.ts";
 
 export default function RecruiterProfile() {
     const { user } = useAuth();
@@ -40,8 +41,10 @@ export default function RecruiterProfile() {
 
             if (token) {
                 try {
-                    const res = await axios.get('http://localhost:8000/recruiter/profile', {
-                        headers: { Authorization: `Bearer ${token}` }
+                    const res = await axios.get(`${CONFIG.apiUrl}/recruiter/profile`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     });
                     backendCompany = res.data.company || '';
                     backendEmail = res.data.email || '';
@@ -89,7 +92,7 @@ export default function RecruiterProfile() {
             }
 
             await axios.post(
-                'http://localhost:8000/recruiter/profile',
+                `${CONFIG.apiUrl}/recruiter/profile`,
                 {
                     email,
                     company,
