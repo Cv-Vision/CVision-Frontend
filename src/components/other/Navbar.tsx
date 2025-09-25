@@ -7,10 +7,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  // La navbar ahora se muestra en todas las páginas
-  // if (location.pathname === '/login' || location.pathname === '/register') {
-  //   return null;
-  // }
+  // No mostrar navbar en Home, login o register
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   // Mostrar login/signup solo en Home y solo si NO está autenticado
   const showAuthButtons = location.pathname === '/' && !isAuthenticated;
