@@ -26,33 +26,25 @@ const Login = () => {
     setError('');
 
     try {
-      console.log('Attempting login for:', email);
       const cognitoUser = await signIn({ username: email, password });
-      console.log('Cognito response received:', cognitoUser);
-      
       const token = cognitoUser?.AuthenticationResult?.IdToken;
-      console.log('Extracted token:', token ? 'Token present' : 'Token missing');
 
       if (!token) {
-        console.error('Token extraction failed. Full response:', cognitoUser);
         throw new Error("No se pudo obtener el token de sesión");
       }
 
       const decodedToken = decodeJwt(token);
-      console.log('Decoded token payload:', decodedToken);
-      
       const userType = decodedToken ? decodedToken['custom:userType'] : null;
-      console.log('User type from token:', userType);
-      console.log('All custom attributes:', Object.keys(decodedToken || {}).filter(k => k.startsWith('custom:')));
 
-      if (!userType || (userType !== 'RECRUITER' && userType !== 'APPLICANT' && userType !== 'ADMIN')) {
-        console.error('Invalid user type. Expected: RECRUITER, APPLICANT, or ADMIN. Got:', userType);
-        console.error('All token claims:', decodedToken);
+      // Convert to uppercase for consistent comparison
+      const normalizedUserType = userType?.toUpperCase();
+      
+      if (!normalizedUserType || (normalizedUserType !== 'RECRUITER' && normalizedUserType !== 'APPLICANT' && normalizedUserType !== 'ADMIN')) {
         throw new Error("Tipo de usuario no válido o no encontrado en el token.");
       }
 
-      const role: UserRole = userType === 'RECRUITER' ? 'recruiter' : 
-                           userType === 'ADMIN' ? 'admin' : 'applicant';
+      const role: UserRole = normalizedUserType === 'RECRUITER' ? 'recruiter' : 
+                           normalizedUserType === 'ADMIN' ? 'admin' : 'applicant';
       const userData = { email, role, token };
 
       if (login) {
