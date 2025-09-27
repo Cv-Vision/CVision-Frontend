@@ -237,7 +237,7 @@ const ApplicantRegisterForm = () => {
 
                 <button
                     type="submit"
-                    className="w-full bg-teal-600 hover:bg-teal-700 text-white py-6 text-base font-medium h-12 mt-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 text-base font-medium h-12 mt-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? "Guardando perfil..." : "Guardar Perfil"}

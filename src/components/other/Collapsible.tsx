@@ -27,7 +27,7 @@ const Collapsible: FC<CollapsibleProps> = ({
       >
         <div className="p-4">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1 text-left">
               <h3 className="font-semibold text-teal-600">{title}</h3>
               {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
             </div>
