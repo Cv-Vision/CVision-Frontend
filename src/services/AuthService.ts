@@ -70,33 +70,56 @@ export async function confirmSignUp({ username, code }: ConfirmSignUpParams) {
 }
 
 export async function signIn({ username, password }: SignInParams) {
+  console.log('Initiating sign in with:');
+  console.log('- Username:', username);
+  console.log('- Client ID:', CLIENT_ID);
+  console.log('- Cognito Endpoint:', COGNITO_ENDPOINT);
+  
+  const requestBody = {
+    AuthParameters: {
+      USERNAME: username,
+      PASSWORD: password,
+    },
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: CLIENT_ID,
+  };
+  
+  console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
   const response = await fetch(COGNITO_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
     },
-    body: JSON.stringify({
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password,
-      },
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: CLIENT_ID,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
-  const data = await response.json(); // ✅ Parse una sola vez
+  const data = await response.json();
+
+  // Enhanced debugging
+  console.log('Cognito response status:', response.status);
+  console.log('Cognito response headers:', Object.fromEntries(response.headers.entries()));
+  console.log('Full Cognito response data:', JSON.stringify(data, null, 2));
 
   if (!response.ok) {
-    console.error('Sign in error:', data); // ✅ Mostrar error en consola
+    console.error('Sign in error:', data);
     throw new Error(data.message || 'Error signing in');
+  }
+
+  // Check for different response structures
+  if (data.ChallengeName) {
+    console.log('Challenge detected:', data.ChallengeName);
+    console.log('Challenge parameters:', data.ChallengeParameters);
+    throw new Error(`Desafío de autenticación requerido: ${data.ChallengeName}`);
   }
 
   const idToken = data.AuthenticationResult?.IdToken;
   if (!idToken) {
-    console.error('Missing IdToken in response:', data); // ✅ Si no hay token, mostrar error
-    throw new Error('No se obtuvo token');
+    console.error('Missing IdToken in response. Full response structure:', data);
+    console.error('AuthenticationResult:', data.AuthenticationResult);
+    console.error('Available keys in response:', Object.keys(data));
+    throw new Error('No se obtuvo token de autenticación');
   }
 
   sessionStorage.setItem('idToken', idToken);
