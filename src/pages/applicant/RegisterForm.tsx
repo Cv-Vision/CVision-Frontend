@@ -182,7 +182,7 @@ const ApplicantRegisterForm = () => {
                     <div className="text-center pt-4">
                         <p className="text-sm text-muted-foreground">
                             ¿Ya tienes cuenta?{" "}
-                            <Link to="/auth/login" className="text-teal-600 hover:underline font-medium">
+                            <Link to="/login" className="text-teal-600 hover:underline font-medium">
                                 Inicia sesión aquí
                             </Link>
                         </p>
@@ -246,7 +246,7 @@ const ApplicantRegisterForm = () => {
                 <div className="text-center pt-4">
                     <p className="text-sm text-muted-foreground">
                         ¿Ya tienes cuenta?{" "}
-                        <Link to="/auth/login" className="text-teal-600 hover:underline font-medium">
+                        <Link to="/login" className="text-teal-600 hover:underline font-medium">
                             Inicia sesión aquí
                         </Link>
                     </p>

@@ -86,17 +86,17 @@ const ApplicantConfirmAccount = () => {
     <AuthLayout title="Confirmar Cuenta" subtitle="Verifica tu dirección de email">
       <div className="space-y-6">
         {/* Email confirmation info */}
-        <div className="border-teal-100 border rounded-lg p-6 bg-teal-50/30">
+        <div className="border-gray-200 border rounded-lg p-6 bg-gray-50/30">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
-              <Mail className="w-5 h-5 text-teal-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              <Mail className="w-5 h-5 text-gray-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-teal-800">Código enviado</h3>
-              <p className="text-sm text-teal-600">Hemos enviado un código de verificación a:</p>
+              <h3 className="font-semibold text-gray-800">Código enviado</h3>
+              <p className="text-sm text-gray-600">Hemos enviado un código de verificación a:</p>
             </div>
           </div>
-          <p className="font-medium text-teal-800 text-center">{email}</p>
+          <p className="font-medium text-gray-800 text-center">{email}</p>
         </div>
 
         {/* Verification form */}
@@ -117,10 +117,10 @@ const ApplicantConfirmAccount = () => {
                 }
               }}
               placeholder="Ingresa el código de 6 dígitos"
-              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20 ${
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500/20 ${
                 errors.code 
                   ? "border-red-500 focus:border-red-500" 
-                  : "border-border focus:border-teal-500"
+                  : "border-border focus:border-gray-500"
               }`}
               maxLength={6}
             />
@@ -130,7 +130,7 @@ const ApplicantConfirmAccount = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isSubmitting ? 'Confirmando...' : 'Confirmar Cuenta'}
           </button>
@@ -141,7 +141,7 @@ const ApplicantConfirmAccount = () => {
           <button
             onClick={handleResendCode}
             disabled={isResending}
-            className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-800 text-sm font-medium px-4 py-2 rounded-lg border border-teal-200 hover:border-teal-300 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
             {isResending ? 'Reenviando...' : '¿No recibiste el código? Reenviar'}
@@ -152,7 +152,7 @@ const ApplicantConfirmAccount = () => {
         <div className="text-center pt-4">
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-teal-600 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-gray-600 text-sm font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver al Login

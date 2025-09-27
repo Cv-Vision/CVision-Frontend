@@ -106,10 +106,10 @@ const Login = () => {
                   setErrors(prev => ({ ...prev, email: "" }));
                 }
               }}
-              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20 ${
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500/20 ${
                 errors.email 
                   ? "border-red-500 focus:border-red-500" 
-                  : "border-border focus:border-teal-500"
+                  : "border-border focus:border-gray-500"
               }`}
             />
             {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
@@ -131,10 +131,10 @@ const Login = () => {
                   setErrors(prev => ({ ...prev, password: "" }));
                 }
               }}
-              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20 ${
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500/20 ${
                 errors.password 
                   ? "border-red-500 focus:border-red-500" 
-                  : "border-border focus:border-teal-500"
+                  : "border-border focus:border-gray-500"
               }`}
             />
             {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
@@ -143,7 +143,7 @@ const Login = () => {
           <div className="text-left">
             <Link 
               to="/forgot-password" 
-              className="text-sm text-teal-600 hover:text-teal-800 hover:underline transition-colors"
+              className="text-sm text-gray-600 hover:text-gray-800 hover:underline transition-colors"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -152,7 +152,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
