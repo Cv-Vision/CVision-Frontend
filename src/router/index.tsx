@@ -106,7 +106,11 @@ export function AppRouter() {
           <RecruiterProfile />
         </ProtectedRoute>
       } />
-      <Route path="/admin/metrics" element={<Metrics />} />
+      <Route path="/admin/metrics" element={
+        <ProtectedRoute requiredRole="admin">
+          <Metrics />
+        </ProtectedRoute>
+      } />
       {/* Catch-all route for non-existent routes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

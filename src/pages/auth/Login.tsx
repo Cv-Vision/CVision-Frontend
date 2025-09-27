@@ -36,11 +36,12 @@ const Login = () => {
       const decodedToken = decodeJwt(token);
       const userType = decodedToken ? decodedToken['custom:userType'] : null;
 
-      if (!userType || (userType !== 'RECRUITER' && userType !== 'APPLICANT')) {
+      if (!userType || (userType !== 'RECRUITER' && userType !== 'APPLICANT' && userType !== 'ADMIN')) {
         throw new Error("Tipo de usuario no válido o no encontrado en el token.");
       }
 
-      const role: UserRole = (userType === 'RECRUITER') ? 'recruiter' : 'applicant';
+      const role: UserRole = userType === 'RECRUITER' ? 'recruiter' : 
+                           userType === 'ADMIN' ? 'admin' : 'applicant';
       const userData = { email, role, token };
 
       if (login) {
@@ -55,6 +56,8 @@ const Login = () => {
       } else {
         if (role === 'applicant') {
           navigate('/applicant/dashboard', { state: { justLoggedIn: true, userName: decodedToken?.name || email.split('@')[0] } });
+        } else if (role === 'admin') {
+          navigate('/admin/metrics');
         } else {
           navigate('/recruiter/dashboard');
         }
