@@ -9,7 +9,7 @@ import { JobDetailsCard } from '@/components/rebranding/JobPostingDetails/JobDet
 import { JobPostingStats } from '@/components/rebranding/JobPostingDetails/JobPostingStats';
 import { CandidateList } from '@/components/rebranding/JobPostingDetails/CandidateList';
 import { CVDropzone } from '@/components/other/CVDropzone';
-import AnalysisButton from '@/components/other/AnalysisButton.tsx';
+import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import { CONFIG } from '@/config';
 
@@ -326,9 +326,18 @@ const JobPostingDetails = () => {
 
   // ======= UI NUEVA (NO cambio estética) =======
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col lg:flex-row gap-8 items-start">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col lg:flex-row gap-8 items-start relative">
+      {/* Botón de navegación hacia atrás */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 flex items-center gap-2 text-teal-600 hover:text-teal-800 transition-colors bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-teal-200 hover:border-teal-300 shadow-sm hover:shadow-md z-10"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm font-medium">Volver</span>
+      </button>
+
       {/* Columna izquierda: detalles (solo lectura en esta UI) */}
-      <div className="w-full max-w-sm flex-shrink-0">
+      <div className="w-full max-w-sm flex-shrink-0 mt-36">
         <JobDetailsCard
           positionName={jobToShow.title || 'No especificado'}
           location={jobToShow.location || 'No especificado'}

@@ -125,10 +125,10 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
 
   return (
     <div className="w-full">
-      <div className="border-2 border-blue-200 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 mb-6">
+      <div className="border-2 border-teal-200 rounded-2xl bg-gradient-to-r from-teal-50 to-blue-50 px-6 py-4 mb-6">
         <button
           type="button"
-          className="w-full text-blue-700 font-semibold py-3 text-lg hover:text-blue-800 transition-colors duration-300"
+          className="w-full text-teal-700 font-semibold py-3 text-lg hover:text-teal-800 transition-colors duration-300"
           onClick={() => setExpanded((prev) => !prev)}
         >
           {expanded ? 'Cerrar' : 'Adjuntar CV'}
@@ -164,12 +164,12 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
               <div
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[140px] flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm
-                  ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-blue-300 hover:border-blue-400 hover:bg-blue-50'}
+                  ${isDragActive ? 'border-teal-500 bg-teal-50' : 'border-teal-300 hover:border-teal-400 hover:bg-teal-50'}
                 `}
                 style={{ outline: 'none' }}
               >
                 <input {...getInputProps()} />
-                <p className="text-lg font-semibold text-blue-700 mb-4">
+                <p className="text-lg font-semibold text-teal-700 mb-4">
                   {isDragActive
                     ? 'Suelta el archivo PDF aquí...'
                     : 'Arrastra y suelta tu CV en PDF aquí, o haz clic para seleccionar'}
@@ -177,24 +177,24 @@ const ApplicantCVDropzone: React.FC<ApplicantCVDropzoneProps> = ({ onCVProcessed
                 <button
                   type="button"
                   onClick={open}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   disabled={uploading}
                 >
                   Seleccionar archivo
                 </button>
-                <p className="mt-4 text-sm text-blue-600 font-medium">Solo PDF, máximo 5MB</p>
+                <p className="mt-4 text-sm text-teal-600 font-medium">Solo PDF, máximo 5MB</p>
               </div>
             )}
             {uploading && (
               <div className="mt-4">
-                <div className="w-full bg-blue-100 rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-teal-100 rounded-full h-3 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-teal-500 to-teal-600 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
-                <p className="text-center text-sm text-blue-700 font-medium mt-2 flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <p className="text-center text-sm text-teal-700 font-medium mt-2 flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                   </svg>

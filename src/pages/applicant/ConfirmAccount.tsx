@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { CONFIG } from '@/config';
 import { useToast } from '../../context/ToastContext';
+import AuthLayout from '@/components/other/AuthLayout';
+import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 
 const ApplicantConfirmAccount = () => {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { showToast } = useToast();
 
   const navigate = useNavigate();
@@ -13,18 +17,27 @@ const ApplicantConfirmAccount = () => {
   const email = searchParams.get('email');
   const username = searchParams.get('username');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
     if (!code.trim()) {
-      showToast('Por favor ingresa el código de verificación', 'error');
-      return;
+      newErrors.code = 'El código de verificación es requerido';
+    } else if (code.length !== 6) {
+      newErrors.code = 'El código debe tener 6 dígitos';
     }
 
     if (!email) {
-      showToast('Email no encontrado en la URL', 'error');
-      return;
+      newErrors.email = 'Email no encontrado en la URL';
     }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {
@@ -56,76 +69,97 @@ const ApplicantConfirmAccount = () => {
       return;
     }
 
+    setIsResending(true);
     try {
       // Aquí podrías implementar la función para reenviar código
       // usando el username correcto
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simular delay
       showToast('Código reenviado. Revisa tu email.', 'success');
     } catch (error: any) {
       showToast('Error al reenviar código', 'error');
+    } finally {
+      setIsResending(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 flex flex-col items-center justify-center py-10 px-4">
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 max-w-md w-full p-10">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
-          Confirmar Cuenta
-        </h1>
-        
-        <p className="text-blue-700 text-center mb-8 text-lg">
-          Hemos enviado un código de verificación a:
-          <br />
-          <span className="font-semibold text-blue-800">{email}</span>
-        </p>
+    <AuthLayout title="Confirmar Cuenta" subtitle="Verifica tu dirección de email">
+      <div className="space-y-6">
+        {/* Email confirmation info */}
+        <div className="border-teal-100 border rounded-lg p-6 bg-teal-50/30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+              <Mail className="w-5 h-5 text-teal-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-teal-800">Código enviado</h3>
+              <p className="text-sm text-teal-600">Hemos enviado un código de verificación a:</p>
+            </div>
+          </div>
+          <p className="font-medium text-teal-800 text-center">{email}</p>
+        </div>
 
+        {/* Verification form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="code" className="block text-base font-semibold text-blue-800 mb-3">
-              Código de Verificación
+          <div className="space-y-2">
+            <label htmlFor="code" className="text-sm font-medium text-foreground">
+              Código de Verificación <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               id="code"
+              name="code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (errors.code) {
+                  setErrors(prev => ({ ...prev, code: "" }));
+                }
+              }}
               placeholder="Ingresa el código de 6 dígitos"
-              className="w-full px-6 py-4 border-2 border-blue-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm text-lg"
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20 ${
+                errors.code 
+                  ? "border-red-500 focus:border-red-500" 
+                  : "border-border focus:border-teal-500"
+              }`}
               maxLength={6}
             />
+            {errors.code && <p className="text-sm text-red-500">{errors.code}</p>}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg hover:shadow-xl ${
-              isSubmitting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-105'
-            }`}
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white py-6 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Confirmando...' : 'Confirmar Cuenta'}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
+        {/* Resend code */}
+        <div className="text-center">
           <button
             onClick={handleResendCode}
-            className="text-blue-600 hover:text-blue-800 text-base font-semibold px-4 py-2 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300"
+            disabled={isResending}
+            className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-800 text-sm font-medium px-4 py-2 rounded-lg border border-teal-200 hover:border-teal-300 transition-colors disabled:opacity-50"
           >
-            ¿No recibiste el código? Reenviar
+            <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
+            {isResending ? 'Reenviando...' : '¿No recibiste el código? Reenviar'}
           </button>
         </div>
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => navigate('/login')}
-            className="text-blue-600 hover:text-blue-800 text-base font-medium px-4 py-2 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300"
+        {/* Back to login */}
+        <div className="text-center pt-4">
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-teal-600 text-sm font-medium transition-colors"
           >
+            <ArrowLeft className="w-4 h-4" />
             Volver al Login
-          </button>
+          </Link>
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
