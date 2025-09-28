@@ -21,6 +21,7 @@ export interface GuestApplicationResponse {
 
 export interface GuestApplicationError {
   message: string;
+  error_code?: string;
   [key: string]: any;
 }
 
@@ -110,6 +111,12 @@ export function useGuestApplication() {
 
       if (!response.ok) {
         const errorData: GuestApplicationError = await response.json();
+        
+        // Manejar específicamente el error de email ya registrado
+        if (errorData.error_code === 'EMAIL_ALREADY_REGISTERED') {
+          throw new Error('EMAIL_ALREADY_REGISTERED');
+        }
+        
         throw new Error(errorData.message || 'Error submitting guest application');
       }
 

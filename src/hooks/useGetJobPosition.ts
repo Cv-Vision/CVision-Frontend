@@ -11,8 +11,10 @@ export interface JobPosition {
   experience_level?: string;
   english_level?: string;
   contract_type?: string;
-  location?: string;
-  job_location?: string;
+  country?: string;
+  province?: string;
+  city?: string;
+  modal?: string; // REMOTE, ONSITE, HYBRID
   industry_experience?: {
     required: boolean;
     industry?: string;

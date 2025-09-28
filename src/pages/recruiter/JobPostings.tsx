@@ -29,6 +29,8 @@ const JobPostings: React.FC = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
   const [modalSort, setModalSort] = useState<string | null>(null);
   const [statusSort, setStatusSort] = useState<string | null>(null);
+  const [contractTypeSort, setContractTypeSort] = useState<string | null>(null);
+  const [englishLevelSort, setEnglishLevelSort] = useState<string | null>(null);
 
   // Prevenir scroll en toda la página
   useEffect(() => {
@@ -56,7 +58,7 @@ const JobPostings: React.FC = () => {
     }
   }, [location, showToast]);
 
-  const headers = ['Título', 'Descripción', 'Modalidad', 'Estado', 'Acciones'];
+  const headers = ['Título', 'Descripción', 'Modalidad', 'Tipo de Contrato', 'Nivel de Inglés', 'Estado', 'Acciones'];
   
   // Sort options
   const modalOptions: SortOption[] = [
@@ -71,7 +73,22 @@ const JobPostings: React.FC = () => {
     { value: 'CANCELLED', label: 'Cancelado' }
   ];
   
-  const sortableColumns = ['título', 'descripción', 'modalidad', 'estado'];
+  const contractTypeOptions: SortOption[] = [
+    { value: 'FULL_TIME', label: 'Tiempo Completo' },
+    { value: 'PART_TIME', label: 'Medio Tiempo' },
+    { value: 'CONTRACT', label: 'Contrato' },
+    { value: 'FREELANCE', label: 'Freelance' },
+    { value: 'INTERNSHIP', label: 'Pasantía' }
+  ];
+  
+  const englishLevelOptions: SortOption[] = [
+    { value: 'BASIC', label: 'Básico' },
+    { value: 'INTERMEDIATE', label: 'Intermedio' },
+    { value: 'ADVANCED', label: 'Avanzado' },
+    { value: 'NATIVE', label: 'Nativo' }
+  ];
+  
+  const sortableColumns = ['título', 'descripción', 'modalidad', 'tipo_de_contrato', 'nivel_de_inglés', 'estado'];
 
   const handleRowClick = (id: string) => {
     nav(`/recruiter/job/${id}`);
@@ -107,6 +124,14 @@ const JobPostings: React.FC = () => {
 
   const handleStatusSort = (value: string | null) => {
     setStatusSort(value);
+  };
+
+  const handleContractTypeSort = (value: string | null) => {
+    setContractTypeSort(value);
+  };
+
+  const handleEnglishLevelSort = (value: string | null) => {
+    setEnglishLevelSort(value);
   };
 
   const confirmDelete = async () => {
@@ -163,6 +188,14 @@ const JobPostings: React.FC = () => {
             aValue = a.modal || '';
             bValue = b.modal || '';
             break;
+          case 'tipo_de_contrato':
+            aValue = a.contract_type || '';
+            bValue = b.contract_type || '';
+            break;
+          case 'nivel_de_inglés':
+            aValue = a.english_level || '';
+            bValue = b.english_level || '';
+            break;
           case 'estado':
             aValue = a.status;
             bValue = b.status;
@@ -193,11 +226,21 @@ const JobPostings: React.FC = () => {
         if (a.status !== statusSort && b.status === statusSort) return 1;
       }
       
+      if (contractTypeSort) {
+        if (a.contract_type === contractTypeSort && b.contract_type !== contractTypeSort) return -1;
+        if (a.contract_type !== contractTypeSort && b.contract_type === contractTypeSort) return 1;
+      }
+      
+      if (englishLevelSort) {
+        if (a.english_level === englishLevelSort && b.english_level !== englishLevelSort) return -1;
+        if (a.english_level !== englishLevelSort && b.english_level === englishLevelSort) return 1;
+      }
+      
       return 0;
     });
     
     return visibleJobs;
-  }, [jobs, statusFilter, searchTerm, sortConfig, modalSort, statusSort]);
+  }, [jobs, statusFilter, searchTerm, sortConfig, modalSort, statusSort, contractTypeSort, englishLevelSort]);
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4">
@@ -319,17 +362,31 @@ const JobPostings: React.FC = () => {
                       placeholder="Estado"
                       className="min-w-[120px]"
                     />
+                    <SortDropdown
+                      options={contractTypeOptions}
+                      selectedValue={contractTypeSort}
+                      onSelect={handleContractTypeSort}
+                      placeholder="Tipo de Contrato"
+                      className="min-w-[160px]"
+                    />
+                    <SortDropdown
+                      options={englishLevelOptions}
+                      selectedValue={englishLevelSort}
+                      onSelect={handleEnglishLevelSort}
+                      placeholder="Nivel de Inglés"
+                      className="min-w-[140px]"
+                    />
                   </div>
                 </div>
                 
                 {/* Help Text */}
                 <div className="text-xs text-gray-500">
-                  <strong>Tip:</strong> Haz clic en los encabezados "Título" y "Descripción" para ordenar alfabéticamente. 
+                  <strong>Tip:</strong> Haz clic en los encabezados de la tabla para ordenar alfabéticamente. 
                   Puedes combinar múltiples criterios de ordenamiento.
                 </div>
                 
                 {/* Active Sort Indicators */}
-                {(sortConfig || modalSort || statusSort) && (
+                {(sortConfig || modalSort || statusSort || contractTypeSort || englishLevelSort) && (
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-gray-500 font-medium">Ordenamiento activo:</span>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -348,6 +405,16 @@ const JobPostings: React.FC = () => {
                           Estado: {statusOptions.find(opt => opt.value === statusSort)?.label}
                         </span>
                       )}
+                      {contractTypeSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                          Contrato: {contractTypeOptions.find(opt => opt.value === contractTypeSort)?.label}
+                        </span>
+                      )}
+                      {englishLevelSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-800 text-xs font-medium rounded-full">
+                          Inglés: {englishLevelOptions.find(opt => opt.value === englishLevelSort)?.label}
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -358,7 +425,7 @@ const JobPostings: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Mostrando <span className="font-semibold text-blue-600">{filteredJobs.length}</span> de <span className="font-semibold text-blue-600">{jobs.filter(job => job.status !== 'DELETED').length}</span> puestos
                 </p>
-                {(searchTerm || statusFilter !== 'all' || sortConfig || modalSort || statusSort) && (
+                {(searchTerm || statusFilter !== 'all' || sortConfig || modalSort || statusSort || contractTypeSort || englishLevelSort) && (
                   <button
                     onClick={() => {
                       setSearchTerm('');
@@ -366,6 +433,8 @@ const JobPostings: React.FC = () => {
                       setSortConfig(null);
                       setModalSort(null);
                       setStatusSort(null);
+                      setContractTypeSort(null);
+                      setEnglishLevelSort(null);
                     }}
                     className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                   >

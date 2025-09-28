@@ -9,7 +9,8 @@ export interface Application {
         title: string;
         company: string;
         description?: string;
-        location?: string;
+        province?: string;
+        city?: string;
     };
 }
 

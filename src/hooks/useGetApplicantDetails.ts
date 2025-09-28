@@ -22,7 +22,9 @@ interface JobPosting {
   english_level: string | null;
   experience_level: string | null;
   industry_experience: { required: boolean };
-  location: string | null;
+  country: string | null;
+  province: string | null;
+  city: string | null;
   posting_id: string;
   status: string;
   title: string;

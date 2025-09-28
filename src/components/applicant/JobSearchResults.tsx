@@ -100,9 +100,9 @@ const JobSearchResults = ({
                                                 {job.contract_type}
                                             </span>
                                         )}
-                                        {job.location && (
+                                        {(job.city || job.province) && (
                                             <span className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 text-sm px-3 py-1 rounded-xl border border-yellow-200 font-medium">
-                                                {job.location}
+                                                {job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province}
                                             </span>
                                         )}
                                         {job.modal && (

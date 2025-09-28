@@ -116,9 +116,12 @@ export const mapExtraRequirementsToPayload = (extraRequirements: any) => {
     payload.additional_requirements = extraRequirements.freeText.trim();
   }
 
-  // Map location (using alias since 'location' is a reserved keyword in DynamoDB)
-  if (extraRequirements.location?.trim()) {
-    payload.job_location = extraRequirements.location.trim();
+  // Map location fields
+  if (extraRequirements.province?.trim()) {
+    payload.province = extraRequirements.province.trim();
+  }
+  if (extraRequirements.city?.trim()) {
+    payload.city = extraRequirements.city.trim();
   }
 
   return payload;
