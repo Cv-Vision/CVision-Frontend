@@ -49,7 +49,8 @@ export function useUserApplications() {
                                 title: app.job_posting?.title || '',
                                 company: app.job_posting?.company || '',
                                 description: app.job_posting?.description || '',
-                                location: app.job_posting?.location || '',
+                                province: app.job_posting?.province || '',
+                                city: app.job_posting?.city || '',
                             },
                         }))
                     );

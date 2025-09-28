@@ -68,7 +68,9 @@ export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => 
                 </div>
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
-                  {application.jobPosting.location || 'Ubicación no especificada'}
+                  {application.jobPosting.city && application.jobPosting.province 
+                    ? `${application.jobPosting.city}, ${application.jobPosting.province}`
+                    : application.jobPosting.city || application.jobPosting.province || 'Ubicación no especificada'}
                 </div>
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-2" />
@@ -122,7 +124,9 @@ export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => 
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Ubicación</p>
               <p className="font-medium text-gray-900">
-                {application.jobPosting.location || 'No especificada'}
+                {application.jobPosting.city && application.jobPosting.province 
+                  ? `${application.jobPosting.city}, ${application.jobPosting.province}`
+                  : application.jobPosting.city || application.jobPosting.province || 'No especificada'}
               </p>
             </div>
           </div>

@@ -67,7 +67,9 @@ export const ApplicationCard = ({ application, isSelected, onClick }: Applicatio
           <div className="flex items-center space-x-4 text-xs text-gray-500">
             <div className="flex items-center">
               <MapPin className="w-3 h-3 mr-1" />
-              {application.jobPosting.location || 'Ubicación no especificada'}
+              {application.jobPosting.city && application.jobPosting.province 
+                ? `${application.jobPosting.city}, ${application.jobPosting.province}`
+                : application.jobPosting.city || application.jobPosting.province || 'Ubicación no especificada'}
             </div>
             <div className="flex items-center">
               <Clock className="w-3 h-3 mr-1" />
