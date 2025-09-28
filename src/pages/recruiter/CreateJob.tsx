@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components//other/BackButton.tsx';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm.ts';
-import { BriefcaseIcon, PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, PlusIcon, InformationCircleIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
 import { useToast } from '@/context/ToastContext';
+import { useGetProvinces } from '@/hooks/useGetProvinces';
+import { useGetCities } from '@/hooks/useGetCity';
+import { useValidateLocation } from '@/hooks/useValidateLocation';
 
 type QuestionType = 'YES_NO' | 'OPEN' | 'NUMERICAL';
 interface Questions {
@@ -39,8 +42,19 @@ export default function CreateJob() {
   } = useCreateJobForm();
   const { showToast } = useToast();
 
+  // Location hooks
+  const { provinces, isLoading: provincesLoading, error: provincesError } = useGetProvinces();
+  const { cities, isLoading: citiesLoading, error: citiesError } = useGetCities(province);
+  const { isValidating, validationResult, validateLocation, clearValidation } = useValidateLocation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check location validation before submitting
+    if (province && city && validationResult && !validationResult.valid) {
+      showToast('Por favor, selecciona una ubicación válida', 'error');
+      return;
+    }
 
     const payload: CreateJobPayload = {
       title,
@@ -90,6 +104,17 @@ export default function CreateJob() {
       navigate('/recruiter/job-postings', { state: { jobCreated: true, jobTitle: title } });
     }
   }, [success, navigate, title, showToast]);
+
+  // Validate location when both province and city are selected
+  useEffect(() => {
+    if (province && city) {
+      const timer = setTimeout(() => {
+        validateLocation(province, city);
+      }, 500); // Debounce validation to avoid excessive API calls
+
+      return () => clearTimeout(timer);
+    }
+  }, [province, city, validateLocation]);
 
   const addQuestion = () => {
       const newOrder = questions.length + 1;
@@ -218,23 +243,87 @@ export default function CreateJob() {
             <div>
               <label className="block text-sm font-medium text-orange-800 mb-1">Ubicación del Puesto</label>
               <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  value={province}
-                  onChange={e => setProvince(e.target.value)}
-                  className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
-                  placeholder="Provincia"
-                  required
-                />
-                <input
-                  type="text"
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300"
-                  placeholder="Ciudad"
-                  required
-                />
+                <div className="relative">
+                  <select
+                    value={province}
+                    onChange={e => {
+                      setProvince(e.target.value);
+                      setCity(''); // Clear city when province changes
+                      clearValidation();
+                    }}
+                    className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300 w-full"
+                    required
+                    disabled={provincesLoading}
+                  >
+                    <option value="">
+                      {provincesLoading ? 'Cargando provincias...' : 'Seleccionar provincia'}
+                    </option>
+                    {provinces.map((prov) => (
+                      <option key={prov} value={prov}>
+                        {prov}
+                      </option>
+                    ))}
+                  </select>
+                  {provincesError && (
+                    <p className="text-xs text-red-600 mt-1">{provincesError}</p>
+                  )}
+                </div>
+                <div className="relative">
+                  <select
+                    value={city}
+                    onChange={e => {
+                      setCity(e.target.value);
+                      clearValidation();
+                    }}
+                    className="text-sm border-2 border-orange-200 rounded-lg px-3 py-2 bg-white/80 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all duration-200 hover:border-orange-300 w-full"
+                    required
+                    disabled={!province || citiesLoading}
+                  >
+                    <option value="">
+                      {!province 
+                        ? 'Seleccionar provincia primero'
+                        : citiesLoading 
+                        ? 'Cargando ciudades...'
+                        : 'Seleccionar ciudad'
+                      }
+                    </option>
+                    {cities.map((cityName) => (
+                      <option key={cityName} value={cityName}>
+                        {cityName}
+                      </option>
+                    ))}
+                  </select>
+                  {citiesError && (
+                    <p className="text-xs text-red-600 mt-1">{citiesError}</p>
+                  )}
+                </div>
               </div>
+              
+              {/* Validation feedback */}
+              {(province && city && !isValidating && validationResult) && (
+                <div className="mt-2 flex items-center gap-2">
+                  {validationResult.valid ? (
+                    <>
+                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                      <span className="text-xs text-green-700">Ubicación válida</span>
+                    </>
+                  ) : (
+                    <>
+                      <ExclamationTriangleIcon className="h-4 w-4 text-red-600" />
+                      <span className="text-xs text-red-700">
+                        {validationResult.message || validationResult.error || 'Ubicación no válida'}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {isValidating && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs text-orange-700">Validando ubicación...</span>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-teal-800 mb-1">Modalidad</label>
