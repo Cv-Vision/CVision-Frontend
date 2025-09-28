@@ -340,7 +340,8 @@ const JobPostingDetails = () => {
       <div className="w-full max-w-sm flex-shrink-0 mt-36">
         <JobDetailsCard
           positionName={jobToShow.title || 'No especificado'}
-          location={jobToShow.location || 'No especificado'}
+          city={jobToShow.city}
+          province={jobToShow.province}
           modality={modalLabel(jobToShow.modal) || 'No especificado'}
           contractType={contractTypeLabel(jobToShow.contract_type) || 'No especificado'}
           level={seniorityLabel(jobToShow.experience_level) || 'No especificado'}

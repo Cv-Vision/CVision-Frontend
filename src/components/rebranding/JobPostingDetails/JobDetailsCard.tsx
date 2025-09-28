@@ -7,7 +7,8 @@ import {
 
 interface JobDetailsCardProps {
   positionName: string;
-  location: string;
+  city?: string;
+  province?: string;
   modality: string;
   contractType: string;
   level: string;
@@ -18,7 +19,8 @@ interface JobDetailsCardProps {
 
 export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
   positionName,
-  location,
+  city,
+  province,
   modality,
   contractType,
   level,
@@ -44,7 +46,11 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
         <p className="text-xs font-semibold text-gray-500">UBICACIÓN</p>
         <div className="flex items-center gap-2 mt-1">
           <MapPinIcon className="w-4 h-4 text-gray-600" />
-          <span>{location}</span>
+          <span>
+            {city && province 
+              ? `${city}, ${province}`
+              : city || province || 'No especificado'}
+          </span>
         </div>
       </div>
 
