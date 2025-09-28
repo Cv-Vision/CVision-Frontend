@@ -49,15 +49,15 @@ export function useCreateJobForm() {
       }
       delete body.job_location; // remove legacy key before send
 
-      // Map legacy structured questions to applicant_questions (array of strings)
+      // Keep questions as structured objects for the new API
       if (body.questions) {
-        const applicantQuestions = body.questions
-          .map((q: any) => (q?.text || '').trim())
-          .filter((t: string) => t.length > 0);
-        if (applicantQuestions.length > 0) {
-          body.applicant_questions = applicantQuestions;
-        }
-        delete body.questions;
+        // Ensure questions have the correct structure
+        body.questions = body.questions.map((q: any) => ({
+          id: q.id,
+          text: q.text,
+          type: q.type,
+          order: q.order
+        }));
       }
 
       // Remove undefined fields

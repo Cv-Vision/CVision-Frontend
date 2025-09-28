@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Briefcase, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
 import { useToast } from '@/context/ToastContext';
@@ -8,6 +8,7 @@ import { ProgressIndicator } from './ProgressIndicator';
 import { BasicInfoStep } from './BasicInfoStep';
 import { DescriptionStep } from './DescriptionStep';
 import { SkillsStep } from './SkillsStep';
+import { QuestionsStep } from './QuestionsStep';
 // TODO descomentar para agregar compensacion
 // import { CompensationStep } from './CompensationStep';
 
@@ -23,8 +24,9 @@ const STEPS = [
   { id: 1, title: "Información Básica", description: "Detalles principales del puesto" },
   { id: 2, title: "Descripción", description: "Responsabilidades y requisitos" },
   { id: 3, title: "Habilidades", description: "Competencias técnicas" },
+  { id: 4, title: "Preguntas", description: "Preguntas adicionales para candidatos" },
   // TODO descomentar para agregar compensacion
-  // { id: 4, title: "Compensación", description: "Salario y beneficios" },
+  // { id: 5, title: "Compensación", description: "Salario y beneficios" },
 ];
 
 export function CreateJobForm() {
@@ -43,7 +45,7 @@ export function CreateJobForm() {
   const [additionalRequirements, setAdditionalRequirements] = useState('');
   const [jobLocation, setJobLocation] = useState('');
   const [modal, setModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>('');
-  const [questions] = useState<Questions[]>([]);
+  const [questions, setQuestions] = useState<Questions[]>([]);
 
   const navigate = useNavigate();
   const { createJob, isSubmitting, success } = useCreateJobForm();
@@ -159,8 +161,15 @@ export function CreateJobForm() {
             setIndustryText={setIndustryText}
           />
         );
+      case 4:
+        return (
+          <QuestionsStep
+            questions={questions}
+            setQuestions={setQuestions}
+          />
+        );
       // TODO descomentar para agregar compensacion
-      // case 4:
+      // case 5:
       //   return <CompensationStep />;
       default:
         return null;
@@ -178,6 +187,7 @@ export function CreateJobForm() {
               {React.createElement(STEPS[currentStep - 1].title === "Información Básica" ? Briefcase : 
                 STEPS[currentStep - 1].title === "Descripción" ? Briefcase :
                 STEPS[currentStep - 1].title === "Habilidades" ? Briefcase :
+                STEPS[currentStep - 1].title === "Preguntas" ? HelpCircle :
                 STEPS[currentStep - 1].title === "Compensación" ? Briefcase :
                 Briefcase, { className: "h-6 w-6 text-blue-600" })}
               {STEPS[currentStep - 1].title}
