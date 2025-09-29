@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams} from 'react-router-dom';
 import { CONFIG } from '@/config';
 import { useToast } from '../../context/ToastContext';
 import AuthLayout from '@/components/other/AuthLayout';
-import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Mail, RefreshCw } from 'lucide-react';
 
 const RecruiterConfirmAccount = () => {
   const [code, setCode] = useState('');
@@ -146,17 +146,6 @@ const RecruiterConfirmAccount = () => {
             <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
             {isResending ? 'Reenviando...' : '¿No recibiste el código? Reenviar'}
           </button>
-        </div>
-
-        {/* Back to login */}
-        <div className="text-center pt-4">
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-gray-600 text-sm font-medium transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Login
-          </Link>
         </div>
       </div>
     </AuthLayout>

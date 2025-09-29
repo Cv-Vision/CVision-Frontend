@@ -149,7 +149,7 @@ const ApplicantRegisterForm = () => {
             showToast('Perfil guardado exitosamente. Revisa tu email para confirmar tu cuenta. ', 'success');
             
             // Redirigir a la página de confirmación después de 5 segundos
-            // Pasar tanto el username como el email
+            // Usar nombre completo como username (pool con alias de email)
             setTimeout(() => {
                 navigate(`/applicant-confirm?username=${encodeURIComponent(profile.basicInfo.fullName)}&email=${encodeURIComponent(result.email)}`);
             }, 5000);

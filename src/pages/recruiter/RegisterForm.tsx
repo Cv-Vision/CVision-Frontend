@@ -58,6 +58,7 @@ const RecruiterRegisterForm = () => {
             showToast('Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.', 'success'); // Use showToast
             
             // Redirigir a la página de confirmación después de 2 segundos
+            // Usar nombre completo como username (pool con alias de email)
             setTimeout(() => {
                 navigate(`/recruiter-confirm?username=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`);
             }, 2000);
