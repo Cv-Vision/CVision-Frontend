@@ -1,12 +1,23 @@
-import { MapPin } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface BasicInfoStepProps {
   title: string;
   setTitle: (value: string) => void;
   company: string;
   setCompany: (value: string) => void;
-  jobLocation: string;
-  setJobLocation: (value: string) => void;
+  city: string;
+  setCity: (value: string) => void;
+  province: string;
+  setProvince: (value: string) => void;
+  provinces: string[];
+  provincesLoading: boolean;
+  provincesError: string | null;
+  cities: string[];
+  citiesLoading: boolean;
+  citiesError: string | null;
+  isValidating: boolean;
+  validationResult: any;
+  clearValidation: () => void;
   contractType: string;
   setContractType: (value: string) => void;
   seniority: string;
@@ -20,8 +31,19 @@ export function BasicInfoStep({
   setTitle,
   company,
   setCompany,
-  jobLocation,
-  setJobLocation,
+  city,
+  setCity,
+  province,
+  setProvince,
+  provinces,
+  provincesLoading,
+  provincesError,
+  cities,
+  citiesLoading,
+  citiesError,
+  isValidating,
+  validationResult,
+  clearValidation,
   contractType,
   setContractType,
   seniority,
@@ -61,23 +83,95 @@ export function BasicInfoStep({
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-3">
-          <label htmlFor="location" className="text-base font-medium text-gray-700">
-            Ubicación *
-          </label>
+      <div className="space-y-3">
+        <label className="text-base font-medium text-gray-700">
+          Ubicación del Puesto *
+        </label>
+        <div className="grid grid-cols-2 gap-3">
           <div className="relative">
-            <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              id="location"
-              type="text"
-              value={jobLocation}
-              onChange={(e) => setJobLocation(e.target.value)}
-              placeholder="ej. Madrid, España"
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base"
-            />
+            <select
+              value={province}
+              onChange={e => {
+                setProvince(e.target.value);
+                setCity(''); // Clear city when province changes
+                clearValidation();
+              }}
+              className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base"
+              required
+              disabled={provincesLoading}
+            >
+              <option value="">
+                {provincesLoading ? 'Cargando provincias...' : 'Seleccionar provincia'}
+              </option>
+              {provinces.map((prov) => (
+                <option key={prov} value={prov}>
+                  {prov}
+                </option>
+              ))}
+            </select>
+            {provincesError && (
+              <p className="text-xs text-red-600 mt-1">{provincesError}</p>
+            )}
+          </div>
+          <div className="relative">
+            <select
+              value={city}
+              onChange={e => {
+                setCity(e.target.value);
+                clearValidation();
+              }}
+              className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base"
+              required
+              disabled={!province || citiesLoading}
+            >
+              <option value="">
+                {!province 
+                  ? 'Seleccionar provincia primero'
+                  : citiesLoading 
+                  ? 'Cargando ciudades...'
+                  : 'Seleccionar ciudad'
+                }
+              </option>
+              {cities.map((cityName) => (
+                <option key={cityName} value={cityName}>
+                  {cityName}
+                </option>
+              ))}
+            </select>
+            {citiesError && (
+              <p className="text-xs text-red-600 mt-1">{citiesError}</p>
+            )}
           </div>
         </div>
+        
+        {/* Validation feedback */}
+        {(province && city && !isValidating && validationResult) && (
+          <div className="flex items-center gap-2">
+            {validationResult.valid ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-green-700">Ubicación válida</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <span className="text-sm text-red-700">
+                  {validationResult.message || validationResult.error || 'Ubicación no válida'}
+                </span>
+              </>
+            )}
+          </div>
+        )}
+        
+        {isValidating && (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm text-blue-700">Validando ubicación...</span>
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-3">
           <label htmlFor="type" className="text-base font-medium text-gray-700">
             Tipo de Empleo *

@@ -4,6 +4,9 @@ import { Briefcase, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 import { useCreateJobForm, CreateJobPayload } from '@/hooks/useCreateJobForm';
 import { mapSeniorityToExperienceLevel, mapEnglishLevelToAPI, mapContractTypeToAPI } from '@/utils/jobPostingMappers';
 import { useToast } from '@/context/ToastContext';
+import { useGetProvinces } from '@/hooks/useGetProvinces';
+import { useGetCities } from '@/hooks/useGetCity';
+import { useValidateLocation } from '@/hooks/useValidateLocation';
 import { ProgressIndicator } from './ProgressIndicator';
 import { BasicInfoStep } from './BasicInfoStep';
 import { DescriptionStep } from './DescriptionStep';
@@ -43,13 +46,19 @@ export function CreateJobForm() {
   const [industryText, setIndustryText] = useState('');
   const [contractType, setContractType] = useState<'Full-time' | 'Part-time' | 'Freelance' | 'Temporal' | ''>('');
   const [additionalRequirements, setAdditionalRequirements] = useState('');
-  const [jobLocation, setJobLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
   const [modal, setModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>('');
   const [questions, setQuestions] = useState<Questions[]>([]);
 
   const navigate = useNavigate();
   const { createJob, isSubmitting, success } = useCreateJobForm();
   const { showToast } = useToast();
+
+  // Location hooks
+  const { provinces, isLoading: provincesLoading, error: provincesError } = useGetProvinces();
+  const { cities, isLoading: citiesLoading, error: citiesError } = useGetCities(province);
+  const { isValidating, validationResult, validateLocation, clearValidation } = useValidateLocation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,10 +69,19 @@ export function CreateJobForm() {
   const handlePublishClick = async () => {
     setIsSubmittingForm(true);
     
+    // Check location validation before submitting
+    if (province && city && validationResult && !validationResult.valid) {
+      showToast('Por favor, selecciona una ubicación válida', 'error');
+      setIsSubmittingForm(false);
+      return;
+    }
+    
     // Crear el payload directamente aquí
     const payload: CreateJobPayload = {
       title,
       description,
+      province: province.trim() || 'Buenos Aires', // Default fallback
+      city: city.trim() || 'Buenos Aires', // Default fallback
     };
 
     if (company) payload.company = company;
@@ -85,7 +103,6 @@ export function CreateJobForm() {
 
     payload.industry_experience = { required: industryRequired, industry: industryRequired ? industryText : undefined };
     if (additionalRequirements.trim()) payload.additional_requirements = additionalRequirements.trim();
-    if (jobLocation.trim()) payload.job_location = jobLocation.trim();
 
     // Include questions only if there are valid ones
     const validQs = questions
@@ -110,6 +127,17 @@ export function CreateJobForm() {
     }
   }, [success, navigate, title, showToast]);
 
+  // Validate location when both province and city are selected
+  useEffect(() => {
+    if (province && city) {
+      const timer = setTimeout(() => {
+        validateLocation(province, city);
+      }, 500); // Debounce validation to avoid excessive API calls
+
+      return () => clearTimeout(timer);
+    }
+  }, [province, city, validateLocation]);
+
   const nextStep = () => {
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
@@ -131,8 +159,19 @@ export function CreateJobForm() {
             setTitle={setTitle}
             company={company}
             setCompany={setCompany}
-            jobLocation={jobLocation}
-            setJobLocation={setJobLocation}
+            city={city}
+            setCity={setCity}
+            province={province}
+            setProvince={setProvince}
+            provinces={provinces}
+            provincesLoading={provincesLoading}
+            provincesError={provincesError}
+            cities={cities}
+            citiesLoading={citiesLoading}
+            citiesError={citiesError}
+            isValidating={isValidating}
+            validationResult={validationResult}
+            clearValidation={clearValidation}
             contractType={contractType}
             setContractType={(value) => setContractType(value as any)}
             seniority={seniority}
