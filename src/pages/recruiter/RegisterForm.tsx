@@ -3,7 +3,8 @@ import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerRecruiter } from '@/services/recruiterService.ts';
 import { registerUser } from '@/services/registrationService';
-import { useToast } from '../../context/ToastContext'; // Import useToast
+import { useToast } from '../../context/ToastContext';
+import { Briefcase } from 'lucide-react';
 
 const RecruiterRegisterForm = () => {
     const [fullName, setFullName] = useState('');
@@ -70,30 +71,48 @@ const RecruiterRegisterForm = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-200 flex flex-col items-center justify-center py-10 px-4">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20">
-                <div className="flex flex-col items-center mb-8">
-                    <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg mb-6">
-                        <UserPlusIcon className="h-10 w-10 text-white" />
+        <div className="min-h-screen bg-gradient-to-br from-white via-purple-25 to-purple-50 flex flex-col items-center justify-center py-10 px-4 relative">
+            {/* Background pattern with horizontal lines */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white via-purple-25 to-purple-50">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(147, 51, 234, 0.02) 2px, rgba(147, 51, 234, 0.02) 4px)',
+                }}></div>
+            </div>
+            
+            {/* CVision Logo with purple colors */}
+            <div className="relative z-10 mb-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg flex items-center justify-center shadow-lg">
+                        <Briefcase className="w-6 h-6 text-white" />
                     </div>
-                    {/* Título acortado y centrado */}
-                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-2 text-center">
+                    <span className="text-2xl font-bold text-gray-800">CVision</span>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 relative z-10">
+                <div className="flex flex-col items-center mb-8">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">
                         Cuenta de Reclutador
                     </h1>
-                    <p className="text-gray-600 text-center text-sm">
+                    <p className="text-gray-600 text-center text-sm mb-6">
                         Únete como reclutador a nuestra plataforma
                     </p>
+                    
+                    {/* Recruiter Icon */}
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center shadow-sm mb-6">
+                        <UserPlusIcon className="h-8 w-8 text-purple-600" />
+                    </div>
                 </div>
 
-                <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
+                <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Nombre completo *
+                            Nombre completo <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             placeholder="Tu nombre completo"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={fullName}
                             onChange={e => setFullName(e.target.value)}
                             required
@@ -102,12 +121,12 @@ const RecruiterRegisterForm = () => {
 
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Correo electrónico *
+                            Correo electrónico <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="email"
                             placeholder="tu@email.com"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             required
@@ -116,12 +135,12 @@ const RecruiterRegisterForm = () => {
 
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700 ml-1">
-                            Contraseña *
+                            Contraseña <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             required
@@ -129,11 +148,13 @@ const RecruiterRegisterForm = () => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700 ml-1">Confirmar contraseña *</label>
+                        <label className="text-sm font-medium text-gray-700 ml-1">
+                            Confirmar contraseña <span className="text-red-500">*</span>
+                        </label>
                         <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
                             required
@@ -147,7 +168,7 @@ const RecruiterRegisterForm = () => {
                         <input
                             type="text"
                             placeholder="Nombre de tu empresa"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={company}
                             onChange={e => setCompany(e.target.value)}
                         />
@@ -160,7 +181,7 @@ const RecruiterRegisterForm = () => {
                         <input
                             type="text"
                             placeholder="Tu cargo o posición"
-                            className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                             value={position}
                             onChange={e => setPosition(e.target.value)}
                         />
@@ -168,7 +189,7 @@ const RecruiterRegisterForm = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold py-3.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         disabled={loading || password !== confirmPassword}
                     >
                         {loading ? (
@@ -182,17 +203,24 @@ const RecruiterRegisterForm = () => {
                     </button>
                 </form>
 
-                <div className="mt-8 pt-6 border-t border-gray-200/50">
+                <div className="mt-8 pt-6 border-t border-gray-200">
                     <p className="text-gray-600 text-center text-sm">
                         ¿Ya tienes cuenta?{' '}
                         <Link
                             to="/login"
-                            className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200 hover:underline"
+                            className="text-purple-600 hover:text-purple-700 font-semibold transition-colors duration-200 hover:underline"
                         >
                             Inicia sesión aquí
                         </Link>
                     </p>
                 </div>
+            </div>
+
+            {/* Footer */}
+            <div className="relative z-10 mt-8">
+                <p className="text-gray-500 text-center text-sm">
+                    © 2025 CVision. Todos los derechos reservados.
+                </p>
             </div>
         </div>
     );

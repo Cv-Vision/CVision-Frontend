@@ -5,8 +5,8 @@ import EducationSection from '@/components/applicant/EducationSection.tsx';
 import BasicInfoSection from '@/components/applicant/BasicInfoSection.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { UserIcon } from '@heroicons/react/24/solid';
-import BackButton from '@/components/other/BackButton.tsx';
+import { UserIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import { ArrowLeft } from 'lucide-react';
 import ApplicantCVDropzone from '@/components/applicant/ApplicantCVDropzone.tsx';
 import { getApplicantProfile, updateApplicantProfile } from '@/services/applicantService';
 import { useToast } from '../../context/ToastContext';
@@ -126,87 +126,144 @@ export function ApplicantProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
-      <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
-        <div className="w-full flex justify-start mb-6">
-          <BackButton />
-        </div>
-        
-        {/* Icono y tag centrados */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
-            <UserIcon className="h-16 w-16 text-blue-600" />
-          </div>
-          <span className="text-sm text-blue-600 font-medium bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
-            Aplicante
-          </span>
-        </div>
-        
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-8">
-          Perfil de Aplicante
-        </h1>
-        
-        {loading && !profile.basicInfo.email ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <form className="w-full flex flex-col gap-6 mt-4" onSubmit={handleSubmit}>
-            {/* Mensajes ahora via toasts centrados */}
-            
-            <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={false} />
-            {/* Adjuntar CV debajo de la información básica */}
-            <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
-
-            {/* Sección colapsable: Experiencia Laboral */}
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={() => setIsWorkCollapsed(prev => !prev)}
-                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
-              >
-                <span>Experiencia Laboral</span>
-                <span className="text-sm text-blue-600">
-                  {isWorkCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.workExperience.length} items
-                </span>
-              </button>
-              {!isWorkCollapsed && (
-                <div className="mt-3">
-                  <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="border-b bg-white sticky top-0 z-50">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <button 
+              className="flex items-center px-4 py-2 border border-teal-200 text-teal-700 hover:bg-teal-50 bg-transparent rounded-lg transition-colors"
+              onClick={() => window.history.back()}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver 
+            </button>
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-600">Mi Perfil</span>
+              <span className="text-gray-500">|</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">CV</span>
                 </div>
-              )}
+                <span className="text-xl font-bold text-gray-900">CVision</span>
+              </div>
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Sección colapsable: Educación */}
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={() => setIsEducationCollapsed(prev => !prev)}
-                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
-              >
-                <span>Educación</span>
-                <span className="text-sm text-blue-600">
-                  {isEducationCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.education.length} items
-                </span>
-              </button>
-              {!isEducationCollapsed && (
-                <div className="mt-3">
-                  <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="bg-white shadow-sm rounded-lg">
+          {/* Profile Header */}
+          <div className="border-b p-6">
+            <div className="flex items-center space-x-6">
+              <div className="w-20 h-20 bg-teal-100 rounded-xl flex items-center justify-center">
+                <UserIcon className="h-10 w-10 text-teal-600" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
+                <p className="text-gray-600">Gestiona tu información personal y profesional</p>
+                <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                    Perfil activo
+                  </span>
+                  <span>•</span>
+                  <span>{profile.workExperience.length} experiencias</span>
+                  <span>•</span>
+                  <span>{profile.education.length} estudios</span>
                 </div>
-              )}
+              </div>
             </div>
+          </div>
+        
+          {/* Form Content */}
+          <div className="p-6">
+            {loading && !profile.basicInfo.email ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+              </div>
+            ) : (
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {/* Basic Information */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h3>
+                  <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={false} />
+                </div>
 
-            <div className="flex justify-center pt-6 sticky bottom-0 bg-white/50 backdrop-blur-sm py-4 rounded-b-2xl">
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}`}
-              >
-                {loading ? 'Guardando...' : 'Guardar Cambios'}
-              </button>
-            </div>
-          </form>
-        )}
+                {/* CV Upload */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Curriculum Vitae</h3>
+                  <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
+                </div>
+
+                {/* Work Experience Section */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setIsWorkCollapsed(prev => !prev)}
+                    className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">Experiencia Laboral</span>
+                      <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {profile.workExperience.length} items
+                      </span>
+                    </div>
+                    {isWorkCollapsed ? (
+                      <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <ChevronUpIcon className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+                  {!isWorkCollapsed && (
+                    <div className="mt-4">
+                      <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Education Section */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setIsEducationCollapsed(prev => !prev)}
+                    className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">Educación</span>
+                      <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {profile.education.length} items
+                      </span>
+                    </div>
+                    {isEducationCollapsed ? (
+                      <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <ChevronUpIcon className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+                  {!isEducationCollapsed && (
+                    <div className="mt-4">
+                      <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end pt-6 border-t">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-lg transition-colors disabled:opacity-50 font-semibold"
+                  >
+                    {loading ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -5,10 +5,14 @@ import BasicInfoSection from "@/components/applicant/BasicInfoSection.tsx";
 import WorkExperienceSection from "@/components/applicant/WorkExperienceSection.tsx";
 import EducationSection from "@/components/applicant/EducationSection.tsx";
 import ApplicantCVDropzone from "@/components/applicant/ApplicantCVDropzone.tsx";
+import SkillsSection from "@/components/applicant/SkillsSection.tsx";
+import Collapsible from "@/components/other/Collapsible.tsx";
+import AuthLayout from "@/components/other/AuthLayout.tsx";
 import { registerApplicant } from "@/services/applicantService.ts";
 import { v4 as uuidv4 } from "uuid";
 import { registerUser } from '@/services/registrationService';
 import { useToast } from '../../context/ToastContext';
+import { Link } from "react-router-dom";
 
 const ApplicantRegisterForm = () => {
     const navigate = useNavigate();
@@ -21,9 +25,9 @@ const ApplicantRegisterForm = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showFormFields, setShowFormFields] = useState(false);
-    const [isWorkCollapsed, setIsWorkCollapsed] = useState(true);
-    const [isEducationCollapsed, setIsEducationCollapsed] = useState(true);
+    const [step, setStep] = useState<"upload" | "verify">("upload");
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [skills, setSkills] = useState<string[]>([]);
     const { showToast } = useToast();
 
     const handleBasicInfoChange = (field: keyof ApplicantProfile["basicInfo"], value: string) => {
@@ -91,32 +95,51 @@ const ApplicantRegisterForm = () => {
             education: cvData.education || prev.education,
         }));
         
-        // Mostrar los campos del formulario después de procesar el CV
-        setShowFormFields(true);
-        // Colapsar secciones largas por defecto
-        setIsWorkCollapsed(true);
-        setIsEducationCollapsed(true);
+        // Actualizar habilidades si vienen del CV
+        if (cvData.skills) {
+            setSkills(cvData.skills);
+        }
+        
+        // Cambiar al paso de verificación
+        setStep("verify");
         
         // Mostrar mensaje de éxito
         showToast('Extracción de datos completa, ¡revisa bien tu información!', 'success');
     };
 
-    const handleSubmit = async () => {
-        // Validar campos obligatorios
-        if (!profile.basicInfo.email || !profile.basicInfo.password || !profile.basicInfo.fullName) {
-            showToast('Por favor completa todos los campos obligatorios', 'error');
-            return;
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!profile.basicInfo.fullName.trim()) {
+            newErrors.fullName = "El nombre completo es requerido";
         }
 
-        if (profile.basicInfo.password.length < 8) {
-            showToast('La contraseña debe tener al menos 8 caracteres', 'error');
-            return;
+        if (!profile.basicInfo.email.trim()) {
+            newErrors.email = "El correo electrónico es requerido";
+        } else if (!/\S+@\S+\.\S+/.test(profile.basicInfo.email)) {
+            newErrors.email = "El correo electrónico no es válido";
         }
 
-        if (profile.basicInfo.password !== profile.basicInfo.confirmPassword) {
-            showToast('Las contraseña no coinciden', 'error');
-            return;
+        if (!profile.basicInfo.password) {
+            newErrors.password = "La contraseña es requerida";
+        } else if (profile.basicInfo.password.length < 6) {
+            newErrors.password = "La contraseña debe tener al menos 6 caracteres";
         }
+
+        if (!profile.basicInfo.confirmPassword) {
+            newErrors.confirmPassword = "Confirma tu contraseña";
+        } else if (profile.basicInfo.password !== profile.basicInfo.confirmPassword) {
+            newErrors.confirmPassword = "Las contraseñas no coinciden";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) return;
 
         setIsSubmitting(true);
         try {
@@ -139,80 +162,97 @@ const ApplicantRegisterForm = () => {
         }
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
-            <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white/20">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent text-center mb-4">
-                    Crear Perfil de Aplicante
-                </h1>
-                <p className="text-lg text-gray-600 text-center mb-8">
-                    ¡Solo tenés que subir tu CV!
-                </p>
-                
-                {/* Mostrar siempre el componente de subida de CV */}
-                <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
-                
-                {/* Mostrar el resto de campos solo después de subir el CV */}
-                {showFormFields && (
-                    <div className="animate-fadeIn">
-                        <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={true}/>
+    if (step === "upload") {
+        return (
+            <AuthLayout title="Crear Perfil de Aplicante" subtitle="¡Solo tenés que subir tu CV!">
+                <div className="space-y-6">
+                    <ApplicantCVDropzone onCVProcessed={handleCVProcessed} />
 
-                        {/* Sección colapsable: Experiencia Laboral */}
-                        <div className="mt-4">
-                            <button
-                                type="button"
-                                onClick={() => setIsWorkCollapsed(prev => !prev)}
-                                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
-                            >
-                                <span>Experiencia Laboral</span>
-                                <span className="text-sm text-blue-600">
-                                    {isWorkCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.workExperience.length} items
-                                </span>
-                            </button>
-                            {!isWorkCollapsed && (
-                                <div className="mt-3">
-                                    <WorkExperienceSection data={profile.workExperience} onChange={handleWorkChange} onAdd={addWork} onRemove={removeWork} />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Sección colapsable: Educación */}
-                        <div className="mt-4">
-                            <button
-                                type="button"
-                                onClick={() => setIsEducationCollapsed(prev => !prev)}
-                                className="w-full flex items-center justify-between px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
-                            >
-                                <span>Educación</span>
-                                <span className="text-sm text-blue-600">
-                                    {isEducationCollapsed ? 'Mostrar' : 'Ocultar'} · {profile.education.length} items
-                                </span>
-                            </button>
-                            {!isEducationCollapsed && (
-                                <div className="mt-3">
-                                    <EducationSection data={profile.education} onChange={handleEducationChange} onAdd={addEducation} onRemove={removeEducation} />
-                                </div>
-                            )}
-                        </div>
-                        
-                        {/* Botón de guardar */}
-                        <div className="flex justify-center pt-6 sticky bottom-0 bg-white/50 backdrop-blur-sm py-4 rounded-b-2xl">
-                            <button
-                                onClick={handleSubmit}
-                                disabled={isSubmitting || profile.basicInfo.password !== profile.basicInfo.confirmPassword}
-                                className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ${
-                                    isSubmitting 
-                                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
-                                }`}
-                            >
-                                {isSubmitting ? 'Guardando...' : 'Guardar Perfil'}
-                            </button>
-                        </div>
+                    <div className="text-center">
+                        <p className="text-sm text-muted-foreground mb-4">O completa tu información manualmente</p>
+                        <button
+                            type="button"
+                            onClick={() => setStep("verify")}
+                            className="w-full px-4 py-3 border border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-lg transition-colors"
+                        >
+                            Completar manualmente
+                        </button>
                     </div>
-                )}
-            </div>
-        </div>
+
+                    <div className="text-center pt-4">
+                        <p className="text-sm text-muted-foreground">
+                            ¿Ya tienes cuenta?{" "}
+                            <Link to="/login" className="text-teal-600 hover:underline font-medium">
+                                Inicia sesión aquí
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </AuthLayout>
+        );
+    }
+
+    return (
+        <AuthLayout title="Crear Perfil de Aplicante" subtitle="Verifica y completa tu información">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Information */}
+                <BasicInfoSection 
+                    data={profile.basicInfo} 
+                    onChange={handleBasicInfoChange} 
+                    showPassword={true}
+                    errors={errors}
+                />
+
+                {/* Skills */}
+                <SkillsSection 
+                    skills={skills} 
+                    onSkillsChange={setSkills} 
+                />
+
+                {/* Experience */}
+                <Collapsible 
+                    title="Experiencia Laboral" 
+                    subtitle={`Mostrar • ${profile.workExperience.length} items`}
+                >
+                    <WorkExperienceSection 
+                        data={profile.workExperience} 
+                        onChange={handleWorkChange} 
+                        onAdd={addWork} 
+                        onRemove={removeWork} 
+                    />
+                </Collapsible>
+
+                {/* Education */}
+                <Collapsible 
+                    title="Educación" 
+                    subtitle={`Mostrar • ${profile.education.length} items`}
+                >
+                    <EducationSection 
+                        data={profile.education} 
+                        onChange={handleEducationChange} 
+                        onAdd={addEducation} 
+                        onRemove={removeEducation} 
+                    />
+                </Collapsible>
+
+                <button
+                    type="submit"
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 px-4 text-base font-medium h-12 mt-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? "Guardando perfil..." : "Guardar Perfil"}
+                </button>
+
+                <div className="text-center pt-4">
+                    <p className="text-sm text-muted-foreground">
+                        ¿Ya tienes cuenta?{" "}
+                        <Link to="/login" className="text-teal-600 hover:underline font-medium">
+                            Inicia sesión aquí
+                        </Link>
+                    </p>
+                </div>
+            </form>
+        </AuthLayout>
     );
 };
 

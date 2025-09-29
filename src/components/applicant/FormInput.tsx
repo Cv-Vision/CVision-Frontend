@@ -7,21 +7,39 @@ interface FormInputProps {
     onChange: (value: string) => void;
     placeholder?: string;
     required?: boolean;
+    error?: string;
+    name?: string;
 }
 
-const FormInput: FC<FormInputProps> = ({ label, type = "text", value, onChange, placeholder, required = false }) => {
+const FormInput: FC<FormInputProps> = ({ 
+    label, 
+    type = "text", 
+    value, 
+    onChange, 
+    placeholder, 
+    required = false, 
+    error,
+    name 
+}) => {
     return (
-        <div className="flex flex-col gap-2 w-full">
-            <label className="text-base font-semibold text-blue-800">
-                {label} {required && <span className="text-red-600" title="Obligatorio">*</span>}
+        <div className="space-y-2 w-full">
+            <label htmlFor={name} className="text-sm font-medium text-gray-700">
+                {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
+                id={name}
+                name={name}
                 type={type}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="border-2 border-blue-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm text-lg"
+                className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20 ${
+                    error 
+                        ? "border-red-500 focus:border-red-500" 
+                        : "border-gray-300 focus:border-teal-500"
+                }`}
             />
+            {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
     );
 };

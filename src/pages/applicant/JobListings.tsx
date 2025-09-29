@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import JobSearchBar from "@/components/applicant/JobSearchBar.tsx";
-import JobSearchAdvancedFilters from "@/components/applicant/JobSearchAdvancedFilters";
-import JobSearchResults from "@/components/applicant/JobSearchResults";
+import { useNavigate } from "react-router-dom";
 import { JobSearchFilters } from "@/types/applicant.ts";
 import { useApplyToJob } from '@/hooks/useApplyToJob';
 import { usePublicJobSearch } from '@/hooks/usePublicJobSearch';
@@ -9,31 +7,45 @@ import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
-import BackButton from '@/components/other/BackButton.tsx';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
+import { JobListingHeader } from '@/components/applicant/JobListingHeader';
+import { JobListSidebar } from '@/components/applicant/JobListSidebar';
+import { JobDetails } from '@/components/applicant/JobDetails';
 
 const JobSearch = () => {
-  const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [page, setPage] = useState(1);
-  const [jobsPerPage] = useState(10);
+  const navigate = useNavigate();
+  const [filters] = useState<JobSearchFilters>({ title: "" });
+  const [, setPage] = useState(1);
   const { jobs, isLoading: isLoadingSearch, error: searchError, search, hasMore } = usePublicJobSearch();
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
   const { showToast } = useToast();
-  const { user, isAuthenticated } = useAuth();
-  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const { isAuthenticated } = useAuth();
+  const [, setAppliedJobs] = useState<string[]>([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [selectedJobForGuest, setSelectedJobForGuest] = useState<{id: string, title: string} | null>(null);
+  
+  // New state for the modern UI
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
 
   useEffect(() => {
     search(filters, 1, 10, false);
     setPage(1);
   }, [filters, search]);
+
+  // Set first job as selected when jobs are loaded
+  useEffect(() => {
+    if (jobs.length > 0 && !selectedJob) {
+      setSelectedJob(jobs[0]);
+    }
+  }, [jobs, selectedJob]);
 
   useEffect(() => {
     if (success) {
@@ -74,14 +86,6 @@ const JobSearch = () => {
     }
   }, [isLoadingSearch, hasMore, search, filters]);
 
-  const handleChange = (field: keyof JobSearchFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSearch = () => {
-    search(filters);
-    setPage(1);
-  };
 
   const handleConfirmApply = () => {
     apply(selectedJobId);
@@ -96,9 +100,9 @@ const JobSearch = () => {
   const handleApply = (jobId: string) => {
     if (!isAuthenticated) {
       // Show guest modal instead of redirecting
-      const selectedJob = jobs.find(job => job.pk === jobId);
-      if (selectedJob) {
-        setSelectedJobForGuest({ id: jobId, title: selectedJob.title });
+      const job = jobs.find(job => job.pk === jobId);
+      if (job) {
+        setSelectedJobForGuest({ id: jobId, title: job.title });
         setShowGuestModal(true);
       }
       return;
@@ -106,6 +110,14 @@ const JobSearch = () => {
 
     setSelectedJobId(jobId);
     setIsModalOpen(true);
+  };
+
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
+  };
+
+  const handleBackClick = () => {
+    navigate(isAuthenticated ? "/applicant/dashboard" : "/");
   };
 
   useEffect(() => {
@@ -129,81 +141,75 @@ const JobSearch = () => {
   }, [loadMore, hasMore, isLoadingSearch]);
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-y-auto">
-        <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20">
-          <div className="w-full flex flex-col gap-6">
-            {/* Botón de volver usando el componente BackButton */}
-            <div className="w-full flex justify-start mb-6">
-              <BackButton to={isAuthenticated ? "/applicant/dashboard" : "/"} />
+    <div className="min-h-screen bg-background">
+      <JobListingHeader onBackClick={handleBackClick} />
+
+      <div className="flex h-[calc(100vh-73px)]">
+        <JobListSidebar
+          jobs={jobs as Job[]}
+          selectedJob={selectedJob}
+          onJobSelect={handleJobSelect}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          locationFilter={locationFilter}
+          onLocationChange={setLocationFilter}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          isLoading={isLoadingSearch}
+        />
+
+        {/* Job Details */}
+        <div className="flex-1 bg-gray-50 overflow-y-auto">
+          {selectedJob ? (
+            <JobDetails
+              job={selectedJob}
+              onApply={() => handleApply(selectedJob.pk)}
+              isApplying={isApplying && selectedJobId === selectedJob.pk}
+              applicantsCount={0}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500">
+                <p className="text-lg font-medium">Selecciona un trabajo para ver los detalles</p>
+                <p className="text-sm">Usa los filtros para encontrar trabajos que te interesen</p>
+              </div>
             </div>
-
-            <JobSearchBar
-                title={filters.title}
-                onTitleChange={(v) => handleChange("title", v)}
-                onToggleAdvanced={() => setShowAdvanced((prev) => !prev)}
-            />
-
-            {showAdvanced && (
-                <JobSearchAdvancedFilters filters={filters} onChange={handleChange} />
-            )}
-
-            <div className="flex justify-center">
-              <button
-                  onClick={handleSearch}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 hover:scale-105"
-              >
-                Buscar
-              </button>
-            </div>
-
-            <JobSearchResults
-              isLoading={isLoadingSearch}
-              hasResults={jobs.length > 0}
-              jobs={jobs as Job[]}
-              onApply={handleApply}
-              appliedJobs={appliedJobs}
-              isApplying={isApplying}
-              applyingJobId={selectedJobId}
-              isAuthenticated={isAuthenticated}
-              userRole={user?.role}
-              currentPage={page}
-              jobsPerPage={jobsPerPage}
-              onPageChange={setPage}
-              totalJobs={jobs.length}
-            />
-            <ApplyConfirmationModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onConfirm={handleConfirmApply}
-              isLoading={isApplying}
-            />
-            {/* Toasts globales via provider */}
-            <div ref={observerRef} className="h-10" />
-            {isLoadingSearch && (
-              <p className="text-center text-gray-500 mt-4">Cargando más...</p>
-            )}
-          </div>
+          )}
         </div>
-        <JobQuestionsModal
-          isOpen={showQuestionsModal}
-          onClose={() => {
-            setShowQuestionsModal(false);
-            setSelectedJobForQuestions(null);
-          }}
-          jobId={selectedJobForQuestions?.id || ''}
-          jobTitle={selectedJobForQuestions?.title}
-        />
-        <GuestApplicantModal
-          isOpen={showGuestModal}
-          onClose={() => {
-            setShowGuestModal(false);
-            setSelectedJobForGuest(null);
-          }}
-          jobId={selectedJobForGuest?.id || ''}
-          jobTitle={selectedJobForGuest?.title || ''}
-          onApply={handleGuestApply}
-        />
       </div>
+
+      {/* Modals */}
+      <ApplyConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmApply}
+        isLoading={isApplying}
+      />
+      
+      <JobQuestionsModal
+        isOpen={showQuestionsModal}
+        onClose={() => {
+          setShowQuestionsModal(false);
+          setSelectedJobForQuestions(null);
+        }}
+        jobId={selectedJobForQuestions?.id || ''}
+        jobTitle={selectedJobForQuestions?.title}
+      />
+      
+      <GuestApplicantModal
+        isOpen={showGuestModal}
+        onClose={() => {
+          setShowGuestModal(false);
+          setSelectedJobForGuest(null);
+        }}
+        jobId={selectedJobForGuest?.id || ''}
+        jobTitle={selectedJobForGuest?.title || ''}
+        onApply={handleGuestApply}
+      />
+
+      {/* Infinite scroll trigger */}
+      <div ref={observerRef} className="h-10" />
+    </div>
   );
 };
 
