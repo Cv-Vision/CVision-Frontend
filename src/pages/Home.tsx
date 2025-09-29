@@ -1,107 +1,320 @@
-import { SparklesIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+// Using native HTML elements instead of UI components
+import {
+  Users,
+  Star,
+  ArrowRight,
+  Briefcase,
+  Code,
+  Heart,
+  GraduationCap,
+  Building,
+  Truck,
+} from "lucide-react";
 import { Link } from 'react-router-dom';
-import resultsImg from '../assets/homepage_results.png';
-import candidatesImg from '../assets/homepage_candidates.png';
 
 const Home = () => {
+  const jobCategories = [
+    { name: "Tecnología", icon: Code, color: "bg-blue-100 text-blue-700" },
+    { name: "Salud", icon: Heart, color: "bg-red-100 text-red-700" },
+    { name: "Educación", icon: GraduationCap, color: "bg-green-100 text-green-700" },
+    { name: "Finanzas", icon: Building, color: "bg-purple-100 text-purple-700" },
+    { name: "Logística", icon: Truck, color: "bg-orange-100 text-orange-700" },
+    { name: "Marketing", icon: Users, color: "bg-pink-100 text-pink-700" },
+  ]
+
+  const testimonials = [
+    {
+      name: "María González",
+      role: "Desarrolladora Frontend",
+      company: "TechCorp",
+      quote:
+        "Encontré mi trabajo ideal en menos de una semana. La plataforma es muy intuitiva y las ofertas son de alta calidad.",
+      rating: 5,
+    },
+    {
+      name: "Carlos Rodríguez",
+      role: "Gerente de Ventas",
+      company: "SalesForce",
+      quote:
+        "CVision me conectó con oportunidades que realmente se ajustaban a mi perfil profesional. Excelente experiencia.",
+      rating: 5,
+    },
+    {
+      name: "Ana Martínez",
+      role: "Diseñadora UX",
+      company: "CreativeStudio",
+      quote: "La mejor plataforma de empleos que he usado. El proceso de aplicación es muy sencillo y rápido.",
+      rating: 5,
+    },
+  ]
+
+  const stats = [
+    { number: "50,000+", label: "Empleos Activos" },
+    { number: "25,000+", label: "Empresas Registradas" },
+    { number: "1M+", label: "Candidatos Exitosos" },
+    { number: "95%", label: "Tasa de Satisfacción" },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col items-center justify-center py-10 px-4 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-foreground">CVision</span>
+          </div>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/applicant/positions" className="text-muted-foreground hover:text-foreground transition-colors">
+              Buscar Empleos
+            </Link>
+            
+            {/* Sección Candidatos */}
+            <div className="flex items-center space-x-2">
+              <Link to="/login">
+                <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                  Iniciar Sesión
+                </button>
+              </Link>
+              <Link to="/applicant-register">
+                <button className="px-4 py-2 bg-green-500/20 text-green-700 hover:bg-green-500/30 rounded-md text-sm font-medium transition-colors border border-green-500/30">
+                  Registrarse
+                </button>
+              </Link>
+            </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-full gap-8 md:gap-0 overflow-visible">
-        {/* Main message centrado */}
-        <div className="flex flex-col items-center justify-center w-full px-2 md:px-8 py-16">
-          <SparklesIcon className="h-12 w-12 text-indigo-600 mb-4" />
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6 text-center">
-            Bienvenido a <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">CVision</span>
+            {/* Separador */}
+            <div className="w-px h-6 bg-gray-300"></div>
+
+            {/* Sección Empresas */}
+            <div className="flex items-center space-x-2">
+              <Link to="/login">
+                <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                  Iniciar Sesión
+                </button>
+              </Link>
+              <Link to="/recruiter-register">
+                <button className="px-4 py-2 bg-purple-500/20 text-purple-700 hover:bg-purple-500/30 rounded-md text-sm font-medium transition-colors border border-purple-500/30">
+                  Para Empresas
+                </button>
+              </Link>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-teal-50 to-cyan-50">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
+            Encuentra tu próximo
+            <span className="text-teal-600"> empleo ideal</span>
           </h1>
-          <p className="text-2xl md:text-3xl text-gray-700 font-medium max-w-xl text-center">
-            Tu plataforma de reclutamiento inteligente que revoluciona la forma de encontrar y evaluar talento
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
+            Conectamos talento con oportunidades. Descubre miles de empleos que se ajustan a tu perfil profesional.
           </p>
-          <Link
-            to="/candidate/positions"
-            className="mt-6 bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition text-lg"
-          >
-            Explorar Trabajos
-          </Link>
-        </div>
-      </div>
 
-      {/* Secciones informativas al hacer scroll */}
-      <div className="w-full flex flex-col items-center justify-center mt-24 space-y-16 px-4">
-        {/* Sección: Análisis inteligente con imagen a la izquierda y texto a la derecha */}
-        <div className="w-full flex flex-row items-center justify-start gap-6 ml-0 md:ml-16">
-          {/* Imagen a la izquierda */}
-          <div className="flex items-center justify-center">
-            <img
-              src={resultsImg}
-              alt="Resultados de análisis"
-              className="object-contain max-w-xl w-full h-auto drop-shadow-2xl"
-              style={{ background: 'none', border: 'none' }}
-            />
-          </div>
-          {/* Línea punteada horizontal centrada */}
-          <div className="flex items-center h-full transition-all duration-300 hover:drop-shadow-lg">
-            <div className="w-40 h-0 border-t-4 border-dashed border-blue-300 opacity-80 mx-2" />
-          </div>
-          {/* Rectángulo de texto a la derecha */}
-          <section className="inline-flex flex-col items-center justify-center gap-4 animate-fadein bg-gradient-to-br from-blue-100/90 via-indigo-100/80 to-purple-100/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-blue-200 px-10 py-10 ml-0 md:ml-16 transition-transform duration-300 hover:shadow-3xl hover:scale-105">
-            <ChartBarIcon className="h-20 w-20 text-blue-500 mb-6 drop-shadow" />
-            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Análisis inteligente</h2>
-            <p className="text-2xl text-gray-700 mb-2">Evaluación automática de CVs con IA avanzada.</p>
-          </section>
-          {/* Frase inspiradora a la derecha */}
-          <div className="hidden md:flex flex-col items-start justify-center flex-1 pl-8 mt-32">
-            <span className="text-3xl font-bold text-indigo-300 mb-2">Optimiza tu proceso de selección</span>
-            <span className="text-xl text-indigo-200 ml-2">con IA</span>
-          </div>
-        </div>
-        {/* Separador */}
-        <div className="w-32 h-1 bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300 rounded-full opacity-40 mb-6" />
-        {/* Sección: Gestión de candidatos con rectángulo, línea punteada e imagen */}
-        <div className="w-full flex flex-row items-center justify-end gap-6 mr-0 md:mr-16">
-          {/* Frase inspiradora a la izquierda */}
-          <div className="hidden md:flex flex-col items-end justify-start flex-1 pr-8 mt-20 mb-auto">
-            <span className="text-3xl font-bold text-indigo-300 mb-2">Encuentra el mejor talento</span>
-            <span className="text-xl text-indigo-200">en segundos</span>
-          </div>
-          <section className="inline-flex flex-col items-center justify-center gap-4 animate-fadein bg-gradient-to-br from-indigo-100/90 via-purple-100/80 to-blue-100/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-indigo-200 px-10 py-10 ml-0 md:ml-16 transition-transform duration-300 hover:shadow-3xl hover:scale-105">
-            <UserGroupIcon className="h-20 w-20 text-indigo-500 mb-6 drop-shadow" />
-            <h2 className="text-4xl font-extrabold mb-4 text-gray-900 tracking-tight">Gestión de candidatos</h2>
-            <p className="text-2xl text-gray-700 mb-2">Organiza y evalúa candidatos de manera eficiente.</p>
-          </section>
-          {/* Línea punteada horizontal entre el rectángulo y la imagen */}
-          <div className="flex items-center h-full transition-all duration-300 hover:drop-shadow-lg">
-            <div className="w-40 h-0 border-t-4 border-dashed border-indigo-300 opacity-80 mx-2" />
-          </div>
-          {/* Imagen a la derecha del rectángulo y la línea */}
-          <div className="flex items-center justify-center">
-            <img
-              src={candidatesImg}
-              alt="Gestión de candidatos"
-              className="object-contain max-w-md w-full h-auto drop-shadow-2xl"
-              style={{ background: 'none', border: 'none' }}
-            />
-          </div>
-        </div>
-      </div>
 
-      {/* Footer simple con línea y textos */}
-      <div className="w-full flex flex-col items-center mt-32 mb-8">
-        <div className="w-2/3 h-1 bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300 rounded-full opacity-40 mb-6" />
-        <div className="flex flex-wrap gap-8 justify-center text-gray-500 text-lg font-medium">
-          <span>Sobre nosotros</span>
-          <span>Centro de ayuda</span>
-          <span>Contacto</span>
-          <span>Términos y condiciones</span>
-          <span>Privacidad</span>
+          {/* CTA Button */}
+          <div className="flex justify-center">
+            <Link to="/applicant/positions">
+              <button className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 transition-colors">
+                Explorar Todas las Ofertas
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {stats.map((stat, index) => (
+              <div key={index} className="space-y-2">
+                <div className="text-3xl md:text-4xl font-bold text-teal-600">{stat.number}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Job Categories */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Explora por Categorías</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Encuentra oportunidades en los sectores que más te interesan
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobCategories.map((category, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer group p-6">
+                <div className="flex items-center mb-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${category.color}`}>
+                    <category.icon className="w-6 h-6" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
+                  {category.name}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Historias de Éxito</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Descubre cómo CVision ha ayudado a profesionales como tú a encontrar su trabajo ideal
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <blockquote className="text-gray-600 mb-6 flex-1 italic">"{testimonial.quote}"</blockquote>
+                <div>
+                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                  <div className="text-sm text-gray-500">
+                    {testimonial.role} en {testimonial.company}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-teal-600">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">¿Listo para encontrar tu próximo empleo?</h2>
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
+            Únete a miles de profesionales que ya han encontrado su trabajo ideal a través de CVision
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/applicant/positions">
+              <button className="bg-white text-teal-600 text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                Buscar Empleos Ahora
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+            <Link to="/applicant-register">
+              <button className="text-lg px-8 py-6 rounded-md font-medium border-2 border-white text-white hover:bg-white hover:text-teal-600 bg-transparent transition-colors">
+                Crear mi Perfil
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-gray-900 text-white">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">CVision</span>
+              </div>
+              <p className="text-gray-400 mb-4">
+                La plataforma líder en búsqueda de empleo que conecta talento con oportunidades.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Para Candidatos</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link to="/applicant/positions" className="hover:text-white transition-colors">
+                    Buscar Empleos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Crear CV
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Consejos de Carrera
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Alertas de Empleo
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Para Empresas</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link to="/recruiter/dashboard" className="hover:text-white transition-colors">
+                    Publicar Empleos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Buscar Candidatos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Planes y Precios
+                  </Link>
+                </li>
+                <li>
+                  <Link to="#" className="hover:text-white transition-colors">
+                    Recursos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/recruiter/profile" className="hover:text-white transition-colors">
+                    Mi Perfil
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Newsletter</h3>
+              <p className="text-gray-400 mb-4">Recibe las mejores ofertas de empleo directamente en tu email.</p>
+              <div className="flex gap-2">
+                <input
+                  placeholder="Tu email"
+                  className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white placeholder:text-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-md transition-colors">Suscribirse</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} CVision. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

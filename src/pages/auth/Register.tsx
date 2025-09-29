@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 const Register = () => {
   const navigate = useNavigate();
 
-  const handleSelect = (role: 'candidate' | 'recruiter') => {
-    if (role === 'candidate') {
-      navigate('/candidate-register');
+  const handleSelect = (role: 'applicant' | 'recruiter') => {
+    if (role === 'applicant') {
+      navigate('/applicant-register');
     } else {
       navigate('/recruiter-register');
     }
@@ -28,10 +28,10 @@ const Register = () => {
         </div>
         <div className="flex flex-col gap-6 mt-6">
           <button
-            onClick={() => handleSelect('candidate')}
+            onClick={() => handleSelect('applicant')}
             className="w-full bg-blue-500 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base"
           >
-            👤 Candidato
+            👤 Aplicante
           </button>
           <button
             onClick={() => handleSelect('recruiter')}

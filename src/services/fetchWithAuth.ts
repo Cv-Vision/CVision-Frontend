@@ -1,10 +1,6 @@
 export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
   const token = sessionStorage.getItem('idToken');
 
-  if (!token) {
-    throw new Error('No se encontró el token de identidad. Por favor, inicie sesión nuevamente.');
-  }
-
   const authHeaders = {
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/json',
@@ -20,9 +16,10 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
     ...init,
     headers: mergedHeaders,
     mode: 'cors',
-    credentials: 'include'
+    credentials: 'omit' // Change to 'omit' to avoid CORS preflight issues
   };
 
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await fetch(input, mergedInit);
 
@@ -47,7 +44,7 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
         throw new Error('Error interno del servidor.');
       }
 
-      // Try to get error message from response
+      // Try to get an error message from response
       let errorMessage = `Error en la solicitud: ${response.status}`;
       try {
         const errorData = await response.json();

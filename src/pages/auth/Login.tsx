@@ -1,136 +1,162 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
-import { useAuth } from "@/context/AuthContext.tsx";
+import { decodeJwt, useAuth } from "@/context/AuthContext.tsx";
+import { useToast } from '@/context/ToastContext';
 import { UserRole } from '@/types/auth.ts';
+import AuthLayout from '@/components/other/AuthLayout';
+
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('candidate');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
 
-  const fromJobListings = searchParams.get('fromJobListings') === 'true';
 
-  useEffect(() => {
-    if (fromJobListings) {
-      setRole('candidate');
-      // Disable role switching
-      const roleSelectElement = document.getElementById('role-select') as HTMLSelectElement;
-      if (roleSelectElement) {
-        roleSelectElement.disabled = true;
-      }
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!email.trim()) {
+      newErrors.email = 'El correo electrónico es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'El correo electrónico no es válido';
     }
-  }, [fromJobListings]);
+
+    if (!password) {
+      newErrors.password = 'La contraseña es requerida';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setLoading(true);
-    setError('');
 
     try {
       const cognitoUser = await signIn({ username: email, password });
-
       const token = cognitoUser?.AuthenticationResult?.IdToken;
 
       if (!token) {
         throw new Error("No se pudo obtener el token de sesión");
       }
 
+      const decodedToken = decodeJwt(token);
+      const userType = decodedToken ? decodedToken['custom:userType'] : null;
+
+      // Convert to uppercase for consistent comparison
+      const normalizedUserType = userType?.toUpperCase();
+      
+      if (!normalizedUserType || (normalizedUserType !== 'RECRUITER' && normalizedUserType !== 'APPLICANT' && normalizedUserType !== 'ADMIN')) {
+        throw new Error("Tipo de usuario no válido o no encontrado en el token.");
+      }
+
+      const role: UserRole = normalizedUserType === 'RECRUITER' ? 'recruiter' : 
+                           normalizedUserType === 'ADMIN' ? 'admin' : 'applicant';
       const userData = { email, role, token };
+
       if (login) {
         login(userData);
       }
 
-      if (role === 'candidate') {
-        navigate('/candidate/dashboard');
+      // Verificar si hay una URL de redirección guardada
+      const redirectUrl = localStorage.getItem('redirectAfterAuth');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectAfterAuth');
+        navigate(redirectUrl);
       } else {
-        navigate('/recruiter/dashboard');
+        if (role === 'applicant') {
+          navigate('/applicant/dashboard', { state: { justLoggedIn: true, userName: decodedToken?.name || email.split('@')[0] } });
+        } else if (role === 'admin') {
+          navigate('/admin/metrics');
+        } else {
+          navigate('/recruiter/dashboard');
+        }
       }
     } catch (err: any) {
       console.error("Error al hacer login:", err);
-      setError(err.message);
+      showToast(err.message || 'Error al iniciar sesión', 'error');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-200 flex flex-col items-center justify-center py-10 px-4">
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20">
-        <div className="flex flex-col items-center mb-8">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg mb-6">
-            <ArrowRightOnRectangleIcon className="h-10 w-10 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-2">
-            Iniciar Sesión
-          </h1>
-          <p className="text-gray-600 text-center text-sm">
-            Accede a tu cuenta para continuar
-          </p>
-        </div>
-
-        <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 ml-1">
-              Tipo de usuario
-            </label>
-            <div className="relative">
-              <select
-                id="role-select"
-                className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer pr-10"
-                value={role}
-                onChange={e => setRole(e.target.value as UserRole)}
-              >
-                <option value="candidate" className="py-2">👤 Candidato</option>
-                <option value="recruiter" className="py-2">🏢 Reclutador</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 ml-1">
+    <AuthLayout title="Iniciar Sesión" subtitle="Accede a tu cuenta">
+      <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               Correo electrónico
             </label>
             <input
               type="email"
+              id="email"
+              name="email"
               placeholder="tu@email.com"
-              className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
               value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) {
+                  setErrors(prev => ({ ...prev, email: "" }));
+                }
+              }}
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500/20 ${
+                errors.email 
+                  ? "border-red-500 focus:border-red-500" 
+                  : "border-border focus:border-gray-500"
+              }`}
             />
+            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 ml-1">
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
               Contraseña
             </label>
             <input
               type="password"
+              id="password"
+              name="password"
               placeholder="••••••••"
-              className="w-full bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
               value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) {
+                  setErrors(prev => ({ ...prev, password: "" }));
+                }
+              }}
+              className={`h-12 w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500/20 ${
+                errors.password 
+                  ? "border-red-500 focus:border-red-500" 
+                  : "border-border focus:border-gray-500"
+              }`}
             />
+            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+          </div>
+
+          <div className="text-left">
+            <Link 
+              to="/forgot-password" 
+              className="text-sm text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             disabled={loading}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -138,30 +164,12 @@ const Login = () => {
                 Ingresando...
               </div>
             ) : (
-              'Ingresar'
+              'Iniciar Sesión'
             )}
           </button>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-              <p className="text-red-600 text-sm text-center">{error}</p>
-            </div>
-          )}
         </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-200/50">
-          <p className="text-gray-600 text-center text-sm">
-            ¿No tienes cuenta?{' '}
-            <Link 
-              to={fromJobListings ? "/candidate-register" : "/register"}
-              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200 hover:underline"
-            >
-              Regístrate aquí
-            </Link>
-          </p>
-        </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

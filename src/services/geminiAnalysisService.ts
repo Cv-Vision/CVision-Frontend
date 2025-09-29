@@ -2,7 +2,7 @@ import { CONFIG } from '@/config';
 import { fetchWithAuth } from './fetchWithAuth';
 
 export interface GeminiAnalysisResult {
-  score: number;
+  score: number | null;
   name: string;
   reasons: string[];
   timestamp: string;
@@ -15,30 +15,42 @@ export interface GeminiAnalysisResult {
 }
 
 export const getGeminiAnalysisResults = async (jobId: string): Promise<GeminiAnalysisResult[]> => {
-  const response = await fetchWithAuth(
-    `${CONFIG.apiUrl}/recruiter/get-cvs-analysis-results?job_id=${jobId}`
-  );
-
+  const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/applicants`);
   if (!response.ok) {
-    if (response.status === 401) throw new Error('No autorizado. Por favor, inicia sesión nuevamente.');
-    if (response.status === 404) throw new Error('No se encontraron resultados para este puesto.');
-    throw new Error('Error al obtener los resultados de análisis.');
+    throw new Error(`Error fetching analysis results: ${response.statusText}`);
   }
-
-  const data = await response.json();
-  return Array.isArray(data) ? data : [];
+  const applicants = await response.json();
+  if (!Array.isArray(applicants)) {
+    throw new Error('Expected an array of applicants');
+  }
+  const analysisResults = applicants
+    .map((applicant: any) => {
+      const analysisData = applicant.cv_analysis_result?.analysis_data;
+      const createdAt = applicant.cv_analysis_result?.created_at; // Get created_at from the parent
+      if (analysisData) {
+        // Handle N/A scores properly
+        let score = analysisData.score;
+        if (score === "N/A" || score === null || score === undefined) {
+          score = null; // Convert N/A to null for consistent handling
+        }
+        return { ...analysisData, score, created_at: createdAt }; // Add created_at to analysisData
+      }
+      return undefined;
+    })
+    .filter((result: any) => result !== undefined); // Filter out undefined results if any applicant doesn't have analysis data
+  return analysisResults;
 };
 
 export const deleteAnalysisResults = async (jobId: string, cvIds: string[]): Promise<void> => {
   console.log('📤 Enviando request de eliminación:', { jobId, cvIds });
   
-  const payload = { cv_ids: cvIds };
+  const payload = { application_ids: cvIds };
   console.log('📦 Payload:', payload);
   
   const response = await fetchWithAuth(
-    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/delete-analysis-results`,
+    `${CONFIG.apiUrl}/applications`,
     {
-      method: 'POST',
+      method: 'DELETE',
       body: JSON.stringify(payload),
     }
   );

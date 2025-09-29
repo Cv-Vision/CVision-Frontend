@@ -42,17 +42,17 @@ export const getCVAnalysisResults = async (jobId: string): Promise<CVAnalysisRes
   }));
 };
 
-export const deleteCandidatesFromJob = async (jobId: string, cvIds: string[]): Promise<void> => {
+export const deleteApplicantsFromJob = async (cvIds: string[]): Promise<void> => {
   const response = await fetchWithAuth(
-    `${CONFIG.apiUrl}/recruiter/job-postings/${jobId}/delete-applications`,
+    `${CONFIG.apiUrl}/applications`,
     {
-      method: 'POST',
-      body: JSON.stringify({ cv_ids: cvIds }),
+      method: 'DELETE',
+      body: JSON.stringify({ application_ids: cvIds }),
     }
   );
 
   if (!response.ok) {
-    let errorMessage = 'Error al eliminar candidatos';
+    let errorMessage = 'Error al eliminar aplicantes';
     try {
       const errorData = await response.json();
       errorMessage = errorData.error || errorData.message || errorMessage;

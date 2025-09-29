@@ -10,18 +10,22 @@ export type Job = {
   experience_level?: string;
   english_level?: string;
   contract_type?: string;
-  location?: string;
+  country?: string;
+  province?: string;
+  city?: string;
   industry_experience?: {
     required: boolean;
     industry?: string;
   };
   additional_requirements?: string;
+  isApplied?: boolean;
+  modal?: string; // NEW optional work modality (REMOTE, HYBRID, ONSITE)
 };
 
 export type Application = {
   jobId: string;
   answers: string[];
-  candidate: string;
+  applicant: string;
 };
 
 type JobContextType = {
@@ -77,4 +81,4 @@ export const useJobs = () => {
   const context = useContext(JobContext);
   if (!context) throw new Error('useJobs must be used within a JobProvider');
   return context;
-}; 
+};

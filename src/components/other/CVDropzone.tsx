@@ -3,9 +3,9 @@ import { useDropzone } from 'react-dropzone';
 import { DocumentArrowUpIcon } from '@heroicons/react/24/solid';
 import RejectedCVsModal from './RejectedCVsModal.tsx';
 import CVFilesModal from './CVFilesModal.tsx';
-import { useCVValidation } from '../../hooks/useCVValidation.ts';
+import { useCVValidation } from '@/hooks/useCVValidation.ts';
 import JSZip from 'jszip';
-import { useFileUploader } from '../../hooks/useFileUploader.ts';
+import { useFileUploader } from '@/hooks/useFileUploader.ts';
 
 interface CVDropzoneProps {
   jobId: string;
@@ -15,8 +15,10 @@ interface CVDropzoneProps {
 
 export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete, onError }) => {
   const [files, setFiles] = useState<File[]>([]);
-  const [showRejectedModal, setShowRejectedModal] = useState(false);
   const [showFilesModal, setShowFilesModal] = useState(false);
+  const [showRejectedModal, setShowRejectedModal] = useState(false);
+
+  const handleShowRejectedModal = () => setShowRejectedModal(true);
 
   const { validateFile } = useCVValidation();
   const {
@@ -32,7 +34,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
     const rejected: { name: string; reason: string }[] = [];
 
     for (const file of acceptedFiles) {
-      if (file.type === 'application/zip') {
+      if (file.type === 'application/zip' || file.name.toLowerCase().endsWith('.zip')) {
         try {
           const arrayBuffer = await file.arrayBuffer();
           const zip = await JSZip.loadAsync(arrayBuffer);
@@ -108,31 +110,27 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
   const doneCount = files.filter(f => uploadProgress[f.name] === 100).length;
 
   return (
-    <div className="w-full min-h-[150px] relative">
+    <div className="w-full">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center backdrop-blur-sm
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 min-h-[120px] flex flex-col items-center justify-center
           ${isDragActive
-          ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-200/50 scale-105'
-          : 'border-blue-300 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-blue-100/50 hover:shadow-md hover:shadow-blue-200/30'
+          ? 'border-blue-400 bg-blue-50'
+          : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
         }`}
       >
         <input {...getInputProps()} />
-        <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${
-          isDragActive
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30'
-            : 'bg-gradient-to-br from-blue-400 to-blue-500 shadow-md shadow-blue-400/20'
-        }`}>
-          <DocumentArrowUpIcon className="h-8 w-8 text-white" />
+        <div className="mb-3">
+          <DocumentArrowUpIcon className="h-8 w-8 text-gray-400" />
         </div>
-        <p className="mt-2 text-base font-medium text-gray-700">
+        <p className="text-sm text-gray-600 mb-1">
           {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
-        <p className="mt-2 text-sm text-gray-500">Solo PDF, PNG, JPG, ZIP - máximo 5MB por archivo</p>
+        <p className="text-xs text-gray-500 mb-4">Solo PDF, PNG, JPG, ZIP - máximo 5MB por archivo</p>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); open(); }}
-          className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
+          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
         >
           Seleccionar archivos
         </button>
@@ -163,6 +161,7 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         onClose={() => setShowFilesModal(false)}
         onRemove={handleRemove}
         onUploadAll={handleUploadAll}
+        rejectedFiles={rejectedFiles}
       />
 
       {/* Modal de rechazados (tu flujo actual) */}
@@ -172,6 +171,16 @@ export const CVDropzone: React.FC<CVDropzoneProps> = ({ jobId, onUploadComplete,
         rejectedFiles={rejectedFiles}
         onClear={() => setRejectedFiles([])}
       />
+
+      {rejectedFiles.length > 0 && (
+        <button
+          type="button"
+          onClick={handleShowRejectedModal}
+          className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
+        >
+          Ver CVs Rechazados ({rejectedFiles.length})
+        </button>
+      )}
     </div>
   );
 };

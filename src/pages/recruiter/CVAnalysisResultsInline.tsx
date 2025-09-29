@@ -20,8 +20,13 @@ function formatDate(dateString?: string) {
 export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisResultWithCreatedAt[] }) => {
   if (!results || results.length === 0) return null;
   const total = results.length;
-  const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
-  const maxResult = results[0];
+  const numericScores = results
+    .map(r => r.score)
+    .filter((s): s is number => typeof s === 'number');
+  const avg = numericScores.length > 0
+    ? Math.round(numericScores.reduce((acc, s) => acc + s, 0) / numericScores.length)
+    : 0;
+  const maxResult = results.find(r => typeof r.score === 'number') || results[0];
   // Tooltip state
   const [showTooltip, setShowTooltip] = useState(false);
   
@@ -62,7 +67,7 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
           <div>
             <p className="text-sm font-medium text-gray-600">Mejor score</p>
             <div className="flex items-center space-x-2">
-              <p className="text-xl font-bold text-gray-800">{maxResult.score}%</p>
+              <p className="text-xl font-bold text-gray-800">{typeof maxResult.score === 'number' ? `${maxResult.score}%` : 'N/A'}</p>
               <button
                 className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
           onMouseEnter={() => setShowTooltip(true)}
@@ -81,7 +86,7 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
           <div className="absolute right-0 top-full mt-2 z-20 bg-white border border-gray-200 rounded-xl shadow-xl p-3 text-sm min-w-[200px]">
             <div className="flex items-center space-x-2 mb-2">
               <TrophyIcon className="h-4 w-4 text-yellow-500" />
-              <span className="font-semibold text-gray-800">Mejor candidato</span>
+              <span className="font-semibold text-gray-800">Mejor aplicante</span>
             </div>
             <div className="space-y-1">
               <div className="flex justify-between">
@@ -90,7 +95,7 @@ export const CVAnalysisMetricsSummary = ({ results }: { results: GeminiAnalysisR
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Score:</span>
-                <span className="font-bold text-green-600">{maxResult.score}%</span>
+                <span className="font-bold text-green-600">{typeof maxResult.score === 'number' ? `${maxResult.score}%` : 'N/A'}</span>
               </div>
             </div>
             {/* Flecha del tooltip */}

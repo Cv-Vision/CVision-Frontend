@@ -1,11 +1,13 @@
-import { Table } from '@/components/dashboard/Table';
+import { Table, SortConfig, SortDirection } from '@/components/dashboard/Table';
 import { JobRow } from '@/components/dashboard/JobPostingRow.tsx';
 import { useGetJobs } from '@/hooks/useGetJobs';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BriefcaseIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import BackButton from '@/components/other/BackButton.tsx';
 import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useMemo, useEffect } from 'react';
+import { useToast } from '@/context/ToastContext';
+import { SortDropdown, SortOption } from '@/components/other/SortDropdown';
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
 type StatusFilter = 'all' | JobStatus;
@@ -15,11 +17,20 @@ const ALL_STATUSES: JobStatus[] = ['ACTIVE', 'INACTIVE', 'CANCELLED'];
 const JobPostings: React.FC = () => {
   const {jobs = [], isLoading, error, refetch} = useGetJobs();
   const nav = useNavigate();
+  const location = useLocation();
   const {updateJobPostingData} = useUpdateJobPostingData();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+  const { showToast } = useToast();
+  
+  // Sorting state - supports multiple criteria
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+  const [modalSort, setModalSort] = useState<string | null>(null);
+  const [statusSort, setStatusSort] = useState<string | null>(null);
+  const [contractTypeSort, setContractTypeSort] = useState<string | null>(null);
+  const [englishLevelSort, setEnglishLevelSort] = useState<string | null>(null);
 
   // Prevenir scroll en toda la página
   useEffect(() => {
@@ -35,8 +46,49 @@ const JobPostings: React.FC = () => {
       document.documentElement.style.overflow = 'unset';
     };
   }, [showConfirm]);
+  
+  // Mostrar toast cuando se crea un puesto exitosamente
+  useEffect(() => {
+    const state = location.state as { jobCreated?: boolean; jobTitle?: string } | null;
+    if (state?.jobCreated && state?.jobTitle) {
+      showToast(`¡El puesto "${state.jobTitle}" se ha creado exitosamente!`, 'success');
+      
+      // Limpiar el estado de la ubicación para evitar que el toast aparezca al recargar
+      window.history.replaceState({}, document.title);
+    }
+  }, [location, showToast]);
 
-  const headers = ['Título', 'Descripción', 'Estado', 'Acciones'];
+  const headers = ['Título', 'Descripción', 'Modalidad', 'Tipo de Contrato', 'Nivel de Inglés', 'Estado', 'Acciones'];
+  
+  // Sort options
+  const modalOptions: SortOption[] = [
+    { value: 'REMOTE', label: 'Remoto' },
+    { value: 'HYBRID', label: 'Híbrido' },
+    { value: 'ONSITE', label: 'Presencial' }
+  ];
+  
+  const statusOptions: SortOption[] = [
+    { value: 'ACTIVE', label: 'Activo' },
+    { value: 'INACTIVE', label: 'Inactivo' },
+    { value: 'CANCELLED', label: 'Cancelado' }
+  ];
+  
+  const contractTypeOptions: SortOption[] = [
+    { value: 'FULL_TIME', label: 'Tiempo Completo' },
+    { value: 'PART_TIME', label: 'Medio Tiempo' },
+    { value: 'CONTRACT', label: 'Contrato' },
+    { value: 'FREELANCE', label: 'Freelance' },
+    { value: 'INTERNSHIP', label: 'Pasantía' }
+  ];
+  
+  const englishLevelOptions: SortOption[] = [
+    { value: 'BASIC', label: 'Básico' },
+    { value: 'INTERMEDIATE', label: 'Intermedio' },
+    { value: 'ADVANCED', label: 'Avanzado' },
+    { value: 'NATIVE', label: 'Nativo' }
+  ];
+  
+  const sortableColumns = ['título', 'descripción', 'modalidad', 'tipo_de_contrato', 'nivel_de_inglés', 'estado'];
 
   const handleRowClick = (id: string) => {
     nav(`/recruiter/job/${id}`);
@@ -49,13 +101,48 @@ const JobPostings: React.FC = () => {
     setShowConfirm(true);
   };
 
+  // Sorting handlers
+  const handleSort = (key: string) => {
+    let direction: SortDirection = 'asc';
+    
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    
+    if (direction === null) {
+      setSortConfig(null);
+    } else {
+      setSortConfig({ key, direction });
+    }
+  };
+
+  const handleModalSort = (value: string | null) => {
+    setModalSort(value);
+  };
+
+  const handleStatusSort = (value: string | null) => {
+    setStatusSort(value);
+  };
+
+  const handleContractTypeSort = (value: string | null) => {
+    setContractTypeSort(value);
+  };
+
+  const handleEnglishLevelSort = (value: string | null) => {
+    setEnglishLevelSort(value);
+  };
+
   const confirmDelete = async () => {
     if (!jobToDelete) return;
     try {
       await updateJobPostingData(jobToDelete, { status: 'DELETED' });
       refetch(true);
+      showToast('Puesto eliminado correctamente', 'success');
     } catch (err) {
       console.error('Error al eliminar:', err);
+      showToast('Error al eliminar el puesto', 'error');
     }
     setShowConfirm(false);
     setJobToDelete(null);
@@ -80,11 +167,84 @@ const JobPostings: React.FC = () => {
       );
     }
     
+    // Apply sorting
+    visibleJobs = [...visibleJobs].sort((a, b) => {
+      
+      if (sortConfig) {
+        const { key, direction } = sortConfig;
+        let aValue: any;
+        let bValue: any;
+        
+        switch (key) {
+          case 'título':
+            aValue = a.title.toLowerCase();
+            bValue = b.title.toLowerCase();
+            break;
+          case 'descripción':
+            aValue = a.description.toLowerCase();
+            bValue = b.description.toLowerCase();
+            break;
+          case 'modalidad':
+            aValue = a.modal || '';
+            bValue = b.modal || '';
+            break;
+          case 'tipo_de_contrato':
+            aValue = a.contract_type || '';
+            bValue = b.contract_type || '';
+            break;
+          case 'nivel_de_inglés':
+            aValue = a.english_level || '';
+            bValue = b.english_level || '';
+            break;
+          case 'estado':
+            aValue = a.status;
+            bValue = b.status;
+            break;
+          default:
+            return 0;
+        }
+        
+        if (aValue < bValue) {
+          return direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return direction === 'asc' ? 1 : -1;
+        }
+        
+      }
+      
+      
+      if (modalSort) {
+        if (a.modal === modalSort && b.modal !== modalSort) return -1;
+        if (a.modal !== modalSort && b.modal === modalSort) return 1;
+       
+      }
+      
+      
+      if (statusSort) {
+        if (a.status === statusSort && b.status !== statusSort) return -1;
+        if (a.status !== statusSort && b.status === statusSort) return 1;
+      }
+      
+      if (contractTypeSort) {
+        if (a.contract_type === contractTypeSort && b.contract_type !== contractTypeSort) return -1;
+        if (a.contract_type !== contractTypeSort && b.contract_type === contractTypeSort) return 1;
+      }
+      
+      if (englishLevelSort) {
+        if (a.english_level === englishLevelSort && b.english_level !== englishLevelSort) return -1;
+        if (a.english_level !== englishLevelSort && b.english_level === englishLevelSort) return 1;
+      }
+      
+      return 0;
+    });
+    
     return visibleJobs;
-  }, [jobs, statusFilter, searchTerm]);
+  }, [jobs, statusFilter, searchTerm, sortConfig, modalSort, statusSort, contractTypeSort, englishLevelSort]);
 
   return (
-      <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4 overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-10 px-4">
+        {/* Toasts globales via provider */}
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <BackButton to="/recruiter/dashboard" />
@@ -181,20 +341,104 @@ const JobPostings: React.FC = () => {
                 </div>
               </div>
 
+              {/* Sorting Controls */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span className="text-sm font-medium">Ordenar por:</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <SortDropdown
+                      options={modalOptions}
+                      selectedValue={modalSort}
+                      onSelect={handleModalSort}
+                      placeholder="Modalidad"
+                      className="min-w-[140px]"
+                    />
+                    <SortDropdown
+                      options={statusOptions}
+                      selectedValue={statusSort}
+                      onSelect={handleStatusSort}
+                      placeholder="Estado"
+                      className="min-w-[120px]"
+                    />
+                    <SortDropdown
+                      options={contractTypeOptions}
+                      selectedValue={contractTypeSort}
+                      onSelect={handleContractTypeSort}
+                      placeholder="Tipo de Contrato"
+                      className="min-w-[160px]"
+                    />
+                    <SortDropdown
+                      options={englishLevelOptions}
+                      selectedValue={englishLevelSort}
+                      onSelect={handleEnglishLevelSort}
+                      placeholder="Nivel de Inglés"
+                      className="min-w-[140px]"
+                    />
+                  </div>
+                </div>
+                
+                {/* Help Text */}
+                <div className="text-xs text-gray-500">
+                  <strong>Tip:</strong> Haz clic en los encabezados de la tabla para ordenar alfabéticamente. 
+                  Puedes combinar múltiples criterios de ordenamiento.
+                </div>
+                
+                {/* Active Sort Indicators */}
+                {(sortConfig || modalSort || statusSort || contractTypeSort || englishLevelSort) && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-gray-500 font-medium">Ordenamiento activo:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {sortConfig && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          {sortConfig.key === 'título' ? 'Título' : sortConfig.key === 'descripción' ? 'Descripción' : sortConfig.key} {sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'}
+                        </span>
+                      )}
+                      {modalSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                          Modalidad: {modalOptions.find(opt => opt.value === modalSort)?.label}
+                        </span>
+                      )}
+                      {statusSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                          Estado: {statusOptions.find(opt => opt.value === statusSort)?.label}
+                        </span>
+                      )}
+                      {contractTypeSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                          Contrato: {contractTypeOptions.find(opt => opt.value === contractTypeSort)?.label}
+                        </span>
+                      )}
+                      {englishLevelSort && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-800 text-xs font-medium rounded-full">
+                          Inglés: {englishLevelOptions.find(opt => opt.value === englishLevelSort)?.label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Results Count */}
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
                   Mostrando <span className="font-semibold text-blue-600">{filteredJobs.length}</span> de <span className="font-semibold text-blue-600">{jobs.filter(job => job.status !== 'DELETED').length}</span> puestos
                 </p>
-                {(searchTerm || statusFilter !== 'all') && (
+                {(searchTerm || statusFilter !== 'all' || sortConfig || modalSort || statusSort || contractTypeSort || englishLevelSort) && (
                   <button
                     onClick={() => {
                       setSearchTerm('');
                       setStatusFilter('all');
+                      setSortConfig(null);
+                      setModalSort(null);
+                      setStatusSort(null);
+                      setContractTypeSort(null);
+                      setEnglishLevelSort(null);
                     }}
                     className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                   >
-                    Limpiar filtros
+                    Limpiar filtros y ordenamiento
                   </button>
                 )}
               </div>
@@ -264,16 +508,22 @@ const JobPostings: React.FC = () => {
             {/* Table */}
             {!isLoading && !error && filteredJobs.length > 0 && (
                 <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-lg">
-                    <Table headers={headers} rows={filteredJobs.map(job =>
-                      JobRow({
-                        job,
-                        onRowClick: handleRowClick,
-                        onView: handleView,
-                        onEdit: handleEdit,
-                        onDelete: handleDelete,
-                        isLoading
-                      })
-                    )} />
+                    <Table 
+                      headers={headers} 
+                      rows={filteredJobs.map(job =>
+                        JobRow({
+                          job,
+                          onRowClick: handleRowClick,
+                          onView: handleView,
+                          onEdit: handleEdit,
+                          onDelete: handleDelete,
+                          isLoading
+                        })
+                      )}
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      sortableColumns={sortableColumns}
+                    />
                 </div>
             )}
             {showConfirm && (

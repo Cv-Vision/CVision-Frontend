@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/solid';
-import { useGetCandidatesByJobId } from '@/hooks/useGetCandidatesByJobId';
+import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
+import { useGetJobMetrics } from '@/hooks/useGetJobMetrics';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
-import Toast from '@/components/other/Toast.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
+import { useToast } from '../../context/ToastContext'; // Import useToast
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -33,7 +34,8 @@ const CVAnalysisResultCard = ({
   onSelect: (id: string, selected: boolean) => void;
   cvId: string;
 }) => {
-  const getScoreColorClass = (score: number) => {
+  const getScoreColorClass = (score: number | null) => {
+    if (score === null || score === undefined) return 'bg-gradient-to-r from-gray-500 to-gray-600 text-white';
     if (score >= 70) return 'bg-gradient-to-r from-green-500 to-green-600 text-white';
     if (score >= 40) return 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white';
     return 'bg-gradient-to-r from-red-500 to-red-600 text-white';
@@ -80,13 +82,13 @@ const CVAnalysisResultCard = ({
         </div>
         <div className="flex items-center">
             <div className={`text-3xl font-bold px-6 py-3 rounded-xl shadow-lg ${getScoreColorClass(result.score)}`}>
-            {result.score}%
+            {result.score !== null && result.score !== undefined ? `${result.score}%` : 'N/A'}
           </div>
         </div>
       </div>
 
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
               <ChartBarIcon className="h-5 w-5 text-blue-600 mr-2" />
               Razones del puntaje
@@ -94,7 +96,7 @@ const CVAnalysisResultCard = ({
             <ul className="space-y-2">
           {result.reasons.map((reason, idx) => (
                 <li key={idx} className="text-gray-700 flex items-start">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   <span>{reason}</span>
                 </li>
           ))}
@@ -102,7 +104,7 @@ const CVAnalysisResultCard = ({
       </div>
 
       {Array.isArray(result.soft_skills_reasons) && result.soft_skills_reasons.length > 0 && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <UserGroupIcon className="h-5 w-5 text-green-600 mr-2" />
                 Razones de habilidades blandas
@@ -110,7 +112,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_reasons.map((reason, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{reason}</span>
                   </li>
             ))}
@@ -119,7 +121,7 @@ const CVAnalysisResultCard = ({
       )}
 
       {Array.isArray(result.soft_skills_questions) && result.soft_skills_questions.length > 0 && (
-            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100 shadow-md hover:shadow-lg transition-shadow duration-300">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <TrophyIcon className="h-5 w-5 text-purple-600 mr-2" />
                 Preguntas sugeridas para entrevista
@@ -127,7 +129,7 @@ const CVAnalysisResultCard = ({
               <ul className="space-y-2">
             {result.soft_skills_questions?.map((question, idx) => (
                   <li key={idx} className="text-gray-700 flex items-start">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     <span>{question}</span>
                   </li>
             ))}
@@ -144,39 +146,35 @@ export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
   const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const { showToast } = useToast(); // Use the new useToast hook
   const navigate = useNavigate();
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
-  const { candidates } = useGetCandidatesByJobId(jobId || '');
+  const { applicants } = useGetApplicantsByJobId(jobId || '');
   const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
+  const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(jobId || '');
 
   // Manejar éxito/error de eliminación
   useEffect(() => {
     if (deleteSuccess) {
-      setToastMessage('Análisis eliminado exitosamente');
-      setToastType('success');
-      setShowToast(true);
+      showToast('Análisis eliminado exitosamente', 'success'); // Use showToast
       setSelectedCvIds(new Set());
       resetState();
+      refetchMetrics(); // Refetch metrics after deletion
       
       // Redirigir al job posting después de un breve delay para mostrar el toast
       setTimeout(() => {
         navigate(`/recruiter/job/${jobId}`);
       }, 1500);
     }
-  }, [deleteSuccess, jobId, resetState, navigate]);
+  }, [deleteSuccess, jobId, resetState, navigate, showToast, refetchMetrics]); // Add showToast to dependencies
 
   useEffect(() => {
     if (deleteError) {
-      setToastMessage(deleteError);
-      setToastType('error');
-      setShowToast(true);
+      showToast(deleteError, 'error'); // Use showToast
       resetState();
     }
-  }, [deleteError, resetState]);
+  }, [deleteError, resetState, showToast]); // Add showToast to dependencies
 
   const handleSelectCv = (cvId: string, selected: boolean) => {
     const newSelected = new Set(selectedCvIds);
@@ -192,8 +190,8 @@ export default function CVAnalysisResults() {
     if (selectedCvIds.size === results.length) {
       setSelectedCvIds(new Set());
     } else {
-      // Usar los cv_id reales de los candidatos
-      const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+      // Usar los cv_id reales de los aplicantes
+      const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
       setSelectedCvIds(new Set(allCvIds));
     }
   };
@@ -203,7 +201,7 @@ export default function CVAnalysisResults() {
     
     const cvIdsArray = Array.from(selectedCvIds);
     console.log('🗑️ IDs seleccionados para eliminar:', cvIdsArray);
-    console.log('📋 Candidatos disponibles:', candidates.map(c => ({ id: c.id, name: c.fullName })));
+    console.log('📋 Aplicantes disponibles:', applicants.map(c => ({ id: c.id, name: c.fullName })));
     console.log('📊 Resultados disponibles:', results.map(r => ({ name: r.name || r.cv_name || r.participant_id, cv_id: r.cv_id, participant_id: r.participant_id })));
     
     await deleteResults(jobId!, cvIdsArray);
@@ -213,11 +211,11 @@ export default function CVAnalysisResults() {
   // Función para verificar si todos están seleccionados
   const areAllSelected = () => {
     if (results.length === 0) return false;
-    const allCvIds = candidates.map(candidate => candidate.id).filter(Boolean);
+    const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
     return allCvIds.length > 0 && allCvIds.every(id => selectedCvIds.has(id));
   };
 
-  if (isLoading) {
+  if (isLoading || metricsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -228,7 +226,7 @@ export default function CVAnalysisResults() {
     );
   }
 
-  if (error) {
+  if (error || metricsError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
@@ -238,15 +236,15 @@ export default function CVAnalysisResults() {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Error al cargar resultados</h3>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{error || metricsError}</p>
         </div>
       </div>
     );
   }
 
-  const total = results.length;
-  const avg = total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
-  const maxResult = total > 0 ? results[0] : undefined;
+  const total = metrics?.total_analyzed || 0;
+  const avg = metrics?.average_score || 0;
+  const highestScore = metrics?.highest_score || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -279,7 +277,7 @@ export default function CVAnalysisResults() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-100 text-sm font-medium">Promedio</p>
-                  <p className="text-3xl font-bold">{total > 0 ? avg + '%' : 'N/A'}</p>
+                  <p className="text-3xl font-bold">{total > 0 ? avg.toFixed(1) + '%' : 'N/A'}</p>
                 </div>
                 <ChartBarIcon className="h-12 w-12 text-green-200" />
               </div>
@@ -289,7 +287,7 @@ export default function CVAnalysisResults() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-100 text-sm font-medium">Mejor Score</p>
-                  <p className="text-3xl font-bold">{maxResult ? maxResult.score + '%' : 'N/A'}</p>
+                  <p className="text-3xl font-bold">{highestScore > 0 ? highestScore.toFixed(1) : 'N/A'}</p>
                 </div>
                 <TrophyIcon className="h-12 w-12 text-yellow-200" />
               </div>
@@ -299,12 +297,12 @@ export default function CVAnalysisResults() {
         
         {results.length > 0 && (
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 mb-6">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={handleSelectAll}>
               <input
                 type="checkbox"
                 checked={areAllSelected()}
-                onChange={handleSelectAll}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                readOnly
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200 pointer-events-none"
               />
               <span className="font-semibold text-gray-800">
                 {selectedCvIds.size > 0 ? `${selectedCvIds.size} seleccionado${selectedCvIds.size > 1 ? 's' : ''}` : 'Seleccionar todos'}
@@ -327,12 +325,12 @@ export default function CVAnalysisResults() {
         <div className="space-y-6">
           {results.map((result, idx) => {
             // Buscar el candidato correspondiente por nombre
-            const correspondingCandidate = candidates.find(candidate => 
-              candidate.fullName === (result.name || result.cv_name || result.participant_id)
+            const correspondingApplicant = applicants.find(applicant => 
+              applicant.fullName === (result.name || result.cv_name || result.participant_id)
             );
             
             // Usar el ID del candidato si existe, sino el ID del resultado
-            const uniqueId = correspondingCandidate?.id || result.cv_id || result.participant_id || `index_${idx}`;
+            const uniqueId = correspondingApplicant?.id || result.cv_id || result.participant_id || `index_${idx}`;
             
           return (
             <CVAnalysisResultCard 
@@ -352,13 +350,6 @@ export default function CVAnalysisResults() {
         onConfirm={handleDeleteSelected}
         selectedCount={selectedCvIds.size}
         isLoading={isDeleting}
-      />
-
-      <Toast
-        type={toastType}
-        message={toastMessage}
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
       />
       </div>
     </div>
