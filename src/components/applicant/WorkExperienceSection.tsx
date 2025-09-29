@@ -2,7 +2,6 @@ import { FC } from "react";
 import { WorkExperience } from "../../types/applicant.ts";
 import FormInput from "./FormInput.tsx";
 import FormTextArea from "../applicant/FormTextArea.tsx";
-import FormSection from "./FormSelection.tsx";
 
 interface Props {
     data: WorkExperience[];

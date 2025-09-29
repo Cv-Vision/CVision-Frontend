@@ -55,7 +55,7 @@ export const JobCard = ({ job, isSelected, onClick, applicantsCount = 0 }: JobCa
           <div className="flex items-center space-x-4 text-xs text-gray-500">
             <div className="flex items-center">
               <MapPin className="w-3 h-3 mr-1" />
-              {job.location || 'Ubicación no especificada'}
+              {job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada'}
             </div>
             <div className="flex items-center">
               <Clock className="w-3 h-3 mr-1" />

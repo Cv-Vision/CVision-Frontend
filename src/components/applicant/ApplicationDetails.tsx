@@ -1,4 +1,4 @@
-import { MapPin, Clock, Building2, CheckCircle, XCircle, ClockIcon, Calendar } from "lucide-react";
+import { MapPin, Building2, CheckCircle, XCircle, ClockIcon, Calendar } from "lucide-react";
 import { Application } from '../../hooks/useUserApplications';
 
 interface ApplicationDetailsProps {

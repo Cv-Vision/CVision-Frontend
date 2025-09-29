@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
-import { useUpdateJobPostingData } from '@/hooks/useUpdateJobPostingData';
 import { useState, useEffect, useRef } from 'react';
-import { useGetApplicantsByJobId, useGetTop3ApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
+import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetJobMetrics } from '@/hooks/useGetJobMetrics.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { JobDetailsCard } from '@/components/rebranding/JobPostingDetails/JobDetailsCard';
@@ -13,7 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import { CONFIG } from '@/config';
 
-import { getPermissionsByStatus, JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
+import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
 
@@ -44,41 +43,16 @@ function contractTypeLabel(type?: string) {
     default: return type || '';
   }
 }
-function englishLevelLabel(level?: string) {
-  switch (level) {
-    case 'BASIC': return 'Básico';
-    case 'INTERMEDIATE': return 'Intermedio';
-    case 'ADVANCED': return 'Avanzado';
-    case 'NATIVE': return 'Nativo';
-    case 'NOT_REQUIRED': return 'No requerido';
-    default: return level || '';
-  }
-}
 
 const JobPostingDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { job, isLoading, error } = useGetJobById(jobId ?? '');
 
-  const { updateJobPostingData, loading: statusLoading, error: statusError } = useUpdateJobPostingData();
 
   // ===== Estado y permisos (mantenemos todo lo que ya tenías) =====
-  const [selectedStatus, setSelectedStatus] = useState<JobPostingStatus>('ACTIVE');
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [newDescription, setNewDescription] = useState('');
-  const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(true);
-  const [isSavingDescription, setIsSavingDescription] = useState(false);
-
-  const [isEditingFields, setIsEditingFields] = useState(false);
-  const [newSeniority, setNewSeniority] = useState<'JUNIOR' | 'SEMISENIOR' | 'SENIOR' | ''>('');
-  const [newTipoContrato, setNewTipoContrato] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP' | ''>('');
-  const [newUbicacion, setNewUbicacion] = useState('');
-  const [newEmpresa, setNewEmpresa] = useState('');
-  const [newEnglishLevel, setNewEnglishLevel] = useState<'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED' | ''>('');
-  const [newModal, setNewModal] = useState<'REMOTE' | 'ONSITE' | 'HYBRID' | ''>('');
-
-  const [extraRequirements, setExtraRequirements] = useState<any | undefined>(undefined);
-  const [localJob, setLocalJob] = useState<Job | null>(null);
+  const [, setSelectedStatus] = useState<JobPostingStatus>('ACTIVE');
+  const [localJob] = useState<Job | null>(null);
 
   // ====== Portamos el flujo de polling de la página vieja ======
   const [isAnalysisPending, setIsAnalysisPending] = useState(false);
@@ -90,12 +64,9 @@ const JobPostingDetails = () => {
 
   // Hooks de datos (igual que antes)
   const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
-  const { top3Applicants, refetch: refetchTop3Applicants } = useGetTop3ApplicantsByJobId(cleanJobId);
   const { results: analysisResults, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
-  const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(cleanJobId);
+  const { metrics } = useGetJobMetrics(cleanJobId);
 
-  const analysisDetailsPath = `/recruiter/job/${cleanJobId}/analysis`;
-  const goToFullAnalysis = () => navigate(analysisDetailsPath);
 
   useEffect(() => {
     if (jobToShow && ['ACTIVE', 'INACTIVE', 'CANCELLED', 'DELETED'].includes(jobToShow.status as string)) {
@@ -127,80 +98,17 @@ const JobPostingDetails = () => {
   }, []);
 
   // ===== Permisos (como antes) =====
-  const { canEditFields, canAddCVs, canChangeStatus } = getPermissionsByStatus(selectedStatus);
 
   // ===== Handlers que ya tenías (no toco estilos de la UI nueva) =====
-  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as JobPostingStatus;
-    if (jobToShow && newStatus) {
-      setSelectedStatus(newStatus);
-      await updateJobPostingData(jobToShow.pk, { status: newStatus });
-      showToast('Estado actualizado correctamente', 'success');
-    }
-  };
 
-  const handleEditClick = () => {
-    if (canEditFields) {
-      setIsEditingDescription(true);
-      setNewDescription(jobToShow?.description ?? '');
-      setIsDescriptionCollapsed(false);
-    }
-  };
-
-  const handleSaveDescription = async () => {
-    if (jobToShow && canEditFields) {
-      setIsSavingDescription(true);
-      try {
-        await updateJobPostingData(jobToShow.pk, { description: newDescription });
-        setIsEditingDescription(false);
-        showToast('Descripción actualizada correctamente', 'success');
-      } catch (err: any) {
-        const msg = err?.response?.data?.message || err.message || 'Error al actualizar la descripción.';
-        showToast(msg, 'error');
-      } finally {
-        setIsSavingDescription(false);
-      }
-    }
-  };
   
-  const handleRequirementsUpdate = (updates: any) => setExtraRequirements(updates);
-  
-  useEffect(() => {
-    if (isEditingDescription) {
-      const textarea = document.querySelector('textarea');
-      if (textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.max(200, textarea.scrollHeight) + 'px';
-      }
-    }
-  }, [isEditingDescription, newDescription]);
 
   // 1) Estado para mostrar/ocultar el dropzone de CVs
   const [showDropzone, setShowDropzone] = useState(false);
   
   // Estados para el análisis
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showAnalysisSuccess, setShowAnalysisSuccess] = useState(false);
 
-  // 2) Subida real de archivos (equivalente a CVDropzone de la vieja)
-  async function uploadCandidatesFiles(jobPk: string, files: File[]) {
-    // Si tu backend exige el prefijo, lo conservamos:
-    const finalJobPk = jobPk.startsWith('JD#') ? jobPk : `JD#${jobPk}`;
-    const formData = new FormData();
-    files.forEach((f) => formData.append('files', f));
-    formData.append('job_id', finalJobPk);
-
-    // Ajustá la URL a tu endpoint real de subida
-    const res = await fetch(`/api/jobs/${finalJobPk}/upload-candidates`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const msg = await res.text().catch(() => '');
-      throw new Error(msg || 'Error al subir CVs');
-    }
-  }
 
   // 3) Polling “igual que antes” tras subir archivos o lanzar análisis
   function startPollingForAnalysis() {
@@ -210,8 +118,6 @@ const JobPostingDetails = () => {
 
     pollingIntervalRef.current = setInterval(() => {
       refetchApplicants();
-      refetchTop3Applicants();
-      refetchMetrics();
       refetchAnalysisResults();
     }, 3000);
 
@@ -233,8 +139,7 @@ const JobPostingDetails = () => {
       // Refrescos iniciales
       await Promise.all([
         refetchApplicants(),
-        refetchTop3Applicants(),
-        refetchMetrics(),
+        refetchApplicants(),
         refetchAnalysisResults(),
       ]);
 
@@ -258,7 +163,7 @@ const JobPostingDetails = () => {
     
     try {
       setIsAnalyzing(true);
-      setShowAnalysisSuccess(false);
+      // Reset analysis state
       const token = sessionStorage.getItem('idToken');
       
       if (!token) {
@@ -279,12 +184,11 @@ const JobPostingDetails = () => {
       );
 
       if (response.status === 200) {
-        setShowAnalysisSuccess(true);
+        // Analysis started successfully
         showToast('Análisis iniciado correctamente', 'success');
         // Iniciar polling para obtener resultados
         startPollingForAnalysis();
-        // Ocultar el mensaje después de 5 segundos
-        setTimeout(() => setShowAnalysisSuccess(false), 5000);
+        // Analysis started successfully
       } else {
         throw new Error('Error al iniciar el análisis');
       }

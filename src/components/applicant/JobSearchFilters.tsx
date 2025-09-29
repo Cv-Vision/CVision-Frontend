@@ -1,4 +1,4 @@
-import { Search, MapPin, Clock } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface JobSearchFiltersProps {
   searchTerm: string;

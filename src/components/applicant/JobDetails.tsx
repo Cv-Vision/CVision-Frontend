@@ -1,4 +1,4 @@
-import { MapPin, Clock, Building2, Users, Star } from "lucide-react";
+import { MapPin, Clock, Building2, Users } from "lucide-react";
 import { Job } from "@/context/JobContext";
 
 interface JobDetailsProps {
@@ -55,7 +55,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
     job.english_level && getEnglishLevelLabel(job.english_level),
     job.contract_type && getContractTypeLabel(job.contract_type),
     job.modal && getModalityLabel(job.modal),
-    job.location
+    job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada'
   ].filter(Boolean);
 
   return (
@@ -72,7 +72,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
                 </div>
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
-                  {job.location || 'Ubicación no especificada'}
+                  {job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada'}
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 mr-2" />

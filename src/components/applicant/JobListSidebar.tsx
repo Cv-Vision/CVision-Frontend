@@ -31,7 +31,8 @@ export const JobListSidebar = ({
     const matchesSearch =
       job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = !locationFilter || (job.location && job.location.includes(locationFilter));
+    const jobLocation = job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || '';
+    const matchesLocation = !locationFilter || jobLocation.includes(locationFilter);
     const matchesType = !typeFilter || job.contract_type === typeFilter;
 
     return matchesSearch && matchesLocation && matchesType;

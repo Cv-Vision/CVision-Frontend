@@ -15,16 +15,15 @@ import { JobDetails } from '@/components/applicant/JobDetails';
 
 const JobSearch = () => {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<JobSearchFilters>({ title: "" });
-  const [page, setPage] = useState(1);
-  const [jobsPerPage] = useState(10);
+  const [filters] = useState<JobSearchFilters>({ title: "" });
+  const [, setPage] = useState(1);
   const { jobs, isLoading: isLoadingSearch, error: searchError, search, hasMore } = usePublicJobSearch();
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
   const { showToast } = useToast();
-  const { user, isAuthenticated } = useAuth();
-  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const { isAuthenticated } = useAuth();
+  const [, setAppliedJobs] = useState<string[]>([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
   const [showGuestModal, setShowGuestModal] = useState(false);
@@ -87,14 +86,6 @@ const JobSearch = () => {
     }
   }, [isLoadingSearch, hasMore, search, filters]);
 
-  const handleChange = (field: keyof JobSearchFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSearch = () => {
-    search(filters);
-    setPage(1);
-  };
 
   const handleConfirmApply = () => {
     apply(selectedJobId);

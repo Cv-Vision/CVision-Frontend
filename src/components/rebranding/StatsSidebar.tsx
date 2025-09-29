@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StatisticCard } from "./StatisticCard";
-import { TrashIcon, UsersIcon, ArrowTrendingUpIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface Stat {
   title: string;

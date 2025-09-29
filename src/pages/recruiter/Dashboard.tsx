@@ -113,7 +113,7 @@ const RecruiterDashboard = () => {
                 job.modal === 'ONSITE' ? 'Presencial' as const : 'Híbrido' as const,
       type: job.contract_type === 'FULL_TIME' ? 'Tiempo Completo' as const :
             job.contract_type === 'PART_TIME' ? 'Medio Tiempo' as const : 'Contrato' as const,
-      location: job.location || 'Ubicación no especificada',
+      location: job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada',
       publishedAt: 'Fecha no disponible', // job.created_at no está disponible en el tipo Job
       description: job.description,
       candidatesCount: Math.floor(Math.random() * 50) + 10, // Simulated data

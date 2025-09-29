@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '@/services/AuthService.ts';
 import { decodeJwt, useAuth } from "@/context/AuthContext.tsx";
 import { useToast } from '@/context/ToastContext';
@@ -15,10 +15,8 @@ const Login = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [searchParams] = useSearchParams();
   const { showToast } = useToast();
 
-  const fromJobListings = searchParams.get('fromJobListings') === 'true';
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

@@ -3,7 +3,6 @@ import {
   XMarkIcon,
   QuestionMarkCircleIcon,
   DocumentTextIcon,
-  ChevronLeftIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { useGetJobQuestions, JobQuestion } from '@/hooks/useGetJobQuestions';
@@ -20,7 +19,7 @@ interface QuestionAnswer {
   answer: string;
 }
 
-const JobQuestionsModal = ({ isOpen, onClose, jobId, jobTitle }: JobQuestionsModalProps) => {
+const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
   const [hasConfirmed, setHasConfirmed] = useState(false);
