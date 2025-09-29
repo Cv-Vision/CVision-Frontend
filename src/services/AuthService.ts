@@ -110,7 +110,6 @@ export async function signIn({ username, password }: SignInParams) {
   return data;
 }
 
-
 export function getIdToken() {
   return sessionStorage.getItem('idToken');
 }
@@ -143,4 +142,30 @@ export async function resendConfirmationCode({ username }: ResendConfirmationCod
   }
 
   return response.json();
+}
+
+export async function signInViaBackend({ username, password }: { username: string; password: string }) {
+  const response = await fetch(`${CONFIG.apiUrl}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: username, password }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = data?.message || 'Error al iniciar sesión';
+    const err: any = new Error(message);
+    err.status = response.status;
+    err.username = data?.username; // backend puede enviar username correcto para Cognito
+    throw err;
+  }
+
+  const idToken: string | undefined = data?.cognito_tokens?.id_token;
+  if (!idToken) {
+    throw new Error('No se pudo obtener el token de sesión');
+  }
+
+  sessionStorage.setItem('idToken', idToken);
+  return data;
 }
