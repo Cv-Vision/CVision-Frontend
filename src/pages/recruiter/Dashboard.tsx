@@ -1,4 +1,4 @@
-import { TrashIcon, UsersIcon as UsersOutlineIcon, ArrowTrendingUpIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, UsersIcon as UsersOutlineIcon, ArrowTrendingUpIcon, ClockIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotaApplicants } from '@/hooks/useGetTotaApplicants.ts';
@@ -8,6 +8,7 @@ import { StatsSidebar } from '@/components/rebranding/StatsSidebar';
 import { JobPostingsContainer } from '@/components/rebranding/JobPostingsContainer';
 import { JobPostingHeader } from '@/components/rebranding/JobPostingHeader';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 // import { ProcessCVsButton } from '../../components/ProcessCVsButton.tsx'; parte del boton para procesar CVS.
 
 type JobStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'DELETED';
@@ -20,6 +21,7 @@ const RecruiterDashboard = () => {
   const { totalApplicants } = useGetTotaApplicants();
   const { deleteJobPosting } = useDeleteJobPosting();
   const { showToast } = useToast();
+  const { logout } = useAuth();
 
   // Filtering and sorting states
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,6 +59,12 @@ const RecruiterDashboard = () => {
 
   const handleFilterChange = (value: string) => {
     setStatusFilter(value as StatusFilter);
+  };
+
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    }
   };
 
   const stats = [
@@ -151,6 +159,13 @@ const RecruiterDashboard = () => {
                 onClick={() => navigate('/perfil-reclutador')}
               >
                 Mi Perfil
+              </button>
+              <button
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 flex items-center gap-2 group"
+                onClick={handleLogout}
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+                Cerrar Sesión
               </button>
             </div>
           </div>

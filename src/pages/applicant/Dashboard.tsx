@@ -1,4 +1,5 @@
 import { UserIcon, BriefcaseIcon, ClipboardDocumentListIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useUserApplications } from '@/hooks/useUserApplications';
 import { useAuth } from '@/context/AuthContext';
@@ -6,12 +7,18 @@ import { useAuth } from '@/context/AuthContext';
 const ApplicantDashboard = () => {
   const navigate = useNavigate();
   const { applications } = useUserApplications();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   // Calculate basic stats
   const totalApplications = applications.length;
   const pendingApplications = applications.filter(app => app.status === 'pending').length;
   const acceptedApplications = applications.filter(app => app.status === 'accepted').length;
+
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,6 +41,13 @@ const ApplicantDashboard = () => {
               >
                 <UserIcon className="w-6 h-6 text-teal-600" />
                 <span className="text-sm font-medium text-gray-700">{user?.email}</span>
+              </button>
+              <button 
+                className="flex items-center space-x-2 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors group"
+                onClick={handleLogout}
+              >
+                <ArrowRightOnRectangleIcon className="w-5 h-5 text-red-600 group-hover:rotate-12 transition-transform duration-300" />
+                <span className="text-sm font-medium text-red-600">Cerrar Sesión</span>
               </button>
             </div>
           </div>
