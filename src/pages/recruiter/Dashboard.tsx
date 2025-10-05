@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotaApplicants } from '@/hooks/useGetTotaApplicants.ts';
 import { useDeleteJobPosting } from '@/hooks/useDeleteJobPosting';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StatsSidebar } from '@/components/rebranding/StatsSidebar';
 import { JobPostingsContainer } from '@/components/rebranding/JobPostingsContainer';
 import { JobPostingHeader } from '@/components/rebranding/JobPostingHeader';
@@ -15,7 +15,9 @@ type StatusFilter = 'all' | JobStatus;
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
-  const { jobs, isLoading: jobsLoading, error: jobsError, refetch: refetchJobs } = useGetJobs();
+  const [, setPage] = useState(1);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const { jobs, isLoading: jobsLoading, error: jobsError, hasMore, total, refetch: loadJobs } = useGetJobs();
   const totalActiveJobs = jobs.filter(job => job.status === "ACTIVE").length;
   const { totalApplicants } = useGetTotaApplicants();
   const { deleteJobPosting } = useDeleteJobPosting();
@@ -26,6 +28,48 @@ const RecruiterDashboard = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sortBy, setSortBy] = useState<string>('recent');
 
+  useEffect(() => {
+    loadJobs(1, 10, false);
+    setPage(1);
+  }, [loadJobs]);
+
+  const loadMore = useCallback(() => {
+    console.log('Attempting to load more jobs...');
+    if (!jobsLoading && hasMore) {
+      setPage(prev => {
+        const next = prev + 1;
+        loadJobs(next, 10, true);
+        return next;
+      });
+    }
+  }, [jobsLoading, hasMore, loadJobs]);
+
+  const mainRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    console.log('Setting up intersection observer for infinite scroll...');
+    if (!hasMore) return;
+    console.log('Has more jobs to load, setting up observer.');
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !jobsLoading) {
+          loadMore();
+        }
+      },
+      { 
+        root: mainRef.current,
+        rootMargin: '200px',
+        threshold: 1.0
+      }
+    );
+
+    const el = observerRef.current;
+    if (el) observer.observe(el);
+
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [loadMore, hasMore, jobsLoading]);
+
   const handleJobClick = (jobId: string) => {
     navigate(`/recruiter/job/${jobId}`);
   };
@@ -35,7 +79,7 @@ const RecruiterDashboard = () => {
       try {
         await deleteJobPosting(jobId);
         showToast('Puesto eliminado exitosamente', 'success');
-        refetchJobs(); // Recargar la lista de puestos
+        loadJobs(); // Recargar la lista de puestos
       } catch (error) {
         showToast('Error al eliminar el puesto', 'error');
       }
@@ -141,7 +185,7 @@ const RecruiterDashboard = () => {
       <StatsSidebar stats={stats} />
       
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-y-auto">
+      <main ref={mainRef} className="flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-white/20 p-6">
           <div className="flex items-center justify-end">
@@ -156,7 +200,7 @@ const RecruiterDashboard = () => {
           </div>
           
           <JobPostingHeader
-            totalJobs={jobs.length}
+            totalJobs={total}
             visibleJobs={adaptedJobs.length}
             onCreate={handleCreateJob}
             onSearch={handleSearch}
@@ -170,12 +214,16 @@ const RecruiterDashboard = () => {
           <JobPostingsContainer 
             jobs={adaptedJobs}
             isLoading={jobsLoading}
+            hasMore={hasMore}
             error={jobsError}
-            refetch={refetchJobs}
+            refetch={loadJobs}
             onJobClick={handleJobClick}
             onDeleteJob={handleDeleteJob}
           />
         </div>
+        
+        {/* Infinite scroll trigger */}
+        <div ref={observerRef} className="h-8" />
       </main>
     </div>
   );

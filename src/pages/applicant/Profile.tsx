@@ -188,7 +188,6 @@ export function ApplicantProfile() {
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {/* Basic Information */}
                 <div className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h3>
                   <BasicInfoSection data={profile.basicInfo} onChange={handleBasicInfoChange} showPassword={false} />
                 </div>
 
