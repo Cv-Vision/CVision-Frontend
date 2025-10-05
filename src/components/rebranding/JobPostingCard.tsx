@@ -21,6 +21,7 @@ interface JobPostingCardProps {
   salaryRange: string; // e.g. "45.000 - 65.000 €"
   onJobClick?: (jobId: string) => void;
   onDelete?: (jobId: string) => void;
+  has_pending_applications?: boolean;
 }
 
 export const JobPostingCard: React.FC<JobPostingCardProps> = ({
@@ -37,6 +38,7 @@ export const JobPostingCard: React.FC<JobPostingCardProps> = ({
   salaryRange,
   onJobClick,
   onDelete,
+  has_pending_applications = false,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -95,7 +97,12 @@ export const JobPostingCard: React.FC<JobPostingCardProps> = ({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-lg font-semibold">{title}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold">{title}</h3>
+            {has_pending_applications && (
+              <span className="w-2 h-2 rounded-full bg-orange-500"/>
+            )}
+          </div>
           <p className="text-sm text-gray-500">{company}</p>
         </div>
         <div className="relative" ref={menuRef}>
