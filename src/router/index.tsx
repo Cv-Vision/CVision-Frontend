@@ -12,6 +12,7 @@ import CVAnalysisResults from '../pages/recruiter/CVAnalysisResults';
 import JobPostings from "@/pages/recruiter/JobPostings.tsx";
 import JobPostingDetails from '../pages/recruiter/JobPostingDetails';
 import RecruiterRegisterForm from "@/pages/recruiter/RegisterForm.tsx";
+import Metrics from "../pages/admin/Metrics";
 import RecruiterProfile from "@/pages/recruiter/RecruiterProfile.tsx";
 
 // Applicant related imports
@@ -103,6 +104,11 @@ export function AppRouter() {
       <Route path="/perfil-reclutador" element={
         <ProtectedRoute requiredRole="recruiter">
           <RecruiterProfile />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/metrics" element={
+        <ProtectedRoute requiredRole="admin">
+          <Metrics />
         </ProtectedRoute>
       } />
       {/* Catch-all route for non-existent routes */}

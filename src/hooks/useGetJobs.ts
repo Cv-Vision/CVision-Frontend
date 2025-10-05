@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
 import {Job} from "@/context/JobContext.tsx";
 import { CONFIG } from '@/config';
@@ -10,34 +10,41 @@ export function useGetJobs() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [total, setTotal] = useState(0);
     const { isAuthenticated } = useAuth();
 
-    const loadJobs = useCallback(async (skipLoading = false) => {
+    const loadJobs = useCallback(async (page: number = 1, size: number = 10, append = false) => {
+        setLoading(true);
+        setError(null);
+        
         if (!isAuthenticated) {
             setJobs([]);
-            setError(null);
             setLoading(false);
             return;
         }
 
-        if (!skipLoading) {
-            setLoading(true);
-            setError(null);
-        }
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('size', size.toString());
+        const query = params.toString();
+
         try {
             const token = sessionStorage.getItem('idToken');
-            // No need to throw error here, as we already check isAuthenticated
-            // if (!token) throw new Error('Necesitas iniciar sesión');
             const res = await fetchWithAuth(
-                `${CONFIG.apiUrl}/job-postings`,
+                `${CONFIG.apiUrl}/job-postings?${query}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (!res.ok) throw new Error('Error cargando puestos');
-            
-            
-            const raw = (await res.json()) as any[];
-            const mappedJobs = raw.map(item => ({
-                pk:          item.posting_id || '',    // Usar posting_id en lugar de pk.split()
+            if (!res.ok) {
+            if (res.status === 400) {
+                throw new Error('Parámetros inválidos de búsqueda');
+            }
+            throw new Error('Error buscando puestos');
+            }
+            const data = await res.json();
+
+            const mappedJobs = data.job_postings.map((item: any) => ({
+                pk:          item.posting_id || '',
                 title:       item.title || '',
                 description: item.description || '',
                 company:     item.company || '', 
@@ -46,26 +53,34 @@ export function useGetJobs() {
                 experience_level: item.experience_level,
                 english_level: item.english_level,
                 contract_type: item.contract_type,
-                location: item.location,
+                country: item.country,
+                province: item.province,
+                city: item.city,
                 industry_experience: item.industry_experience,
                 additional_requirements: item.additional_requirements,
-                modal: item.modal // newly added field
+                modal: item.modal,
+                created_at: item.created_at,
+                updated_at: item.updated_at
             }));
-            setJobs(mappedJobs);
-            
+
+            setJobs(prev => {
+                if (append) {
+                    if (mappedJobs.length > 0 && prev.find(job => job.pk === mappedJobs[0].pk)) {
+                        return prev;
+                    }
+                    return [...prev, ...mappedJobs];
+                }
+                return mappedJobs;
+            });
+            setTotal(data.total);
+            setHasMore(page < data.total_pages);
         } catch (err) {
             console.error('Error fetching jobs:', err);
             setError(err instanceof Error ? err.message : 'Error desconocido');
         } finally {
-            if (!skipLoading) {
-                setLoading(false);
-            }
+            setLoading(false);
         }
     }, [isAuthenticated]);
 
-    useEffect(() => {
-        loadJobs();
-    }, [loadJobs]);
-
-    return { jobs, isLoading, error, refetch: loadJobs };
+    return { jobs, isLoading, error, hasMore, total, refetch: loadJobs };
 }

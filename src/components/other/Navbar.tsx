@@ -7,10 +7,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  // La navbar ahora se muestra en todas las páginas
-  // if (location.pathname === '/login' || location.pathname === '/register') {
-  //   return null;
-  // }
+  // No mostrar navbar en Home, login o register
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   // Mostrar login/signup solo en Home y solo si NO está autenticado
   const showAuthButtons = location.pathname === '/' && !isAuthenticated;
@@ -65,9 +65,6 @@ const Navbar = () => {
             <>
               <button onClick={() => navigate('/recruiter/create-job')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
                 Crear puesto
-              </button>
-              <button onClick={() => navigate('/recruiter/job-postings')} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-lg font-semibold">
-                Ver puestos
               </button>
             </>
           )}

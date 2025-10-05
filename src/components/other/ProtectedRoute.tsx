@@ -4,12 +4,12 @@ import { useAuth } from '../../context/AuthContext.tsx';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'applicant' | 'recruiter';
+  requiredRole?: 'applicant' | 'recruiter' | 'admin';
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const { user, isAuthenticated } = useAuth();
-  const role = user?.role as 'applicant' | 'recruiter' | undefined;
+  const role = user?.role as 'applicant' | 'recruiter' | 'admin' | undefined;
 
   // En desarrollo, permitimos acceso si el rol coincide o si no hay rol requerido
   if (import.meta.env.DEV) {

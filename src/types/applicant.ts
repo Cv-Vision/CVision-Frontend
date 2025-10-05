@@ -33,7 +33,9 @@ export interface ApplicantProfile {
 export interface JobSearchFilters {
     title: string;
     company?: string;
-    location?: string; // NEW backend partial match
+    location?: string; // Legacy support for backward compatibility
+    province?: string; // NEW: specific province filter
+    city?: string; // NEW: specific city filter
     experience_level?: string; // ENUM: JUNIOR | SEMISENIOR | SENIOR
     contract_type?: string; // ENUM: FULL_TIME | PART_TIME | CONTRACT | FREELANCE | INTERNSHIP
     modal?: string; // NEW: REMOTE | ONSITE | HYBRID (public search API)

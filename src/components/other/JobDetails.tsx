@@ -6,7 +6,8 @@ interface JobRequirements {
   englishLevel: 'No requerido' | 'Básico' | 'Intermedio' | 'Avanzado' | 'Nativo';
   contractType: 'Full-time' | 'Part-time' | 'Freelance';
   additionalRequirements?: string;
-  location?: string;
+  province?: string;
+  city?: string;
 }
 
 interface JobDetailsProps {
@@ -214,13 +215,22 @@ const JobDetails: React.FC<JobDetailsProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ubicación
               </label>
-              <input
-                type="text"
-                value={requirements.location || ''}
-                onChange={(e) => setRequirements(prev => ({ ...prev, job_location: e.target.value }))}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                placeholder="Ingrese la ubicación del puesto..."
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  value={requirements.province || ''}
+                  onChange={(e) => setRequirements(prev => ({ ...prev, province: e.target.value }))}
+                  className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                  placeholder="Provincia"
+                />
+                <input
+                  type="text"
+                  value={requirements.city || ''}
+                  onChange={(e) => setRequirements(prev => ({ ...prev, city: e.target.value }))}
+                  className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                  placeholder="Ciudad"
+                />
+              </div>
             </div>
           </div>
         ) : (
@@ -243,10 +253,14 @@ const JobDetails: React.FC<JobDetailsProps> = ({
                 <p className="text-gray-900 whitespace-pre-wrap">{requirements.additionalRequirements}</p>
               </div>
             )}
-            {requirements.location && (
+            {(requirements.city || requirements.province) && (
               <div>
                 <span className="text-sm font-medium text-gray-700">Ubicación:</span>
-                <p className="text-gray-900">{requirements.location}</p>
+                <p className="text-gray-900">
+                  {requirements.city && requirements.province 
+                    ? `${requirements.city}, ${requirements.province}` 
+                    : requirements.city || requirements.province}
+                </p>
               </div>
             )}
           </div>

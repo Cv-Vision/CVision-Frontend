@@ -10,7 +10,9 @@ export type Job = {
   experience_level?: string;
   english_level?: string;
   contract_type?: string;
-  location?: string;
+  country?: string;
+  province?: string;
+  city?: string;
   industry_experience?: {
     required: boolean;
     industry?: string;
@@ -18,6 +20,8 @@ export type Job = {
   additional_requirements?: string;
   isApplied?: boolean;
   modal?: string; // NEW optional work modality (REMOTE, HYBRID, ONSITE)
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type Application = {

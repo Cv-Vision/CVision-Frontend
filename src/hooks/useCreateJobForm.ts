@@ -6,8 +6,9 @@ export type CreateJobPayload = {
   title: string;
   description: string;
   company?: string; // optional (falls back to title server-side if omitted)
-  location?: string; // preferred key
-  job_location?: string; // legacy UI key (will be mapped to location)
+  country?: string; // defaults to "AR" (Argentina), max 2 chars
+  province: string; // required - must be valid Argentine province
+  city: string; // required - must be valid city for the specified province
   experience_level?: 'JUNIOR' | 'SEMISENIOR' | 'SENIOR';
   english_level?: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'NATIVE' | 'NOT_REQUIRED';
   industry_experience?: Record<string, any>; // flexible backend dict (e.g. { fintech: 3 })
@@ -42,12 +43,6 @@ export function useCreateJobForm() {
 
       // Build request body according to new API contract
       const body: Record<string, any> = { ...payload };
-
-      // Prefer location over job_location; map if only job_location provided
-      if (!body.location && body.job_location) {
-        body.location = body.job_location;
-      }
-      delete body.job_location; // remove legacy key before send
 
       // Map legacy structured questions to applicant_questions (array of strings)
       if (body.questions) {

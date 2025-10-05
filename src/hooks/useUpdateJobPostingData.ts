@@ -11,7 +11,9 @@ export interface UpdatePayload {
   industry_experience?: Record<string, any>; // backend now expects a free-form object (e.g., {"fintech": 5})
   contract_type?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'FREELANCE' | 'INTERNSHIP';
   additional_requirements?: Record<string, any> | string; // may be object or legacy string
-  location?: string;
+  country?: string;
+  province?: string; // when updating location, both province and city must be provided together
+  city?: string; // when updating location, both province and city must be provided together
   company?: string;
   modal?: 'REMOTE' | 'ONSITE' | 'HYBRID' | null; // null allowed to clear
 }

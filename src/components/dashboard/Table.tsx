@@ -9,9 +9,9 @@ export interface SortConfig {
     direction: SortDirection;
 }
 
-// Props for the Table: a header array (length 1–6) and a 2D array of TableCell elements
+// Props for the Table: a header array (length 1–8) and a 2D array of TableCell elements
 export interface TableProps {
-    // Column headers: must have between 1 and 6 items
+    // Column headers: must have between 1 and 8 items
     headers: string[];
     // Rows represented as arrays of TableCell elements
     rows: React.ReactElement<TableCellProps>[][];
@@ -26,7 +26,7 @@ export interface TableProps {
 }
 
 /*
- Table component enforcing 1–6 headers and rendering rows of TableCell components only
+ Table component enforcing 1–8 headers and rendering rows of TableCell components only
  It is used by passing an array of headers and a 2D array of only TableCell elements.
  */
 export const Table: React.FC<TableProps> = ({ 
@@ -37,8 +37,8 @@ export const Table: React.FC<TableProps> = ({
     onSort, 
     sortableColumns = [] 
 }) => {
-    if (headers.length < 1 || headers.length > 6) {
-        throw new Error('Table: headers length must be between 1 and 6');
+    if (headers.length < 1 || headers.length > 8) {
+        throw new Error('Table: headers length must be between 1 and 8');
     }
 
     // Development-time check for ensuring all rows contain TableCell components and not other elements

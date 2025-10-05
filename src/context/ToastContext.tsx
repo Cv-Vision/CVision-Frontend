@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useRef, useState, ReactNode } from 'react';
 import ToastNotification from '../components/other/ToastNotification';
 
 interface ToastContextType {
@@ -10,9 +10,11 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; id: number } | null>(null);
   const [_toastQueue, setToastQueue] = useState<Array<{ message: string; type: 'success' | 'error' | 'info'; id: number }>>([]);
+  const idCounterRef = useRef<number>(0);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    const id = Date.now();
+    idCounterRef.current += 1;
+    const id = idCounterRef.current + Date.now();
     const newToast = { message, type, id };
 
     setToastQueue((prevQueue) => {
