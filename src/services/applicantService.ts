@@ -65,19 +65,6 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
 // Función para subir CV y obtener URL presignada
 export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: string}> => {
   try {
-    // TEMPORAL: Simulamos la subida del CV para evitar problemas de CORS
-    // TODO: Descomentar cuando se solucione CORS en el backend
-    // console.log('Simulando subida de CV:', file.name);
-    
-    // Simular delay de subida
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // // Retornar una URL simulada
-    // const simulatedUrl = `https://cvision-bucket.s3.us-east-2.amazonaws.com/simulated-cv-${Date.now()}.pdf`;
-    // console.log('CV simulado subido a:', simulatedUrl);
-    
-    // return simulatedUrl;
-    
     // Obtener URL presignada para subir el CV
     const presignedUrlResponse = await fetchWithAuth(`${CONFIG.apiUrl}/upload/cv`, {
       method: 'POST',
@@ -170,6 +157,29 @@ export const updateApplicantProfile = async (profile: ApplicantProfile): Promise
     }
   } catch (error) {
     console.error('Error en updateApplicantProfile:', error);
+    throw error;
+  }
+};
+
+// Función para enviar respuestas a las preguntas de un trabajo
+export const submitJobQuestionAnswers = async (jobId: string, answers: { questionId: string; answer: string | null }[]): Promise<void> => {
+  try {
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/question-answers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        answers: answers
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Error al enviar las respuestas');
+    }
+  } catch (error) {
+    console.error('Error en submitJobQuestionAnswers:', error);
     throw error;
   }
 };
