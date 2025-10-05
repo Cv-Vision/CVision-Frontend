@@ -93,13 +93,20 @@ const RecruiterDashboard = () => {
       );
     }
     
-    // Apply sorting
+    // Apply sorting by creation date (fallback to title if missing)
     visibleJobs = [...visibleJobs].sort((a, b) => {
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : null;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : null;
       switch (sortBy) {
         case 'recent':
-          // Sort by title for now (since we don't have created_at)
+          if (aTime !== null && bTime !== null) return bTime - aTime;
+          if (aTime !== null) return -1;
+          if (bTime !== null) return 1;
           return a.title.localeCompare(b.title);
         case 'oldest':
+          if (aTime !== null && bTime !== null) return aTime - bTime;
+          if (aTime !== null) return 1;
+          if (bTime !== null) return -1;
           return b.title.localeCompare(a.title);
         case 'title':
           return a.title.localeCompare(b.title);
@@ -122,7 +129,7 @@ const RecruiterDashboard = () => {
       type: job.contract_type === 'FULL_TIME' ? 'Tiempo Completo' as const :
             job.contract_type === 'PART_TIME' ? 'Medio Tiempo' as const : 'Contrato' as const,
       location: job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada',
-      publishedAt: 'Fecha no disponible', // job.created_at no está disponible en el tipo Job
+      publishedAt: job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Fecha no disponible',
       description: job.description,
       candidatesCount: Math.floor(Math.random() * 50) + 10, // Simulated data
       salaryRange: job.experience_level === 'JUNIOR' ? '25.000 - 35.000 €' :

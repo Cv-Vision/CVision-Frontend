@@ -51,7 +51,9 @@ export function useGetJobs() {
                 city: item.city,
                 industry_experience: item.industry_experience,
                 additional_requirements: item.additional_requirements,
-                modal: item.modal
+                modal: item.modal,
+                created_at: item.created_at,
+                updated_at: item.updated_at
             }));
             setJobs(mappedJobs);
             

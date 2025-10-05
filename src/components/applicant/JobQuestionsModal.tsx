@@ -36,6 +36,13 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
     }
   }, [isOpen, jobId, fetchQuestions]);
 
+  // Cerrar automáticamente si no hay preguntas para este puesto
+  useEffect(() => {
+    if (isOpen && !isLoading && questions.length === 0) {
+      onClose();
+    }
+  }, [isOpen, isLoading, questions, onClose]);
+
 
   const handleNext = () => {
     if (currentStep < questions.length) {
@@ -75,7 +82,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
         {/* Custom Header with teal background */}
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 -m-6 mb-0 p-6 rounded-t-lg">
+        <div className="bg-gradient-to-r from-teal-500 to-teal-600 mb-0 p-6 sm:p-8 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -111,7 +118,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
           )}
         </div>
 
-        <div className="p-6 pt-8">
+        <div className="p-6 pt-8 sm:p-8 sm:pt-10">
           {showIntro ? (
             <IntroTab onProceed={() => setHasConfirmed(true)} onSkip={handleSkip} />
           ) : (
