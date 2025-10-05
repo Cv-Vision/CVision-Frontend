@@ -34,7 +34,6 @@ const RecruiterDashboard = () => {
   }, [loadJobs]);
 
   const loadMore = useCallback(() => {
-    console.log('Attempting to load more jobs...');
     if (!jobsLoading && hasMore) {
       setPage(prev => {
         const next = prev + 1;
@@ -46,9 +45,8 @@ const RecruiterDashboard = () => {
 
   const mainRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    console.log('Setting up intersection observer for infinite scroll...');
     if (!hasMore) return;
-    console.log('Has more jobs to load, setting up observer.');
+    
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && !jobsLoading) {
