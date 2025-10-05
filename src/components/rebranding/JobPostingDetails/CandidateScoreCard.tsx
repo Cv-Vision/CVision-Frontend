@@ -3,16 +3,19 @@ import {
   EyeIcon,
   ArrowDownTrayIcon,
   ChatBubbleLeftEllipsisIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 
 interface CandidateScoreCardProps {
   name: string;
   email: string;
-  experience: string;
   score: number;
   status: "Revisado" | "Bueno" | "Malo" | "Sin revisar";
   onDownloadCV: () => void;
   onContact: () => void;
+  onDelete: () => void;
+  isDeleting?: boolean;
+  onClick?: () => void;
 }
 
 // Helper para colores de estado
@@ -26,11 +29,13 @@ const statusStyles: Record<string, string> = {
 export const CandidateScoreCard: React.FC<CandidateScoreCardProps> = ({
   name,
   email,
-  experience,
   score,
   status,
   onDownloadCV,
   onContact,
+  onDelete,
+  isDeleting = false,
+  onClick,
 }) => {
   // Iniciales para avatar
   const initials = name
@@ -41,7 +46,10 @@ export const CandidateScoreCard: React.FC<CandidateScoreCardProps> = ({
     .toUpperCase();
 
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-4 flex items-center justify-between hover:shadow-md transition">
+    <div
+      className="bg-white border rounded-xl shadow-sm p-4 flex items-center justify-between hover:shadow-md transition cursor-pointer"
+      onClick={onClick}
+    >
       {/* Left side: avatar + info */}
       <div className="flex items-center gap-4">
         {/* Avatar */}
@@ -53,7 +61,6 @@ export const CandidateScoreCard: React.FC<CandidateScoreCardProps> = ({
         <div>
           <p className="font-semibold">{name}</p>
           <p className="text-sm text-gray-500">{email}</p>
-          <p className="text-sm text-gray-500">{experience}</p>
         </div>
       </div>
 
@@ -86,6 +93,14 @@ export const CandidateScoreCard: React.FC<CandidateScoreCardProps> = ({
         >
           <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
           Contactar
+        </button>
+        <button
+          onClick={onDelete}
+          disabled={isDeleting}
+          className="flex items-center gap-1 border border-red-300 text-red-600 rounded-md px-3 py-1 text-sm hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <TrashIcon className="w-4 h-4" />
+          {isDeleting ? 'Eliminando...' : 'Eliminar'}
         </button>
       </div>
     </div>

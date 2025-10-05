@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { CandidateScoreCard } from "./CandidateScoreCard";
 import { UserGroupIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { CandidateDetailsModal } from "./CandidateDetailsModal";
 
 interface Candidate {
   id: string;
   name: string;
   email: string;
-  experience: string;
   score: number;
   status: "Revisado" | "Bueno" | "Malo" | "Sin revisar";
+  reasons?: string[];
 }
 
 interface CandidateListProps {
@@ -20,6 +21,8 @@ interface CandidateListProps {
   onAnalyze?: () => void;
   canAnalyze?: boolean;
   isAnalyzing?: boolean;
+  onDeleteCandidate?: (candidateId: string) => void;
+  deletingCandidates?: Set<string>;
 }
 
 export const CandidateList: React.FC<CandidateListProps> = ({
@@ -31,10 +34,14 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   onAnalyze,
   canAnalyze = false,
   isAnalyzing = false,
+  onDeleteCandidate,
+  deletingCandidates = new Set(),
 }) => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("score");
+  const [selected, setSelected] = useState<Candidate | null>(null);
+  const [open, setOpen] = useState(false);
 
   if (isLoading) {
     return <p className="p-4 text-gray-500">Cargando candidatos...</p>;
@@ -154,14 +161,33 @@ export const CandidateList: React.FC<CandidateListProps> = ({
             key={c.id}
             name={c.name}
             email={c.email}
-            experience={c.experience}
             score={c.score}
             status={c.status}
             onDownloadCV={() => console.log("Descargar CV", c.id)}
             onContact={() => console.log("Contactar", c.id)}
+            onDelete={() => onDeleteCandidate?.(c.id)}
+            isDeleting={deletingCandidates.has(c.id)}
+            onClick={() => {
+              setSelected(c);
+              setOpen(true);
+            }}
           />
         ))}
       </div>
+
+      {/* Modal de detalles */}
+      <CandidateDetailsModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        candidate={selected ? {
+          id: selected.id,
+          name: selected.name,
+          email: selected.email,
+          score: selected.score,
+          status: selected.status,
+          reasons: selected.reasons || [],
+        } : null}
+      />
     </div>
   );
 };
