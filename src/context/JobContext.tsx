@@ -20,6 +20,7 @@ export type Job = {
   additional_requirements?: string;
   isApplied?: boolean;
   modal?: string; // NEW optional work modality (REMOTE, HYBRID, ONSITE)
+  has_pending_applications?: boolean;
 };
 
 export type Application = {

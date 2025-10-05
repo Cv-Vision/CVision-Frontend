@@ -58,7 +58,8 @@ export function useGetJobs() {
                 city: item.city,
                 industry_experience: item.industry_experience,
                 additional_requirements: item.additional_requirements,
-                modal: item.modal
+                modal: item.modal,
+                has_pending_applications: item.has_pending_applications,
             }));
 
             setJobs(prev => {

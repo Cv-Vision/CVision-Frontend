@@ -162,7 +162,8 @@ const RecruiterDashboard = () => {
       salaryRange: job.experience_level === 'JUNIOR' ? '25.000 - 35.000 €' :
                    job.experience_level === 'MID' ? '35.000 - 50.000 €' :
                    job.experience_level === 'SENIOR' ? '50.000 - 70.000 €' :
-                   job.experience_level === 'LEAD' ? '70.000 - 100.000 €' : 'Salario a convenir'
+                   job.experience_level === 'LEAD' ? '70.000 - 100.000 €' : 'Salario a convenir',
+      has_pending_applications: job.has_pending_applications
     }));
   }, [jobs, statusFilter, searchTerm, sortBy]);
 
