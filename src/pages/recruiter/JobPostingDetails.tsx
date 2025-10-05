@@ -15,6 +15,7 @@ import { CONFIG } from '@/config';
 import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
+import { useDeleteApplication } from '@/hooks/useDeleteApplication';
 
 // ==== Helpers (igual que en tu versión) ====
 function seniorityLabel(level?: string) {
@@ -58,6 +59,8 @@ const JobPostingDetails = () => {
   const [isAnalysisPending, setIsAnalysisPending] = useState(false);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
+  const { deleteApplication } = useDeleteApplication();
+  const [deletingCandidates, setDeletingCandidates] = useState<Set<string>>(new Set());
 
   const jobToShow = localJob || job;
   const cleanJobId = jobToShow?.pk ? jobToShow.pk.replace(/^JD#/, '') : '';
@@ -173,7 +176,7 @@ const JobPostingDetails = () => {
       const payload: Record<string, any> = { job_id: jobToShow.pk };
       // Ya no se envían requisitos adicionales
       const response = await axios.post(
-        `${CONFIG.apiUrl}/recruiter/call-cv-batch-invoker`,
+        `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
         payload,
         {
           headers: {
@@ -183,7 +186,7 @@ const JobPostingDetails = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 202 || response.status === 201) {
         // Analysis started successfully
         showToast('Análisis iniciado correctamente', 'success');
         // Iniciar polling para obtener resultados
@@ -197,6 +200,28 @@ const JobPostingDetails = () => {
       showToast(errorMessage, 'error');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleDeleteCandidate = async (candidateId: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este candidato?')) {
+      return;
+    }
+
+    setDeletingCandidates(prev => new Set(prev).add(candidateId));
+
+    try {
+      await deleteApplication(candidateId);
+      showToast('Candidato eliminado exitosamente', 'success');
+      refetchApplicants(); // Recargar la lista de candidatos
+    } catch (error: any) {
+      showToast(error.message || 'Error al eliminar el candidato', 'error');
+    } finally {
+      setDeletingCandidates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(candidateId);
+        return newSet;
+      });
     }
   };
 
@@ -282,12 +307,12 @@ const JobPostingDetails = () => {
 
         <CandidateList
           candidates={(applicants || []).map((a: any, idx: number) => ({
-            id: String(a.id || a.applicant_id || idx),
-            name: a.name || a.full_name || a.applicant_name || 'Sin nombre',
-            email: a.email || a.applicant_email || 'sin-email@dominio.com',
-            experience: a.experience || a.experience_level || 'N/A',
-            score: Number(a.score || a.match_score || 0),
+            id: String(a.id || idx),
+            name: a.fullName || 'Sin nombre',
+            email: a.email || 'Email no disponible',
+            score: Number(a.score || 0),
             status: (a.status as 'Revisado' | 'Bueno' | 'Malo' | 'Sin revisar') || 'Sin revisar',
+            reasons: a.rawReasons || [],
           }))}
           isLoading={false}
           error={null}
@@ -296,6 +321,8 @@ const JobPostingDetails = () => {
           onAnalyze={handleAnalyze} // ⟵ analiza CVs
           canAnalyze={!isAnalyzing} // ⟵ deshabilitado mientras analiza
           isAnalyzing={isAnalyzing} // ⟵ estado de carga
+          onDeleteCandidate={handleDeleteCandidate} // ⟵ elimina candidato
+          deletingCandidates={deletingCandidates} // ⟵ candidatos siendo eliminados
         />
             </div>
 
