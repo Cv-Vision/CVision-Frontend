@@ -9,6 +9,7 @@ import ApplyConfirmationModal from '@/components/other/ApplyConfirmationModal';
 import { useToast } from '@/context/ToastContext';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
+import { useCheckJobHasQuestions } from '@/hooks/useCheckJobHasQuestions';
 
 
 const JobPosition = () => {
@@ -22,16 +23,19 @@ const JobPosition = () => {
   // Determinar si es una vista pública o privada
   const isPublicView = location.pathname.startsWith('/position/');
   
-  // Estados para manejar la aplicación al trabajo
+
   const { apply, isLoading: isApplying, success, error: applyError } = useApplyToJob();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { showToast } = useToast();
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showGuestModal, setShowGuestModal] = useState(false);
+  const [showGuestRegisterMessage, setShowGuestRegisterMessage] = useState(false);
+  
+  const { hasQuestions, checkForQuestions } = useCheckJobHasQuestions();
 
   const handleApply = () => {
     if (!isAuthenticated) {
-      // Show guest modal instead of redirecting
+
       setShowGuestModal(true);
       return;
     }
@@ -43,26 +47,38 @@ const JobPosition = () => {
   };
 
   const handleGuestApply = async (applicationData: GuestApplicationData) => {
-    // The modal already handles the API call, we just need to show success
+
     showToast('Aplicación enviada exitosamente', 'success');
     setAppliedJobs(prev => [...prev, applicationData.jobId]);
+    
+
+    await checkForQuestions(applicationData.jobId);
   };
 
-  // Manejar éxito de la aplicación
+
+  useEffect(() => {
+    if (hasQuestions && appliedJobs.length > 0) {
+      setTimeout(() => {
+        setShowGuestRegisterMessage(true);
+      }, 1500);
+    }
+  }, [hasQuestions, appliedJobs.length]);
+
+
   useEffect(() => {
     if (success) {
       setIsModalOpen(false);
       showToast('Te postulaste con éxito', 'success');
       setAppliedJobs(prev => [...prev, positionId!]);
 
-      // Mostrar modal de preguntas después de aplicación exitosa
+
       if (jobPosition) {
         setShowQuestionsModal(true);
       }
     }
   }, [success, positionId, jobPosition]);
 
-  // Manejar error de la aplicación
+
   useEffect(() => {
     if (applyError) {
       showToast(applyError, 'error');
@@ -362,6 +378,15 @@ const JobPosition = () => {
         jobId={positionId || ''}
         jobTitle={jobPosition?.title || ''}
         onApply={handleGuestApply}
+      />
+      
+      {/* Modal de preguntas bloqueado para guests */}
+      <JobQuestionsModal
+        isOpen={showGuestRegisterMessage}
+        onClose={() => setShowGuestRegisterMessage(false)}
+        jobId={positionId || ''}
+        jobTitle={jobPosition?.title}
+        showGuestRegisterMessage={true}
       />
     </div>
   );

@@ -14,6 +14,7 @@ interface JobQuestionsModalProps {
   onClose: () => void;
   jobId: string;
   jobTitle?: string;
+  showGuestRegisterMessage?: boolean;
 }
 
 interface QuestionAnswer {
@@ -21,7 +22,7 @@ interface QuestionAnswer {
   answer: string | null;
 }
 
-const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) => {
+const JobQuestionsModal = ({ isOpen, onClose, jobId, showGuestRegisterMessage = false }: JobQuestionsModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
   const [hasConfirmed, setHasConfirmed] = useState(false);
@@ -30,17 +31,15 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
   const { submitAnswers, isLoading: isSubmitting } = useSubmitQuestionAnswers();
   const { showToast } = useToast();
 
-  // Reset modal state when it opens/closes
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !showGuestRegisterMessage) {
       setCurrentStep(1);
       setHasConfirmed(false);
       setAnswers([]);
       fetchQuestions(jobId);
     }
-  }, [isOpen, jobId, fetchQuestions]);
-
-  // No cerrar automáticamente - mostrar mensaje si no hay preguntas
+  }, [isOpen, jobId, fetchQuestions, showGuestRegisterMessage]);
 
 
   const handleNext = () => {
@@ -71,7 +70,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
 
   const handleSubmit = async () => {
     try {
-      // Crear respuestas para todas las preguntas, incluyendo las no respondidas como null
+
       const allAnswers = questions.map(question => {
         const existingAnswer = answers.find(a => a.questionId === question.id);
         return {
@@ -91,12 +90,85 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
 
   if (!isOpen) return null;
 
-  // Show intro if we're on step 1 and haven't started, or if there are no questions
+
+  if (showGuestRegisterMessage) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 min-h-[500px] max-h-[90vh] overflow-y-auto relative">
+          {/* Overlay borroso sobre el contenido */}
+          <div className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-lg p-8 mx-4 max-w-lg text-center border">
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <QuestionMarkCircleIcon className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">¡Preguntas adicionales disponibles!</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                El reclutador de este puesto ha preparado algunas preguntas adicionales para conocer mejor a los candidatos.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-blue-800 text-sm font-medium">
+                  Para ver y responder estas preguntas, necesitas completar tu registro.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Omitir por ahora
+                </button>
+                <button
+                  onClick={() => {
+                    onClose();
+                    window.location.href = '/applicant/register';
+                  }}
+                  className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+                >
+                  Registrarse ahora
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Contenido borroso de fondo (simulando el modal de preguntas) */}
+          <div className="opacity-30">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                  <QuestionMarkCircleIcon className="h-5 w-5 text-teal-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Preguntas adicionales</h2>
+                  <p className="text-gray-600 text-sm mt-1">Introducción</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <QuestionMarkCircleIcon className="h-8 w-8 text-teal-600" />
+                </div>
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-gray-900">¡Casi terminamos!</h2>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   const showIntro = (currentStep === 1 && !hasConfirmed) || questions.length === 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 min-h-[500px] max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
