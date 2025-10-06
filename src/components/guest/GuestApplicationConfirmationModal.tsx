@@ -22,46 +22,52 @@ export default function GuestApplicationConfirmationModal({ email, onClose }: Pr
         } catch (err) {
             setError("No se pudo reenviar el mail. Intenta nuevamente.");
         } finally {
-            setTimeout(() => setResending(false), 5000); // Bloquea por 5 segundos
+            setTimeout(() => setResending(false), 5000);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
-                <h2 className="text-2xl font-bold text-blue-800">¡Aplicación enviada!</h2>
-                <p className="text-base text-gray-700">
-                    Revisa tu mail para completar tu registro.<br />
-                    <span className="font-semibold">¿Qué esperar?</span>
-                    <ul className="list-disc ml-6 mt-2 text-sm text-gray-600">
-                        <li>Recibirás un correo con instrucciones para finalizar tu registro.</li>
-                        <li>El mail puede tardar unos minutos en llegar.</li>
-                        <li>Si no lo ves, revisa la carpeta de spam o promociones.</li>
-                    </ul>
-                </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 flex flex-col gap-6">
+                <h2 className="text-2xl font-bold text-gray-900 text-center">¡Aplicación enviada!</h2>
+                <div className="text-base text-gray-700">
+                    <p className="mb-2 text-center">
+                        Revisa tu mail para completar tu registro.
+                    </p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-2">
+                        <h4 className="text-sm font-semibold text-blue-800 mb-2">¿Qué esperar?</h4>
+                        <ul className="list-disc ml-6 text-sm text-blue-700 space-y-1">
+                            <li>Recibirás un correo con instrucciones para finalizar tu registro.</li>
+                            <li>El mail puede tardar unos minutos en llegar.</li>
+                            <li>Si no lo ves, revisa la carpeta de spam o promociones.</li>
+                        </ul>
+                    </div>
+                </div>
                 {resent && (
-                    <div className="text-green-700 bg-green-50 border-l-4 border-green-500 p-2 rounded">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-green-700 text-center font-medium">
                         Mail reenviado correctamente.
                     </div>
                 )}
                 {error && (
-                    <div className="text-red-700 bg-red-50 border-l-4 border-red-500 p-2 rounded">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-center font-medium">
                         {error}
                     </div>
                 )}
-                <button
-                    className="bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition"
-                    onClick={handleResend}
-                    disabled={resending}
-                >
-                    {resending ? "Reenviando..." : "Reenviar mail"}
-                </button>
-                <button
-                    className="mt-2 text-blue-600 underline"
-                    onClick={onClose}
-                >
-                    Cerrar
-                </button>
+                <div className="flex flex-col gap-2 pt-2">
+                    <button
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleResend}
+                        disabled={resending}
+                    >
+                        {resending ? "Reenviando..." : "Reenviar mail"}
+                    </button>
+                    <button
+                        className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors duration-200"
+                        onClick={onClose}
+                    >
+                        Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     );
