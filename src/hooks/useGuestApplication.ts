@@ -48,7 +48,13 @@ export function useGuestApplication() {
       }
 
       const data = await response.json();
-      return data;
+
+      const presigned = data.upload_url ? data : data.response_data;
+      if (!presigned || !presigned.upload_url) {
+        console.error('Unexpected presigned URL response:', data);
+        throw new Error('Invalid presigned URL response');
+      }
+      return presigned;
     } catch (err) {
       console.error('Error generating presigned URL:', err);
       return null;
