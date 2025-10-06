@@ -164,13 +164,19 @@ export const updateApplicantProfile = async (profile: ApplicantProfile): Promise
 // Función para enviar respuestas a las preguntas de un trabajo
 export const submitJobQuestionAnswers = async (jobId: string, answers: { questionId: string; answer: string | null }[]): Promise<void> => {
   try {
-    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/question-answers`, {
+    // Transformar las respuestas al formato esperado por el backend
+    const formattedAnswers = answers.map(answer => ({
+      question_id: answer.questionId,
+      answer: answer.answer
+    }));
+
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        answers: answers
+        answers: formattedAnswers
       }),
     });
 
