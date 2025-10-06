@@ -87,9 +87,7 @@ export function useGuestApplication() {
       }
 
       // Step 2: Upload CV to S3
-      const file = new File([applicationData.cvData.cvUrl], applicationData.cvData.fileName, {
-        type: 'application/pdf'
-      });
+      const file = applicationData.cvData.file;
       
       const uploadSuccess = await uploadFileToS3(file, presignedData);
       if (!uploadSuccess) {

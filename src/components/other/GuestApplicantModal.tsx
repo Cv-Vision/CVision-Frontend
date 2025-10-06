@@ -104,14 +104,16 @@ const GuestApplicantModal: React.FC<GuestApplicantModalProps> = ({
   };
 
   const handleCVProcessed = (cvInfo: any) => {
-    setCvData(cvInfo);
+    setCvData({
+      ...cvInfo,
+      file: cvInfo.file,
+    });
+
     if (errors.cv) {
-      setErrors(prev => ({
-        ...prev,
-        cv: ''
-      }));
+      setErrors(prev => ({ ...prev, cv: '' }));
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
