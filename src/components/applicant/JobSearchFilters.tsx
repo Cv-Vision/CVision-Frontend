@@ -44,18 +44,20 @@ export const JobSearchFilters = ({
           <option value="Málaga">Málaga</option>
         </select>
 
-        <select 
-          value={typeFilter} 
-          onChange={(e) => onTypeChange(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:border-teal-300 focus:ring-2 focus:ring-teal-200 focus:outline-none"
-        >
-          <option value="">Todos los tipos</option>
-          <option value="FULL_TIME">Tiempo Completo</option>
-          <option value="PART_TIME">Medio Tiempo</option>
-          <option value="CONTRACT">Contrato</option>
-          <option value="FREELANCE">Freelance</option>
-          <option value="INTERNSHIP">Prácticas</option>
-        </select>
+        <div className="flex-1 p-1">
+          <select 
+            value={typeFilter} 
+            onChange={(e) => onTypeChange(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-teal-300 focus:ring-2 focus:ring-teal-200 focus:outline-none"
+          >
+            <option value="">Todos los tipos</option>
+            <option value="FULL_TIME">Tiempo Completo</option>
+            <option value="PART_TIME">Medio Tiempo</option>
+            <option value="CONTRACT">Contrato</option>
+            <option value="FREELANCE">Freelance</option>
+            <option value="INTERNSHIP">Prácticas</option>
+          </select>
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signIn } from '@/services/AuthService.ts';
-import { decodeJwt, useAuth } from "@/context/AuthContext.tsx";
-import { useToast } from '@/context/ToastContext';
-import { UserRole } from '@/types/auth.ts';
+import { Link } from 'react-router-dom';
+import { useLogin } from '@/hooks/useLogin';
 import AuthLayout from '@/components/other/AuthLayout';
 
 
@@ -11,11 +8,10 @@ import AuthLayout from '@/components/other/AuthLayout';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const { showToast } = useToast();
+  // navigate is handled inside useLogin
+  const { login: doLogin, loading: loginLoading } = useLogin();
 
 
   const validateForm = () => {
@@ -40,54 +36,7 @@ const Login = () => {
     
     if (!validateForm()) return;
 
-    setLoading(true);
-
-    try {
-      const cognitoUser = await signIn({ username: email, password });
-      const token = cognitoUser?.AuthenticationResult?.IdToken;
-
-      if (!token) {
-        throw new Error("No se pudo obtener el token de sesión");
-      }
-
-      const decodedToken = decodeJwt(token);
-      const userType = decodedToken ? decodedToken['custom:userType'] : null;
-
-      // Convert to uppercase for consistent comparison
-      const normalizedUserType = userType?.toUpperCase();
-      
-      if (!normalizedUserType || (normalizedUserType !== 'RECRUITER' && normalizedUserType !== 'APPLICANT' && normalizedUserType !== 'ADMIN')) {
-        throw new Error("Tipo de usuario no válido o no encontrado en el token.");
-      }
-
-      const role: UserRole = normalizedUserType === 'RECRUITER' ? 'recruiter' : 
-                           normalizedUserType === 'ADMIN' ? 'admin' : 'applicant';
-      const userData = { email, role, token };
-
-      if (login) {
-        login(userData);
-      }
-
-      // Verificar si hay una URL de redirección guardada
-      const redirectUrl = localStorage.getItem('redirectAfterAuth');
-      if (redirectUrl) {
-        localStorage.removeItem('redirectAfterAuth');
-        navigate(redirectUrl);
-      } else {
-        if (role === 'applicant') {
-          navigate('/applicant/dashboard', { state: { justLoggedIn: true, userName: decodedToken?.name || email.split('@')[0] } });
-        } else if (role === 'admin') {
-          navigate('/admin/metrics');
-        } else {
-          navigate('/recruiter/dashboard');
-        }
-      }
-    } catch (err: any) {
-      console.error("Error al hacer login:", err);
-      showToast(err.message || 'Error al iniciar sesión', 'error');
-    } finally {
-      setLoading(false);
-    }
+    await doLogin(email, password);
   }
 
   return (
@@ -155,7 +104,7 @@ const Login = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || loginLoading}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 text-base font-medium h-12 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (

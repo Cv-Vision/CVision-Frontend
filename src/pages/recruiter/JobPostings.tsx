@@ -138,7 +138,7 @@ const JobPostings: React.FC = () => {
     if (!jobToDelete) return;
     try {
       await updateJobPostingData(jobToDelete, { status: 'DELETED' });
-      refetch(true);
+      refetch();
       showToast('Puesto eliminado correctamente', 'success');
     } catch (err) {
       console.error('Error al eliminar:', err);

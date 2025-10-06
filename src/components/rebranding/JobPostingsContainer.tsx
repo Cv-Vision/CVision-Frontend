@@ -18,6 +18,7 @@ interface Job {
 interface JobPostingsContainerProps {
   jobs: Job[];
   isLoading: boolean;
+  hasMore: boolean;
   error: unknown;
   refetch: () => void;
   onJobClick?: (jobId: string) => void;
@@ -27,12 +28,13 @@ interface JobPostingsContainerProps {
 export const JobPostingsContainer: React.FC<JobPostingsContainerProps> = ({
   jobs,
   isLoading,
+  hasMore,
   error,
   refetch,
   onJobClick,
   onDeleteJob,
 }) => {
-  if (isLoading) {
+  if (isLoading && !hasMore) {
     return <p className="p-6 text-gray-500">Cargando trabajos...</p>;
   }
 

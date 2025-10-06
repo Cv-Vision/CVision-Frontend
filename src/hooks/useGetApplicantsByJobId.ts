@@ -9,6 +9,8 @@ export interface Applicant {
   rating?: string;
   status?: string;
   rawReasons: string[];
+  email?: string;
+  experience?: string;
 }
 
 const S3_BASE_URL = `${CONFIG.bucketUrl}`;
@@ -42,13 +44,15 @@ export const useGetApplicantsByJobId = (jobId: string) => {
       const data = await res.json();
       const mappedApplicants: Applicant[] = (data || []).map((item: any) => ({
         id: item.application_id,
-        fullName: item.cv_analysis_result?.analysis_data?.name || '',
+        fullName: item.cv_analysis_result?.analysis_data?.name || item.user?.name || '',
         score: item.cv_analysis_result?.analysis_data?.score || null,
         cvId: item.cv_hash,
         cvUrl: item.cv_upload_key ? `${S3_BASE_URL}${item.cv_upload_key}` : '',
         rating: item.valoracion || '',
         status: item.status || '',
         rawReasons: item.cv_analysis_result?.analysis_data?.reasons || [],
+        email: item.user?.email || '',
+        experience: item.cv_analysis_result?.analysis_data?.experience_level || item.cv_analysis_result?.analysis_data?.experience || 'No especificada',
       }));
       mappedApplicants.sort((a, b) => {
         if (a.score === null && b.score === null) return 0;
