@@ -11,13 +11,13 @@ export const useSubmitQuestionAnswers = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const submitAnswers = async (jobId: string, answers: QuestionAnswer[]) => {
+  const submitAnswers = async (jobId: string, answers: QuestionAnswer[], overwrite: boolean = true) => {
     setIsLoading(true);
     setError(null);
     setSuccess(false);
 
     try {
-      await submitJobQuestionAnswers(jobId, answers);
+      await submitJobQuestionAnswers(jobId, answers, overwrite);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message);

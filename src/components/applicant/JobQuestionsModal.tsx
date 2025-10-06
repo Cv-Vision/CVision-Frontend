@@ -79,7 +79,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, showGuestRegisterMessage = 
         };
       });
 
-      await submitAnswers(jobId, allAnswers);
+      await submitAnswers(jobId, allAnswers, true);
       showToast('Respuestas enviadas exitosamente', 'success');
     } catch (error) {
       showToast('Error al enviar las respuestas', 'error');

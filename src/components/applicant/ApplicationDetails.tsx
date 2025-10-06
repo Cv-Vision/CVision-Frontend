@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { MapPin, Building2, CheckCircle, XCircle, ClockIcon, Calendar } from "lucide-react";
+import { MapPin, Building2, CheckCircle, XCircle, ClockIcon, Calendar, MessageSquareText } from "lucide-react";
 import { Application } from '../../hooks/useUserApplications';
+import JobQuestionsModal from './JobQuestionsModal';
 
 interface ApplicationDetailsProps {
   application: Application;
@@ -8,6 +9,15 @@ interface ApplicationDetailsProps {
 
 export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+
+  const handleOpenQuestions = () => {
+    setShowQuestionsModal(true);
+  };
+
+  const handleCloseQuestions = () => {
+    setShowQuestionsModal(false);
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -58,6 +68,7 @@ export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => 
   };
 
   return (
+    <div>
       <div className="max-w-4xl mx-auto p-8">
         <div className="bg-white shadow-sm rounded-lg">
           <div className="border-b p-6">
@@ -131,6 +142,27 @@ export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => 
                       ? `${application.jobPosting.city}, ${application.jobPosting.province}`
                       : application.jobPosting.city || application.jobPosting.province || 'No especificada'}
                 </p>
+              </div>
+            </div>
+
+            {/* Job Questions Button */}
+            <div className="bg-gradient-to-r from-teal-50 to-blue-50 p-6 rounded-lg border border-teal-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <MessageSquareText className="w-6 h-6 text-teal-600" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Preguntas del puesto</h3>
+                    <p className="text-sm text-gray-600">
+                      Responde las preguntas adicionales de este puesto para completar tu aplicación.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleOpenQuestions}
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+                >
+                  Ver preguntas
+                </button>
               </div>
             </div>
 
@@ -208,5 +240,16 @@ export const ApplicationDetails = ({ application }: ApplicationDetailsProps) => 
           </div>
         </div>
       </div>
+
+      {/* Job Questions Modal */}
+      {showQuestionsModal && (
+        <JobQuestionsModal
+          isOpen={showQuestionsModal}
+          onClose={handleCloseQuestions}
+          jobId={application.jobPostingId}
+          jobTitle={application.jobPosting.title}
+        />
+      )}
+    </div>
   );
 };

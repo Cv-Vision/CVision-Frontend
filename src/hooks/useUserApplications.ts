@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { CONFIG } from '@/config';
+import { fetchWithAuth } from '@/services/fetchWithAuth';
 
 export interface Application {
     id: string;
     status: string;
     createdAt?: string;
+    jobPostingId: string;
     jobPosting: {
         title: string;
         company: string;
@@ -13,6 +15,19 @@ export interface Application {
         city?: string;
     };
 }
+
+// Función para obtener detalles del job posting
+const fetchJobDetails = async (jobId: string) => {
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/public`);
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (error) {
+        // Silently handle errors, return null for missing job details
+    }
+    return null;
+};
 
 export function useUserApplications() {
     const [applications, setApplications] = useState<Application[]>([]);
@@ -39,21 +54,33 @@ export function useUserApplications() {
                     setError(data.message || 'Error al obtener postulaciones');
                     setApplications([]);
                 } else {
-                    // Mapeo de los datos del backend a la interfaz Application
-                    setApplications(
-                        data.map((app: any) => ({
-                            id: app.application_id,
-                            status: app.status,
-                            createdAt: app.created_at,
-                            jobPosting: {
-                                title: app.job_posting?.title || '',
-                                company: app.job_posting?.company || '',
-                                description: app.job_posting?.description || '',
-                                province: app.job_posting?.province || '',
-                                city: app.job_posting?.city || '',
-                            },
-                        }))
-                    );
+                    // Procesar las aplicaciones y obtener detalles completos de cada job
+                    const processApplications = async () => {
+                        const applicationsWithDetails = await Promise.all(
+                            data.map(async (app: any) => {
+                                // Obtener detalles completos del job posting
+                                const jobDetails = await fetchJobDetails(app.job_posting_id);
+                                
+                                return {
+                                    id: app.application_id,
+                                    status: app.status,
+                                    createdAt: app.created_at,
+                                    jobPostingId: app.job_posting_id,
+                                    jobPosting: {
+                                        title: jobDetails?.title || 'Título no disponible',
+                                        company: jobDetails?.company || 'Empresa no disponible',
+                                        description: jobDetails?.description || '',
+                                        province: jobDetails?.province || '',
+                                        city: jobDetails?.city || '',
+                                    },
+                                };
+                            })
+                        );
+                        
+                        setApplications(applicationsWithDetails);
+                    };
+                    
+                    processApplications();
                 }
             })
             .catch(() => setError('Error de red'))

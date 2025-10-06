@@ -162,7 +162,7 @@ export const updateApplicantProfile = async (profile: ApplicantProfile): Promise
 };
 
 // Función para enviar respuestas a las preguntas de un trabajo
-export const submitJobQuestionAnswers = async (jobId: string, answers: { questionId: string; answer: string | null }[]): Promise<void> => {
+export const submitJobQuestionAnswers = async (jobId: string, answers: { questionId: string; answer: string | null }[], overwrite: boolean = true): Promise<void> => {
   try {
     // Transformar las respuestas al formato esperado por el backend
     const formattedAnswers = answers.map(answer => ({
@@ -170,7 +170,8 @@ export const submitJobQuestionAnswers = async (jobId: string, answers: { questio
       answer: answer.answer
     }));
 
-    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers`, {
+    const url = `${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers${overwrite ? '?overwrite=true' : ''}`;
+    const response = await fetchWithAuth(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
