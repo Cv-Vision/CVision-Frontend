@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../services/axiosConfig';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { CONFIG } from '@/config';
 import { useToast } from '../../context/ToastContext';
@@ -34,15 +35,9 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
         payload.additional_requirements = extraRequirements.additional_requirements;
       }
       
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        }
+        payload
       );
 
       if (response.status === 200 || response.status === 202) {

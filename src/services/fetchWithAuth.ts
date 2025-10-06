@@ -1,3 +1,10 @@
+// Global logout function that will be set by AuthContext
+let globalLogout: (() => void) | null = null;
+
+export const setGlobalLogout = (logoutFn: () => void) => {
+  globalLogout = logoutFn;
+};
+
 export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
   const token = sessionStorage.getItem('idToken');
 
@@ -32,9 +39,16 @@ export async function fetchWithAuth(input: RequestInfo, init?: RequestInit) {
     if (!response.ok) {
       // Handle specific error cases
       if (response.status === 401) {
-        // Clear token and redirect to login
+        // Clear token and redirect to login using React Router
         sessionStorage.removeItem('idToken');
-        window.location.href = '/login';
+        sessionStorage.removeItem('user');
+        
+        // Use the global logout function if available, otherwise fallback to window.location
+        if (globalLogout) {
+          globalLogout();
+        } else {
+          window.location.href = '/login';
+        }
         throw new Error('No autorizado. Por favor, inicie sesión nuevamente.');
       }
       if (response.status === 403) {

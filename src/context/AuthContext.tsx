@@ -1,6 +1,8 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserRole } from '../types/auth';
+import { setGlobalLogout } from '../services/fetchWithAuth';
+import { setGlobalAxiosLogout } from '../services/axiosConfig';
 
 interface User {
   email?: string;
@@ -15,6 +17,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   logout?: () => void;
   login?: (userData: User) => void;
 }
@@ -59,19 +62,49 @@ function getUsernameFromClaims(claims: any): string {
   );
 }
 
+/** Verifica si un token JWT ha expirado */
+function isTokenExpired(token: string): boolean {
+  try {
+    const claims = decodeJwt(token);
+    if (!claims.exp) return true; // Si no hay exp, consideramos que está expirado
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    return currentTime >= claims.exp;
+  } catch {
+    return true; // Si hay error decodificando, consideramos que está expirado
+  }
+}
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   // Cargar desde sessionStorage y ENRIQUECER en memoria con username derivado del token
   useEffect(() => {
     const userData = sessionStorage.getItem('user');
-    if (!userData) return;
+    
+    if (!userData) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const parsedUser = JSON.parse(userData) as User;
       const token = parsedUser?.token ?? parsedUser?.idToken;
+      
+      // Verificar si el token ha expirado
+      if (token && isTokenExpired(token)) {
+        console.log('Token expirado, cerrando sesión automáticamente');
+        sessionStorage.clear();
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        navigate('/login');
+        return;
+      }
+      
       const claims = token ? decodeJwt(token) : {};
       const username = getUsernameFromClaims(claims);
 
@@ -81,8 +114,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.error('Error parsing user data from sessionStorage:', error);
       sessionStorage.removeItem('user'); // limpiar datos corruptos
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [navigate]);
 
   const login = (userData: User) => {
     const token = (userData as any)?.token ?? (userData as any)?.idToken ?? null;
@@ -106,8 +141,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     navigate('/login');
   };
 
+  // Register the logout function with fetchWithAuth and axios
+  useEffect(() => {
+    setGlobalLogout(logout);
+    setGlobalAxiosLogout(logout);
+  }, [logout]);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, logout, login }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, logout, login }}>
       {children}
     </AuthContext.Provider>
   );

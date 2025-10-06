@@ -9,7 +9,7 @@ import { JobPostingStats } from '@/components/rebranding/JobPostingDetails/JobPo
 import { CandidateList } from '@/components/rebranding/JobPostingDetails/CandidateList';
 import { CVDropzone } from '@/components/other/CVDropzone';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '@/services/axiosConfig';
 import { CONFIG } from '@/config';
 
 import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
@@ -175,15 +175,9 @@ const JobPostingDetails = () => {
 
       const payload: Record<string, any> = { job_id: jobToShow.pk };
       // Ya no se envían requisitos adicionales
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        }
+        payload
       );
 
       if (response.status === 200 || response.status === 202 || response.status === 201) {
