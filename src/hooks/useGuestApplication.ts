@@ -7,6 +7,7 @@ export interface GuestApplicationData {
   email: string;
   jobId: string;
   cvData: {
+    file: File;
     cvUrl: string;
     fileName: string;
     fileSize: number;
@@ -29,16 +30,16 @@ export function useGuestApplication() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generatePresignedUrl = async (fileName: string): Promise<{upload_url: string, s3_key: string, content_type: string} | null> => {
+  const generatePresignedUrl = async (file: File): Promise<{upload_url: string, s3_key: string, content_type: string} | null> => {
     try {
       const response = await fetchWithAuth(`${CONFIG.apiUrl}/upload/cv`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          filename: fileName,
-          fileType: 'application/pdf'
+        body: JSON.stringify({
+          filename: file.name,
+          fileType: file.type
         })
       });
 
@@ -81,7 +82,7 @@ export function useGuestApplication() {
 
     try {
       // Step 1: Generate presigned URL for CV upload
-      const presignedData = await generatePresignedUrl(applicationData.cvData.fileName);
+      const presignedData = await generatePresignedUrl(applicationData.cvData.file);
       if (!presignedData) {
         throw new Error('Error generating upload URL for CV');
       }
