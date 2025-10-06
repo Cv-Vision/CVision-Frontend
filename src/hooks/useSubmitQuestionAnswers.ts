@@ -17,7 +17,13 @@ export const useSubmitQuestionAnswers = () => {
     setSuccess(false);
 
     try {
-      await submitJobQuestionAnswers(jobId, answers, overwrite);
+      // Convertir el formato del hook al formato que espera el service
+      const formattedAnswers = answers.map(answer => ({
+        questionId: answer.questionId,
+        answerText: answer.answer || ''
+      }));
+      
+      await submitJobQuestionAnswers(jobId, formattedAnswers, overwrite);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message);

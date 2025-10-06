@@ -3,6 +3,11 @@ import { ApplicantProfile } from '@/types/applicant.ts';
 import { CONFIG } from '@/config';
 import { fetchWithAuth } from './fetchWithAuth';
 
+interface QuestionAnswer {
+  questionId: string;
+  answerText: string;
+}
+
 export const applyToJob = async (jobId: string): Promise<void> => {
   const token = getIdToken();
   if (!token) {
@@ -162,31 +167,37 @@ export const updateApplicantProfile = async (profile: ApplicantProfile): Promise
 };
 
 // Función para enviar respuestas a las preguntas de un trabajo
-export const submitJobQuestionAnswers = async (jobId: string, answers: { questionId: string; answer: string | null }[], overwrite: boolean = true): Promise<void> => {
+export const submitJobQuestionAnswers = async (jobId: string, answers: QuestionAnswer[], overwrite: boolean = false): Promise<void> => {
+  const formattedAnswers = answers.map(answer => ({
+    question_id: answer.questionId,
+    answer: answer.answerText
+  }));
+  
+  const payload = {
+    answers: formattedAnswers
+  };
+  
   try {
-    // Transformar las respuestas al formato esperado por el backend
-    const formattedAnswers = answers.map(answer => ({
-      question_id: answer.questionId,
-      answer: answer.answer
-    }));
-
-    const url = `${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers${overwrite ? '?overwrite=true' : ''}`;
-    const response = await fetchWithAuth(url, {
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers?overwrite=${overwrite}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        answers: formattedAnswers
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al enviar las respuestas');
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
+
+    return response.json();
   } catch (error) {
-    console.error('Error en submitJobQuestionAnswers:', error);
-    throw error;
+    if (error instanceof Error && error.message.includes('401')) {
+      throw new Error('No autorizado. Por favor, inicia sesión nuevamente.');
+    }
+    if (error instanceof Error && error.message.includes('500')) {
+      throw new Error('Error interno del servidor.');
+    }
+    throw new Error('Error al enviar las respuestas. Por favor, intenta nuevamente.');
   }
 };

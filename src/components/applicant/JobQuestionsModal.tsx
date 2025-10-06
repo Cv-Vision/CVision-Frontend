@@ -70,7 +70,6 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId, showGuestRegisterMessage = 
 
   const handleSubmit = async () => {
     try {
-
       const allAnswers = questions.map(question => {
         const existingAnswer = answers.find(a => a.questionId === question.id);
         return {
