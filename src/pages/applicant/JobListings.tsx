@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Job } from '@/context/JobContext';
 import JobQuestionsModal from '@/components/applicant/JobQuestionsModal';
 import GuestApplicantModal, { GuestApplicationData } from '@/components/other/GuestApplicantModal';
+import { useCheckJobHasQuestions } from '@/hooks/useCheckJobHasQuestions';
 import { JobListingHeader } from '@/components/applicant/JobListingHeader';
 import { JobListSidebar } from '@/components/applicant/JobListSidebar';
 import { JobDetails } from '@/components/applicant/JobDetails';
@@ -23,11 +24,14 @@ const JobSearch = () => {
   const [selectedJobId, setSelectedJobId] = useState("");
   const { showToast } = useToast();
   const { isAuthenticated } = useAuth();
-  const [, setAppliedJobs] = useState<string[]>([]);
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   const [selectedJobForQuestions, setSelectedJobForQuestions] = useState<{id: string, title: string} | null>(null);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [selectedJobForGuest, setSelectedJobForGuest] = useState<{id: string, title: string} | null>(null);
+  const [showGuestRegisterMessage, setShowGuestRegisterMessage] = useState(false);
+  
+  const { hasQuestions, checkForQuestions } = useCheckJobHasQuestions();
   
   // New state for the modern UI
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -53,7 +57,7 @@ const JobSearch = () => {
       showToast('Te postulaste con éxito', 'success');
       setAppliedJobs(prev => [...prev, selectedJobId]);
 
-      // Mostrar modal de preguntas después de aplicación exitosa
+
       const selectedJob = jobs.find(job => job.pk === selectedJobId);
       if (selectedJob) {
         setSelectedJobForQuestions({ id: selectedJobId, title: selectedJob.title });
@@ -74,6 +78,15 @@ const JobSearch = () => {
     }
   }, [searchError]);
 
+
+  useEffect(() => {
+    if (hasQuestions && appliedJobs.length > 0) {
+      setTimeout(() => {
+        setShowGuestRegisterMessage(true);
+      }, 1500);
+    }
+  }, [hasQuestions, appliedJobs.length]);
+
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   const loadMore = useCallback(() => {
@@ -92,9 +105,12 @@ const JobSearch = () => {
   };
 
   const handleGuestApply = async (applicationData: GuestApplicationData) => {
-    // The modal already handles the API call, we just need to show success
+
     showToast('Aplicación enviada exitosamente', 'success');
     setAppliedJobs(prev => [...prev, applicationData.jobId]);
+    
+
+    await checkForQuestions(applicationData.jobId);
   };
 
   const handleApply = (jobId: string) => {
@@ -205,6 +221,14 @@ const JobSearch = () => {
         jobId={selectedJobForGuest?.id || ''}
         jobTitle={selectedJobForGuest?.title || ''}
         onApply={handleGuestApply}
+      />
+      
+      {/* Modal de preguntas bloqueado para guests */}
+      <JobQuestionsModal
+        isOpen={showGuestRegisterMessage}
+        onClose={() => setShowGuestRegisterMessage(false)}
+        jobId=""
+        showGuestRegisterMessage={true}
       />
 
       {/* Infinite scroll trigger */}

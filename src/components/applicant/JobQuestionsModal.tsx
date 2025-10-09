@@ -6,42 +6,40 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { useGetJobQuestions, JobQuestion } from '@/hooks/useGetJobQuestions';
+import { useSubmitQuestionAnswers } from '@/hooks/useSubmitQuestionAnswers';
+import { useToast } from '@/context/ToastContext';
 
 interface JobQuestionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   jobId: string;
   jobTitle?: string;
+  showGuestRegisterMessage?: boolean;
 }
 
 interface QuestionAnswer {
   questionId: string;
-  answer: string;
+  answer: string | null;
 }
 
-const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) => {
+const JobQuestionsModal = ({ isOpen, onClose, jobId, showGuestRegisterMessage = false }: JobQuestionsModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
   const [hasConfirmed, setHasConfirmed] = useState(false);
 
   const { questions, isLoading, error, fetchQuestions } = useGetJobQuestions();
+  const { submitAnswers, isLoading: isSubmitting } = useSubmitQuestionAnswers();
+  const { showToast } = useToast();
 
-  // Reset modal state when it opens/closes
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !showGuestRegisterMessage) {
       setCurrentStep(1);
       setHasConfirmed(false);
       setAnswers([]);
       fetchQuestions(jobId);
     }
-  }, [isOpen, jobId, fetchQuestions]);
-
-  // Cerrar automáticamente si no hay preguntas para este puesto
-  useEffect(() => {
-    if (isOpen && !isLoading && questions.length === 0) {
-      onClose();
-    }
-  }, [isOpen, isLoading, questions, onClose]);
+  }, [isOpen, jobId, fetchQuestions, showGuestRegisterMessage]);
 
 
   const handleNext = () => {
@@ -61,66 +59,125 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers(prev => {
       const existing = prev.find(a => a.questionId === questionId);
+      const normalizedAnswer = answer.trim() === '' ? null : answer;
+      
       if (existing) {
-        return prev.map(a => (a.questionId === questionId ? { ...a, answer } : a));
+        return prev.map(a => (a.questionId === questionId ? { ...a, answer: normalizedAnswer } : a));
       }
-      return [...prev, { questionId, answer }];
+      return [...prev, { questionId, answer: normalizedAnswer }];
     });
   };
 
   const handleSubmit = async () => {
-    console.log('Respuestas enviadas:', answers);
+    try {
+      const allAnswers = questions.map(question => {
+        const existingAnswer = answers.find(a => a.questionId === question.id);
+        return {
+          questionId: question.id,
+          answer: existingAnswer?.answer || null
+        };
+      });
+
+      await submitAnswers(jobId, allAnswers, true);
+      showToast('Respuestas enviadas exitosamente', 'success');
+    } catch (error) {
+      showToast('Error al enviar las respuestas', 'error');
+      return;
+    }
     onClose();
   };
 
   if (!isOpen) return null;
 
-  // Show intro if no questions or if we're on step 1 and haven't started
-  const showIntro = questions.length === 0 || (currentStep === 1 && !hasConfirmed);
+
+  if (showGuestRegisterMessage) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-2xl text-center">
+          <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <QuestionMarkCircleIcon className="h-10 w-10 text-teal-600" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">¡Preguntas adicionales disponibles!</h3>
+          <p className="text-gray-600 mb-8 leading-relaxed text-lg">
+            El reclutador de este puesto ha preparado algunas preguntas adicionales para conocer mejor a los candidatos.
+          </p>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+            <p className="text-amber-800 text-base font-medium mb-3">
+              📧 Para ver estas preguntas, completa tu registro
+            </p>
+            <p className="text-amber-700 text-base">
+              Revisa tu casilla de mail y sigue el enlace para terminar de registrarte.
+            </p>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <p className="text-blue-800 text-base font-medium mb-2">
+              💡 Después del registro
+            </p>
+            <p className="text-blue-700 text-base">
+              Encontrarás las preguntas dentro de este puesto en la sección <strong>"Mis Postulaciones"</strong>
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-full px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium text-lg"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+
+  const showIntro = (currentStep === 1 && !hasConfirmed) || questions.length === 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        {/* Custom Header with teal background */}
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 mb-0 p-6 sm:p-8 rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <QuestionMarkCircleIcon className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-white">Preguntas adicionales</h2>
-                <p className="text-teal-100 text-sm mt-1">
-                  {showIntro ? 'Introducción' : `Paso ${currentStep} de ${questions.length}`}
-                </p>
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 min-h-[500px] max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+              <QuestionMarkCircleIcon className="h-5 w-5 text-teal-600" />
             </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:bg-white/20 h-8 w-8 rounded-full flex items-center justify-center transition-colors"
-            >
-              <XMarkIcon className="h-4 w-4" />
-            </button>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Preguntas adicionales</h2>
+              <p className="text-gray-600 text-sm mt-1">
+                {showIntro ? 'Introducción' : `Paso ${currentStep} de ${questions.length}`}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+        </div>
 
-          {/* Progress indicator */}
-          {!showIntro && questions.length > 0 && (
-            <div className="flex gap-2 mt-4">
+        {/* Progress indicator */}
+        {!showIntro && questions.length > 0 && (
+          <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
+            <div className="flex gap-2">
               {questions.map((_, index) => (
                 <div
                   key={index}
                   className={`h-2 flex-1 rounded-full transition-colors ${
-                    index + 1 <= currentStep ? "bg-white" : "bg-white/30"
+                    index + 1 <= currentStep ? "bg-teal-600" : "bg-gray-300"
                   }`}
                 />
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="p-6 pt-8 sm:p-8 sm:pt-10">
+        <div className="p-6">
           {showIntro ? (
-            <IntroTab onProceed={() => setHasConfirmed(true)} onSkip={handleSkip} />
+            <IntroTab 
+              onProceed={() => setHasConfirmed(true)} 
+              onSkip={handleSkip} 
+              hasQuestions={questions.length > 0}
+            />
           ) : (
             <QuestionsTab
               questions={questions}
@@ -132,6 +189,7 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
               currentStep={currentStep}
               onNext={handleNext}
               onPrevious={handlePrevious}
+              isSubmitting={isSubmitting}
             />
           )}
         </div>
@@ -141,7 +199,34 @@ const JobQuestionsModal = ({ isOpen, onClose, jobId }: JobQuestionsModalProps) =
 };
 
 // Pestaña de introducción
-const IntroTab = ({ onProceed, onSkip }: { onProceed: () => void; onSkip: () => void }) => {
+const IntroTab = ({ onProceed, onSkip, hasQuestions = true }: { onProceed: () => void; onSkip: () => void; hasQuestions?: boolean }) => {
+  if (!hasQuestions) {
+    return (
+      <div>
+        {/* Success message when no questions */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircleIcon className="h-8 w-8 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Aplicación completada!</h2>
+          <p className="text-gray-600 leading-relaxed">
+            Tu aplicación ha sido enviada exitosamente. No hay preguntas adicionales para este puesto.
+          </p>
+        </div>
+
+        {/* Action button */}
+        <div className="flex justify-center">
+          <button
+            onClick={onSkip}
+            className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Icon and main content */}
@@ -172,16 +257,16 @@ const IntroTab = ({ onProceed, onSkip }: { onProceed: () => void; onSkip: () => 
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-between">
+      <div className="flex justify-end space-x-3">
         <button
           onClick={onSkip}
-          className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent px-6 py-3 rounded-lg border font-medium transition-colors"
+          className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
         >
           No, omitir
         </button>
         <button
           onClick={onProceed}
-          className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
+          className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
         >
           ¡Sí, responder!
         </button>
@@ -200,7 +285,8 @@ const QuestionsTab = ({
                         onSubmit,
                         currentStep,
                         onNext,
-                        onPrevious
+                        onPrevious,
+                        isSubmitting
                       }: {
   questions: JobQuestion[];
   answers: QuestionAnswer[];
@@ -211,6 +297,7 @@ const QuestionsTab = ({
   currentStep: number;
   onNext: () => void;
   onPrevious: () => void;
+  isSubmitting: boolean;
 }) => {
   if (isLoading) {
     return (
@@ -251,47 +338,25 @@ const QuestionsTab = ({
 
   return (
     <div>
-      {/* Icon and main content */}
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <QuestionMarkCircleIcon className="h-8 w-8 text-teal-600" />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Ayúdanos a conocerte mejor!</h2>
-        <p className="text-gray-600 leading-relaxed">
-          El reclutador ha preparado algunas preguntas adicionales que lo ayudarán a conocer más sobre tu perfil y
-          experiencia.
-        </p>
-      </div>
-
-      {/* Info box */}
-      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <CheckCircleIcon className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="font-medium text-teal-900 mb-2">¿Por qué es importante?</h4>
-            <ul className="text-sm text-teal-800 space-y-1">
-              <li>• Ayuda al reclutador a conocer mejor tu perfil</li>
-              <li>• Puede mejorar tus posibilidades de ser seleccionado</li>
-              <li>• Todas las preguntas son completamente opcionales</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       {/* Question form */}
       <div className="space-y-4 mb-6">
         <div>
-          <label className="text-base font-medium text-gray-900">
-            Pregunta {currentStep} de {questions.length}
-          </label>
-          <p className="text-gray-700 mt-1 mb-3">{currentQuestion.text}</p>
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-base font-medium text-gray-900">
+              Pregunta {currentStep} de {questions.length}
+            </label>
+            <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
+              Opcional
+            </span>
+          </div>
+          <p className="text-gray-700 mb-4 text-lg">{currentQuestion.text}</p>
           
           {currentQuestion.type === 'OPEN' && (
             <textarea
               value={currentAnswer}
               onChange={(e) => onAnswerChange(currentQuestion.id, e.target.value)}
               placeholder="Escribe tu respuesta aquí..."
-              className="w-full min-h-32 p-4 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-teal-200 focus:ring-2 focus:outline-none resize-none transition-all"
+              className="w-full min-h-32 p-4 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 focus:outline-none resize-none transition-colors"
             />
           )}
 
@@ -305,7 +370,7 @@ const QuestionsTab = ({
                     value={option}
                     checked={currentAnswer === option}
                     onChange={(e) => onAnswerChange(currentQuestion.id, e.target.value)}
-                    className="mr-3 w-5 h-5 text-teal-600 focus:ring-teal-500"
+                    className="mr-3 w-5 h-5 text-teal-600 focus:ring-teal-500 focus:ring-2"
                   />
                   <span className="text-gray-700 font-medium">{option}</span>
                 </label>
@@ -319,7 +384,7 @@ const QuestionsTab = ({
               value={currentAnswer}
               onChange={(e) => onAnswerChange(currentQuestion.id, e.target.value)}
               placeholder="Ingresa un número..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-teal-200 focus:ring-2 focus:outline-none transition-all"
+              className="w-full p-4 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 focus:outline-none transition-colors"
             />
           )}
         </div>
@@ -329,16 +394,16 @@ const QuestionsTab = ({
       <div className="flex justify-between">
         <button
           onClick={onSubmit}
-          className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent px-6 py-3 rounded-lg border font-medium transition-colors"
+          className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
         >
           No, omitir
         </button>
 
-        <div className="flex gap-2">
+        <div className="flex space-x-3">
           {currentStep > 1 && (
             <button
               onClick={onPrevious}
-              className="border-teal-300 text-teal-700 hover:bg-teal-50 bg-transparent px-6 py-3 rounded-lg border font-medium transition-colors"
+              className="px-6 py-3 text-teal-700 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors font-medium"
             >
               Anterior
             </button>
@@ -347,16 +412,17 @@ const QuestionsTab = ({
           {currentStep < questions.length ? (
             <button
               onClick={onNext}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
+              className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
             >
               Siguiente
             </button>
           ) : (
             <button
               onClick={onSubmit}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ¡Sí, responder!
+              {isSubmitting ? 'Enviando...' : 'Finalizar'}
             </button>
           )}
         </div>

@@ -9,6 +9,7 @@ import { JobPostingStats } from '@/components/rebranding/JobPostingDetails/JobPo
 import { CandidateList } from '@/components/rebranding/JobPostingDetails/CandidateList';
 import { CVDropzone } from '@/components/other/CVDropzone';
 import { ArrowLeft } from 'lucide-react';
+import JobQuestionsAnswersModal from '../../components/rebranding/JobPostingDetails/JobQuestionsAnswersModal';
 import axios from 'axios';
 import { CONFIG } from '@/config';
 
@@ -99,15 +100,13 @@ const JobPostingDetails = () => {
       }
     };
   }, []);
-
-  // ===== Permisos (como antes) =====
-
-  // ===== Handlers que ya tenías (no toco estilos de la UI nueva) =====
-
   
 
   // 1) Estado para mostrar/ocultar el dropzone de CVs
   const [showDropzone, setShowDropzone] = useState(false);
+  
+  // Estado para mostrar/ocultar el modal de preguntas y respuestas
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   
   // Estados para el análisis
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -277,6 +276,7 @@ const JobPostingDetails = () => {
           salaryRange={'Salario a convenir'}
           publishedAt={'Fecha no disponible'}
           description={jobToShow.description || ''}
+          onViewQuestionsAnswers={() => setShowQuestionsModal(true)}
         />
           </div>
 
@@ -347,6 +347,14 @@ const JobPostingDetails = () => {
                   </div>
                 </div>
             )}
+
+      {/* Modal de Preguntas y Respuestas */}
+      <JobQuestionsAnswersModal
+        isOpen={showQuestionsModal}
+        onClose={() => setShowQuestionsModal(false)}
+        jobId={cleanJobId}
+        jobTitle={jobToShow?.title}
+      />
        </div>
   );
 };
