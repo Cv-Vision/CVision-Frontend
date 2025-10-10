@@ -19,6 +19,7 @@ export interface GuestCompleteResponse {
 
 export interface GuestTokenStatus {
   valid: boolean;
+  status?: string; // Add this line
   application_id?: string;
   expires_at?: string;
   message?: string;
@@ -71,7 +72,6 @@ export function useGuestComplete() {
           token: data.token,
           name: data.name,
           phone: data.phone,
-          portfolio_url: data.portfolio_url,
           password: data.password
         })
       });

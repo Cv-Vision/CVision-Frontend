@@ -89,7 +89,7 @@ const GuestCompleteAccount = () => {
       if (result.success) {
         showToast('¡Cuenta creada exitosamente! Redirigiendo a validar cuenta...', 'success');
         setTimeout(() => {
-          const email = tokenData?.email || result.email;
+          const email = result.email;
           const username = formData.name;
           navigate(`/applicant-confirm?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
         }, 2000);
