@@ -62,8 +62,8 @@ const GuestCompleteAccount = () => {
 
     if (formData.phone.trim()) {
       const phone = formData.phone.trim();
-      if (!/^[0-9]+$/.test(phone) || phone.length < 8) {
-        newErrors.phone = 'El teléfono debe tener al menos 8 dígitos y solo puede contener números';
+      if (!/^[0-9]+$/.test(phone) || phone.length < 8 || phone.length > 15) {
+        newErrors.phone = 'El teléfono debe tener entre 8 y 15 dígitos y solo puede contener números';
       }
     }
 
@@ -170,6 +170,7 @@ const GuestCompleteAccount = () => {
               onChange={(e) => handleInputChange('phone', e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="+1 (555) 123-4567"
+              maxLength={15}
             />
           </div>
           {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
