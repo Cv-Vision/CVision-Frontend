@@ -6,7 +6,6 @@ export interface GuestCompleteData {
   token: string;
   name: string;
   phone?: string;
-  portfolio_url?: string;
   password?: string;
 }
 

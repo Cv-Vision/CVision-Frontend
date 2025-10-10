@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGuestComplete } from '@/hooks/useGuestComplete';
 import { useToast } from '@/context/ToastContext';
 import { Mail, RefreshCw } from 'lucide-react';

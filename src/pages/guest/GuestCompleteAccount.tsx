@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGuestComplete, GuestTokenStatus } from '@/hooks/useGuestComplete';
 import { useToast } from '@/context/ToastContext';
 import AuthLayout from '@/components/other/AuthLayout';
-import { User, Phone, Globe, Eye, EyeOff } from 'lucide-react';
+import { User, Phone, Eye, EyeOff } from 'lucide-react';
 
 const GuestCompleteAccount = () => {
   const [searchParams] = useSearchParams();
@@ -14,7 +14,6 @@ const GuestCompleteAccount = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    portfolio_url: '',
     password: '',
     confirmPassword: ''
   });
@@ -68,9 +67,7 @@ const GuestCompleteAccount = () => {
       }
     }
 
-    if (formData.portfolio_url && !/^https?:\/\/.+/.test(formData.portfolio_url)) {
-      newErrors.portfolio_url = 'Debe ser una URL válida (http:// o https://)';
-    }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,7 +83,6 @@ const GuestCompleteAccount = () => {
         token: token!,
         name: formData.name.trim(),
         phone: formData.phone.trim() || undefined,
-        portfolio_url: formData.portfolio_url.trim() || undefined,
         password: formData.password
       });
 
@@ -179,23 +175,7 @@ const GuestCompleteAccount = () => {
           {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
         </div>
 
-        {/* Portfolio */}
-        <div>
-          <label htmlFor="portfolio_url" className="text-sm block mb-2 font-medium">
-            Portfolio/Website
-          </label>
-          <div className="relative">
-            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="url"
-              value={formData.portfolio_url}
-              onChange={(e) => handleInputChange('portfolio_url', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="https://tu-portfolio.com"
-            />
-          </div>
-          {errors.portfolio_url && <p className="text-red-500 text-sm mt-1">{errors.portfolio_url}</p>}
-        </div>
+
 
         {/* Contraseñas obligatorias */}
         <div className="border-t pt-4">
