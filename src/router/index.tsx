@@ -25,6 +25,7 @@ import ApplicantRegisterForm from '@/pages/applicant/RegisterForm.tsx';
 import JobPosition from '@/pages/applicant/JobPosition.tsx';
 import JobApplication from '@/pages/applicant/JobApplication.tsx';
 import {UserApplicationsView} from "@/components/applicant/UserApplicationsView.tsx";
+import GuestCompleteAccount from '@/pages/guest/GuestCompleteAccount';
 
 
 export function AppRouter() {
@@ -40,6 +41,9 @@ export function AppRouter() {
         <Route path="/recruiter-confirm" element={<RecruiterConfirmAccount />} />
 
         <Route path="/confirm" element={<ConfirmAccount />} />
+
+      <Route path="/guest/complete" element={<GuestCompleteAccount />} />
+      
       <Route path="/applicant/dashboard" element={
         <ProtectedRoute requiredRole="applicant">
           <ApplicantDashboard />
