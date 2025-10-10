@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useGuestComplete, GuestTokenStatus } from '@/hooks/useGuestComplete';
+import { useGuestComplete } from '@/hooks/useGuestComplete';
 import { useToast } from '@/context/ToastContext';
 import AuthLayout from '@/components/other/AuthLayout';
 import { User, Phone, Eye, EyeOff } from 'lucide-react';
@@ -20,7 +20,6 @@ const GuestCompleteAccount = () => {
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tokenIsValid, setTokenIsValid] = useState<boolean | null>(null);
-  const [tokenData, setTokenData] = useState<GuestTokenStatus | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -31,7 +30,6 @@ const GuestCompleteAccount = () => {
       if (token) {
         const result = await validateToken(token);
         setTokenIsValid(result.valid);
-        setTokenData(result);
       } else {
         showToast('Token no encontrado en la URL', 'error');
         navigate('/');
@@ -89,8 +87,8 @@ const GuestCompleteAccount = () => {
       if (result.success) {
         showToast('¡Cuenta creada exitosamente! Redirigiendo a validar cuenta...', 'success');
         setTimeout(() => {
-          const email = result.email;
-          const username = formData.name;
+          const email = result.email || '';
+          const username = formData.name || '';
           navigate(`/applicant-confirm?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
         }, 2000);
       }
