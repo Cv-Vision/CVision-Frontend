@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon, TrashIcon, ChartBarIcon, UserGroupIcon, TrophyIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { useGetJobMetrics } from '@/hooks/useGetJobMetrics';
 import { useDeleteAnalysisResults } from '@/hooks/useDeleteAnalysisResults';
 import DeleteConfirmationModal from '@/components/other/DeleteConfirmationModal.tsx';
 import { GeminiAnalysisResult } from '@/services/geminiAnalysisService';
-import { useToast } from '../../context/ToastContext'; // Import useToast
+import { useToast } from '../../context/ToastContext';
+import { downloadAnalyses } from '@/services/downloadService';
 
 // Extiendo el tipo para soportar created_at
 interface GeminiAnalysisResultWithCreatedAt extends GeminiAnalysisResult {
@@ -146,35 +147,34 @@ export default function CVAnalysisResults() {
   const { jobId } = useParams<{ jobId: string }>();
   const [selectedCvIds, setSelectedCvIds] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { showToast } = useToast(); // Use the new useToast hook
+  const { showToast } = useToast();
   const navigate = useNavigate();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { deleteResults, isLoading: isDeleting, error: deleteError, success: deleteSuccess, resetState } = useDeleteAnalysisResults();
   const { applicants } = useGetApplicantsByJobId(jobId || '');
   const { results, isLoading, error } = useGetAnalysisResults(jobId || '');
   const { metrics, isLoading: metricsLoading, error: metricsError, refetchMetrics } = useGetJobMetrics(jobId || '');
 
-  // Manejar éxito/error de eliminación
   useEffect(() => {
     if (deleteSuccess) {
-      showToast('Análisis eliminado exitosamente', 'success'); // Use showToast
+      showToast('Análisis eliminado exitosamente', 'success');
       setSelectedCvIds(new Set());
       resetState();
-      refetchMetrics(); // Refetch metrics after deletion
+      refetchMetrics();
       
-      // Redirigir al job posting después de un breve delay para mostrar el toast
       setTimeout(() => {
         navigate(`/recruiter/job/${jobId}`);
       }, 1500);
     }
-  }, [deleteSuccess, jobId, resetState, navigate, showToast, refetchMetrics]); // Add showToast to dependencies
+  }, [deleteSuccess, jobId, resetState, navigate, showToast, refetchMetrics]);
 
   useEffect(() => {
     if (deleteError) {
-      showToast(deleteError, 'error'); // Use showToast
+      showToast(deleteError, 'error');
       resetState();
     }
-  }, [deleteError, resetState, showToast]); // Add showToast to dependencies
+  }, [deleteError, resetState, showToast]);
 
   const handleSelectCv = (cvId: string, selected: boolean) => {
     const newSelected = new Set(selectedCvIds);
@@ -190,7 +190,6 @@ export default function CVAnalysisResults() {
     if (selectedCvIds.size === results.length) {
       setSelectedCvIds(new Set());
     } else {
-      // Usar los cv_id reales de los aplicantes
       const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
       setSelectedCvIds(new Set(allCvIds));
     }
@@ -208,7 +207,28 @@ export default function CVAnalysisResults() {
     setShowDeleteModal(false);
   };
 
-  // Función para verificar si todos están seleccionados
+  const handleDownload = async () => {
+    if (!jobId) return;
+    setIsDownloading(true);
+    showToast('Iniciando descarga...', 'info');
+    try {
+      const blob = await downloadAnalyses(jobId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analisis_puesto_${jobId}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast('Descarga completada', 'success');
+    } catch (err) {
+      showToast('Error al descargar el archivo', 'error');
+      console.error(err);
+    }
+    setIsDownloading(false);
+  };
+
   const areAllSelected = () => {
     if (results.length === 0) return false;
     const allCvIds = applicants.map(applicant => applicant.id).filter((id): id is string => typeof id === 'string');
@@ -260,6 +280,14 @@ export default function CVAnalysisResults() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Resultados de Análisis de CVs</h1>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading || total === 0}
+              className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-xl border border-blue-700 shadow-sm hover:shadow-md transition-all duration-300 font-medium group disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5" />
+              <span>{isDownloading ? 'Descargando...' : 'Descargar Análisis'}</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
