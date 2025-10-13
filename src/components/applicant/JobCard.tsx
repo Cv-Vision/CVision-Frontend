@@ -42,8 +42,8 @@ export const JobCard = ({ job, isSelected, onClick, applicantsCount = 0 }: JobCa
     <div
       className={`mb-3 cursor-pointer transition-all hover:shadow-md bg-white border rounded-lg ${
         isSelected
-          ? "border-teal-300 bg-teal-50 shadow-sm"
-          : "border-gray-200 hover:border-teal-200"
+          ? "border-orange-300 bg-orange-50 shadow-sm"
+          : "border-gray-200 hover:border-orange-200"
       }`}
       onClick={onClick}
     >
@@ -65,10 +65,10 @@ export const JobCard = ({ job, isSelected, onClick, applicantsCount = 0 }: JobCa
 
           <div className="flex items-center justify-between">
             <div className="flex space-x-1">
-              <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full">
+              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
                 {getContractTypeLabel(job.contract_type)}
               </span>
-              <span className="text-xs border border-teal-200 text-teal-600 px-2 py-1 rounded-full">
+              <span className="text-xs border border-orange-200 text-orange-600 px-2 py-1 rounded-full">
                 {getModalityLabel(job.modal)}
               </span>
             </div>
@@ -78,7 +78,7 @@ export const JobCard = ({ job, isSelected, onClick, applicantsCount = 0 }: JobCa
             </div>
           </div>
 
-          <p className="text-sm font-medium text-teal-700">
+          <p className="text-sm font-medium text-orange-700">
             {getExperienceLevelLabel(job.experience_level)}
           </p>
         </div>

@@ -1,4 +1,5 @@
 import { MapPin, Clock, Building2, Users } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
 import { Job } from "@/context/JobContext";
 
 interface JobDetailsProps {
@@ -81,7 +82,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
               </div>
             </div>
             <button 
-              className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-2 rounded-lg transition-colors disabled:opacity-50"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-2 rounded-lg transition-colors disabled:opacity-50"
               onClick={onApply}
               disabled={isApplying}
             >
@@ -103,7 +104,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Nivel de Experiencia</p>
-              <p className="font-medium text-teal-700">{getExperienceLevelLabel(job.experience_level)}</p>
+              <p className="font-medium text-orange-700">{getExperienceLevelLabel(job.experience_level)}</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Aplicantes</p>
@@ -117,9 +118,9 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
           {/* Job Description */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Descripción del Puesto</h3>
-            <p className="text-gray-700 leading-relaxed">
-              {job.description || 'No hay descripción disponible para este puesto.'}
-            </p>
+            <div className="prose max-w-none text-gray-700 prose-headings:text-gray-900 prose-a:text-orange-600 hover:prose-a:text-orange-700 prose-strong:text-gray-900 prose-ul:list-disc prose-ol:list-decimal prose-li:ml-4 prose-li:marker:text-gray-400 prose-pre:bg-gray-100 prose-pre:p-4 prose-code:bg-gray-100 prose-code:p-1 prose-code:font-sans prose-code:text-gray-800">
+              <ReactMarkdown>{job.description || 'No hay descripción disponible para este puesto.'}</ReactMarkdown>
+            </div>
           </div>
 
           {/* Requirements */}
@@ -130,7 +131,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
                 {requirements.map((req, index) => (
                   <span 
                     key={index} 
-                    className="border border-teal-200 text-teal-700 bg-teal-50 px-3 py-1 rounded-full text-sm"
+                    className="border border-orange-200 text-orange-700 bg-orange-50 px-3 py-1 rounded-full text-sm"
                   >
                     {req}
                   </span>
@@ -148,7 +149,7 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
           )}
 
           {/* Company Info */}
-          <div className="bg-teal-50 p-6 rounded-lg border border-teal-100">
+          <div className="bg-orange-50 p-6 rounded-lg border border-orange-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Sobre {job.company}</h3>
             <p className="text-gray-700 mb-4">
               Información de la empresa no disponible.
@@ -156,14 +157,14 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
           </div>
 
           {/* Apply Section */}
-          <div className="bg-white border border-teal-200 p-6 rounded-lg">
+          <div className="bg-white border border-orange-200 p-6 rounded-lg">
             <div className="text-center space-y-4">
               <h3 className="text-xl font-semibold text-gray-900">¿Te interesa este puesto?</h3>
               <p className="text-gray-600">
                 Aplica a esta posición de trabajo.
               </p>
               <button 
-                className="bg-teal-600 hover:bg-teal-700 text-white px-12 py-3 rounded-lg transition-colors disabled:opacity-50"
+                className="bg-orange-600 hover:bg-orange-700 text-white px-12 py-3 rounded-lg transition-colors disabled:opacity-50"
                 onClick={onApply}
                 disabled={isApplying}
               >

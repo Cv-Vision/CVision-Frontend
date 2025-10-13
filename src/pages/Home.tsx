@@ -14,11 +14,11 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
   const jobCategories = [
-    { name: "Tecnología", icon: Code, color: "bg-blue-100 text-blue-700" },
+    { name: "Tecnología", icon: Code, color: "bg-purple-100 text-purple-700" },
     { name: "Salud", icon: Heart, color: "bg-red-100 text-red-700" },
-    { name: "Educación", icon: GraduationCap, color: "bg-green-100 text-green-700" },
-    { name: "Finanzas", icon: Building, color: "bg-purple-100 text-purple-700" },
-    { name: "Logística", icon: Truck, color: "bg-orange-100 text-orange-700" },
+    { name: "Educación", icon: GraduationCap, color: "bg-orange-100 text-orange-700" },
+    { name: "Finanzas", icon: Building, color: "bg-blue-100 text-blue-700" },
+    { name: "Logística", icon: Truck, color: "bg-green-100 text-green-700" },
     { name: "Marketing", icon: Users, color: "bg-pink-100 text-pink-700" },
   ]
 
@@ -61,7 +61,7 @@ const Home = () => {
       <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-foreground">CVision</span>
@@ -86,7 +86,7 @@ const Home = () => {
             {/* Sección Empresas */}
             <div className="flex items-center space-x-2">
             <Link to="/applicant-register">
-                <button className="px-4 py-2 bg-green-500/20 text-green-700 hover:bg-green-500/30 rounded-md text-sm font-medium transition-colors border border-green-500/30">
+                <button className="px-4 py-2 bg-orange-500/20 text-orange-700 hover:bg-orange-500/30 rounded-md text-sm font-medium transition-colors border border-orange-500/30">
                   Registrarse
                 </button>
               </Link>
@@ -101,11 +101,11 @@ const Home = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-teal-50 to-cyan-50">
+      <section className="py-20 px-4 bg-gradient-to-br from-orange-100 to-yellow-100">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
             Encuentra tu próximo
-            <span className="text-teal-600"> empleo ideal</span>
+            <span className="text-orange-600"> empleo ideal</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
             Conectamos talento con oportunidades. Descubre miles de empleos que se ajustan a tu perfil profesional.
@@ -115,7 +115,7 @@ const Home = () => {
           {/* CTA Button */}
           <div className="flex justify-center">
             <Link to="/applicant/positions">
-              <button className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 transition-colors">
+              <button className="bg-orange-600 hover:bg-orange-700 text-white text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 transition-colors">
                 Explorar Todas las Ofertas
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -130,7 +130,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map((stat, index) => (
               <div key={index} className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-teal-600">{stat.number}</div>
+                <div className="text-3xl md:text-4xl font-bold text-orange-600">{stat.number}</div>
                 <div className="text-muted-foreground">{stat.label}</div>
               </div>
             ))}
@@ -156,7 +156,7 @@ const Home = () => {
                     <category.icon className="w-6 h-6" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
                   {category.name}
                 </h3>
               </div>
@@ -197,21 +197,21 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-teal-600">
+      <section className="py-20 px-4 bg-orange-600">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">¿Listo para encontrar tu próximo empleo?</h2>
-          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
             Únete a miles de profesionales que ya han encontrado su trabajo ideal a través de CVision
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/applicant/positions">
-              <button className="bg-white text-teal-600 text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+              <button className="bg-white text-orange-600 text-lg px-8 py-6 rounded-md font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
                 Buscar Empleos Ahora
                 <ArrowRight className="w-5 h-5" />
               </button>
             </Link>
             <Link to="/applicant-register">
-              <button className="text-lg px-8 py-6 rounded-md font-medium border-2 border-white text-white hover:bg-white hover:text-teal-600 bg-transparent transition-colors">
+              <button className="text-lg px-8 py-6 rounded-md font-medium border-2 border-white text-white hover:bg-white hover:text-orange-600 bg-transparent transition-colors">
                 Crear mi Perfil
               </button>
             </Link>
