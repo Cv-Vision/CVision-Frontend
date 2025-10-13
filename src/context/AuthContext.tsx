@@ -1,5 +1,4 @@
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createContext, useContext, ReactNode, useState } from 'react';
 import { UserRole } from '../types/auth';
 
 interface User {
@@ -60,14 +59,12 @@ function getUsernameFromClaims(claims: any): string {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
 
-  // Cargar desde sessionStorage y ENRIQUECER en memoria con username derivado del token
-  useEffect(() => {
+  const initializeAuthState = () => {
     const userData = sessionStorage.getItem('user');
-    if (!userData) return;
+    if (!userData) {
+      return { user: null, isAuthenticated: false };
+    }
 
     try {
       const parsedUser = JSON.parse(userData) as User;
@@ -76,38 +73,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const username = getUsernameFromClaims(claims);
 
       const userInMemory: User = { ...parsedUser, username };
-      setUser(userInMemory);
-      setIsAuthenticated(true);
+      return { user: userInMemory, isAuthenticated: true };
     } catch (error) {
       console.error('Error parsing user data from sessionStorage:', error);
       sessionStorage.removeItem('user'); // limpiar datos corruptos
+      return { user: null, isAuthenticated: false };
     }
-  }, []);
+  };
+
+  const [authState, setAuthState] = useState(initializeAuthState);
 
   const login = (userData: User) => {
     const token = (userData as any)?.token ?? (userData as any)?.idToken ?? null;
     const claims = token ? decodeJwt(token) : {};
     const username = getUsernameFromClaims(claims);
 
-    // Lo que PERSISTE (sin username)
     const userForStorage: User = { ...userData, token };
     sessionStorage.setItem('user', JSON.stringify(userForStorage));
 
-    // Lo que va al ESTADO (con username en memoria)
     const userForState: User = { ...userForStorage, username };
-    setUser(userForState);
-    setIsAuthenticated(true);
+    setAuthState({ user: userForState, isAuthenticated: true });
   };
 
   const logout = () => {
     sessionStorage.clear();
-    setUser(null);
-    setIsAuthenticated(false);
-    navigate('/login');
+    setAuthState({ user: null, isAuthenticated: false });
+    // navigate('/login'); // Consider if navigation is needed here or should be handled by consuming components
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, logout, login }}>
+    <AuthContext.Provider value={{ ...authState, logout, login }}>
       {children}
     </AuthContext.Provider>
   );
