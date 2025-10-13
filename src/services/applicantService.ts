@@ -100,7 +100,7 @@ export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: strin
     }
 
     // Retornar la URL del archivo subido
-    return {"cvUrl": `${CONFIG.bucketUrl}${s3_key}`, s3Key: s3_key};
+    return {"cvUrl": upload_url, s3Key: s3_key};
 
   } catch (error) {
     console.error('Error en uploadCV:', error);
