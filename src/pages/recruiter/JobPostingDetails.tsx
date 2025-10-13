@@ -17,6 +17,7 @@ import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
 import { useDeleteApplication } from '@/hooks/useDeleteApplication';
+import { fetchWithAuth } from '@/services/fetchWithAuth';
 
 // ==== Helpers (igual que en tu versión) ====
 function seniorityLabel(level?: string) {
@@ -137,6 +138,19 @@ const JobPostingDetails = () => {
   const handleUploadComplete = async (fileUrls: string[]) => {
     try {
       showToast(`CVs subidos exitosamente (${fileUrls.length})`, 'success');
+
+      await fetchWithAuth(`${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            job_id: jobId,
+            cv_keys: fileUrls
+          }),
+        }
+      );
 
       // Refrescos iniciales
       await Promise.all([
@@ -308,8 +322,8 @@ const JobPostingDetails = () => {
         <CandidateList
           candidates={(applicants || []).map((a: any, idx: number) => ({
             id: String(a.id || idx),
-            name: a.fullName || 'Sin nombre',
-            email: a.email || 'Email no disponible',
+            name: a.fullName || 'Analizando...',
+            email: a.email || '',
             score: Number(a.score || 0),
             status: (a.status as 'Revisado' | 'Bueno' | 'Malo' | 'Sin revisar') || 'Sin revisar',
             reasons: a.rawReasons || [],
