@@ -21,7 +21,7 @@ export interface GuestApplicationData {
     cvUrl: string;
     fileName: string;
     fileSize: number;
-    [key: string]: any;
+    uploadKey: string;
   };
 }
 

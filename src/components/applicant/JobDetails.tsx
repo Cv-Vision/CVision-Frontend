@@ -1,5 +1,6 @@
 import { MapPin, Clock, Building2, Users } from "lucide-react";
 import { Job } from "@/context/JobContext";
+import { useState } from "react";
 
 interface JobDetailsProps {
   job: Job;
@@ -9,6 +10,15 @@ interface JobDetailsProps {
 }
 
 export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount = 0 }: JobDetailsProps) => {
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  
+  // Configuración para el truncado de texto
+  const MAX_DESCRIPTION_LENGTH = 300;
+  const description = job.description || 'No hay descripción disponible para este puesto.';
+  const shouldTruncate = description.length > MAX_DESCRIPTION_LENGTH;
+  const displayDescription = shouldTruncate && !isDescriptionExpanded 
+    ? description.substring(0, MAX_DESCRIPTION_LENGTH) + '...'
+    : description;
   const getContractTypeLabel = (type?: string) => {
     const labels: { [key: string]: string } = {
       'FULL_TIME': 'Tiempo Completo',
@@ -118,8 +128,16 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Descripción del Puesto</h3>
             <p className="text-gray-700 leading-relaxed">
-              {job.description || 'No hay descripción disponible para este puesto.'}
+              {displayDescription}
             </p>
+            {shouldTruncate && (
+              <button
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="text-teal-600 hover:text-teal-700 font-medium text-sm mt-2 transition-colors"
+              >
+                {isDescriptionExpanded ? 'Leer menos' : 'Leer más'}
+              </button>
+            )}
           </div>
 
           {/* Requirements */}

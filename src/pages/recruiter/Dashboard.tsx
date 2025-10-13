@@ -110,10 +110,10 @@ const RecruiterDashboard = () => {
   };
 
   const stats = [
-    { title: "Puestos Activos", value: totalActiveJobs, trend: "falta_hook", icon: <TrashIcon className="w-5 h-5 text-blue-600" /> },
-    { title: "Candidatos Totales", value: totalApplicants, trend: "falta_hook", icon: <UsersOutlineIcon className="w-5 h-5 text-green-600" /> },
-    { title: "Tasa de Conversión (mock)", value: "24%", trend: "+5% vs mes anterior", icon: <ArrowTrendingUpIcon className="w-5 h-5 text-purple-600" /> },
-    { title: "Tiempo Promedio (mock)", value: "18 días", trend: "-3 días vs anterior", icon: <ClockIcon className="w-5 h-5 text-orange-600" /> },
+    { title: "Puestos Activos", value: totalActiveJobs, trend: "", icon: <TrashIcon className="w-5 h-5 text-blue-600" /> },
+    { title: "Candidatos Totales", value: totalApplicants, trend: "", icon: <UsersOutlineIcon className="w-5 h-5 text-green-600" /> },
+    { title: "Candidatos Externos", value: "15%", trend: "+5% vs mes anterior", icon: <ArrowTrendingUpIcon className="w-5 h-5 text-purple-600" /> },
+    { title: "Tiempo Promedio de Busqueda", value: "18 días", trend: "", icon: <ClockIcon className="w-5 h-5 text-orange-600" /> },
   ];
 
   const adaptedJobs = useMemo(() => {

@@ -44,15 +44,22 @@ export function useCreateJobForm() {
       // Build request body according to new API contract
       const body: Record<string, any> = { ...payload };
 
-      // Map legacy structured questions to applicant_questions (array of strings)
+      // Keep questions in their original structured format with all required fields
       if (body.questions) {
-        const applicantQuestions = body.questions
-          .map((q: any) => (q?.text || '').trim())
-          .filter((t: string) => t.length > 0);
-        if (applicantQuestions.length > 0) {
-          body.applicant_questions = applicantQuestions;
+        const validQuestions = body.questions
+          .filter((q: any) => q?.text && q.text.trim().length > 0)
+          .map((q: any) => ({
+            id: q.id,
+            text: q.text.trim(),
+            type: q.type,
+            required: q.required || false,
+            order: q.order || 0
+          }));
+        if (validQuestions.length > 0) {
+          body.questions = validQuestions;
+        } else {
+          delete body.questions;
         }
-        delete body.questions;
       }
 
       // Remove undefined fields

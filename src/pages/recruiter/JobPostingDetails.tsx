@@ -9,6 +9,7 @@ import { JobPostingStats } from '@/components/rebranding/JobPostingDetails/JobPo
 import { CandidateList } from '@/components/rebranding/JobPostingDetails/CandidateList';
 import { CVDropzone } from '@/components/other/CVDropzone';
 import { ArrowLeft } from 'lucide-react';
+import JobQuestionsAnswersModal from '../../components/rebranding/JobPostingDetails/JobQuestionsAnswersModal';
 import axios from 'axios';
 import { CONFIG } from '@/config';
 
@@ -16,6 +17,7 @@ import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
 import { useDeleteApplication } from '@/hooks/useDeleteApplication';
+import { fetchWithAuth } from '@/services/fetchWithAuth';
 
 // ==== Helpers (igual que en tu versión) ====
 function seniorityLabel(level?: string) {
@@ -99,15 +101,13 @@ const JobPostingDetails = () => {
       }
     };
   }, []);
-
-  // ===== Permisos (como antes) =====
-
-  // ===== Handlers que ya tenías (no toco estilos de la UI nueva) =====
-
   
 
   // 1) Estado para mostrar/ocultar el dropzone de CVs
   const [showDropzone, setShowDropzone] = useState(false);
+  
+  // Estado para mostrar/ocultar el modal de preguntas y respuestas
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
   
   // Estados para el análisis
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -138,6 +138,19 @@ const JobPostingDetails = () => {
   const handleUploadComplete = async (fileUrls: string[]) => {
     try {
       showToast(`CVs subidos exitosamente (${fileUrls.length})`, 'success');
+
+      await fetchWithAuth(`${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            job_id: jobId,
+            cv_keys: fileUrls
+          }),
+        }
+      );
 
       // Refrescos iniciales
       await Promise.all([
@@ -277,6 +290,7 @@ const JobPostingDetails = () => {
           salaryRange={'Salario a convenir'}
           publishedAt={'Fecha no disponible'}
           description={jobToShow.description || ''}
+          onViewQuestionsAnswers={() => setShowQuestionsModal(true)}
         />
           </div>
 
@@ -308,8 +322,8 @@ const JobPostingDetails = () => {
         <CandidateList
           candidates={(applicants || []).map((a: any, idx: number) => ({
             id: String(a.id || idx),
-            name: a.fullName || 'Sin nombre',
-            email: a.email || 'Email no disponible',
+            name: a.fullName || 'Analizando...',
+            email: a.email || '',
             score: Number(a.score || 0),
             status: (a.status as 'Revisado' | 'Bueno' | 'Malo' | 'Sin revisar') || 'Sin revisar',
             reasons: a.rawReasons || [],
@@ -347,6 +361,14 @@ const JobPostingDetails = () => {
                   </div>
                 </div>
             )}
+
+      {/* Modal de Preguntas y Respuestas */}
+      <JobQuestionsAnswersModal
+        isOpen={showQuestionsModal}
+        onClose={() => setShowQuestionsModal(false)}
+        jobId={cleanJobId}
+        jobTitle={jobToShow?.title}
+      />
        </div>
   );
 };

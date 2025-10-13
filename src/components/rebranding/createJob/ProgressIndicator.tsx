@@ -1,10 +1,10 @@
-import { Briefcase, FileText, Users, DollarSign } from 'lucide-react';
+import { Briefcase, FileText, Users, HelpCircle } from 'lucide-react';
 
 const STEPS = [
   { id: 1, title: "Información Básica", icon: Briefcase, description: "Detalles principales del puesto" },
   { id: 2, title: "Descripción", icon: FileText, description: "Responsabilidades y requisitos" },
   { id: 3, title: "Habilidades", icon: Users, description: "Competencias técnicas" },
-  { id: 4, title: "Compensación", icon: DollarSign, description: "Salario y beneficios" },
+  { id: 4, title: "Preguntas", icon: HelpCircle, description: "Preguntas adicionales para candidatos" },
 ];
 
 interface ProgressIndicatorProps {

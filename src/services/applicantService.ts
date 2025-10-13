@@ -3,6 +3,11 @@ import { ApplicantProfile } from '@/types/applicant.ts';
 import { CONFIG } from '@/config';
 import { fetchWithAuth } from './fetchWithAuth';
 
+interface QuestionAnswer {
+  questionId: string;
+  answerText: string;
+}
+
 export const applyToJob = async (jobId: string): Promise<void> => {
   const token = getIdToken();
   if (!token) {
@@ -65,19 +70,6 @@ export const registerApplicant = async (profile: ApplicantProfile): Promise<{ us
 // Función para subir CV y obtener URL presignada
 export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: string}> => {
   try {
-    // TEMPORAL: Simulamos la subida del CV para evitar problemas de CORS
-    // TODO: Descomentar cuando se solucione CORS en el backend
-    // console.log('Simulando subida de CV:', file.name);
-    
-    // Simular delay de subida
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // // Retornar una URL simulada
-    // const simulatedUrl = `https://cvision-bucket.s3.us-east-2.amazonaws.com/simulated-cv-${Date.now()}.pdf`;
-    // console.log('CV simulado subido a:', simulatedUrl);
-    
-    // return simulatedUrl;
-    
     // Obtener URL presignada para subir el CV
     const presignedUrlResponse = await fetchWithAuth(`${CONFIG.apiUrl}/upload/cv`, {
       method: 'POST',
@@ -108,7 +100,7 @@ export const uploadCV = async (file: File): Promise<{cvUrl: string, s3Key: strin
     }
 
     // Retornar la URL del archivo subido
-    return {"cvUrl": `${CONFIG.bucketUrl}${s3_key}`, s3Key: s3_key};
+    return {"cvUrl": upload_url, s3Key: s3_key};
 
   } catch (error) {
     console.error('Error en uploadCV:', error);
@@ -171,5 +163,41 @@ export const updateApplicantProfile = async (profile: ApplicantProfile): Promise
   } catch (error) {
     console.error('Error en updateApplicantProfile:', error);
     throw error;
+  }
+};
+
+// Función para enviar respuestas a las preguntas de un trabajo
+export const submitJobQuestionAnswers = async (jobId: string, answers: QuestionAnswer[], overwrite: boolean = false): Promise<void> => {
+  const formattedAnswers = answers.map(answer => ({
+    question_id: answer.questionId,
+    answer: answer.answerText
+  }));
+  
+  const payload = {
+    answers: formattedAnswers
+  };
+  
+  try {
+    const response = await fetchWithAuth(`${CONFIG.apiUrl}/job-postings/${jobId}/questions/answers?overwrite=${overwrite}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('401')) {
+      throw new Error('No autorizado. Por favor, inicia sesión nuevamente.');
+    }
+    if (error instanceof Error && error.message.includes('500')) {
+      throw new Error('Error interno del servidor.');
+    }
+    throw new Error('Error al enviar las respuestas. Por favor, intenta nuevamente.');
   }
 };

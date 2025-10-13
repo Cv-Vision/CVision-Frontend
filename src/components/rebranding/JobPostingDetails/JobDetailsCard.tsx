@@ -15,6 +15,7 @@ interface JobDetailsCardProps {
   salaryRange: string;
   publishedAt: string;
   description: string;
+  onViewQuestionsAnswers?: () => void;
 }
 
 export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
@@ -27,6 +28,7 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
   salaryRange,
   publishedAt,
   description,
+  onViewQuestionsAnswers,
 }) => {
   return (
     <aside className="bg-white rounded-xl shadow p-5 space-y-6 border">
@@ -92,6 +94,21 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
           <span>{publishedAt}</span>
         </div>
       </div>
+
+      <hr />
+
+      {/* Preguntas y Respuestas */}
+      {onViewQuestionsAnswers && (
+        <div>
+          <h3 className="text-md font-semibold">Preguntas y Respuestas</h3>
+          <button
+            onClick={onViewQuestionsAnswers}
+            className="mt-2 w-full px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 border border-gray-300 transition-colors"
+          >
+            Ver Preguntas y Respuestas de Candidatos
+          </button>
+        </div>
+      )}
 
       <hr />
 
