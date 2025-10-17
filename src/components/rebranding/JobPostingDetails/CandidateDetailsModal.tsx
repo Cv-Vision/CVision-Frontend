@@ -22,7 +22,7 @@ export const CandidateDetailsModal: React.FC<CandidateDetailsModalProps> = ({ is
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl border border-white/60 overflow-hidden">
+      <div className="relative z-10 w-full max-w-4xl mx-4 bg-white rounded-2xl shadow-2xl border border-white/60 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500/10 to-indigo-600/10 px-6 py-4 flex items-center justify-between">
           <div>
