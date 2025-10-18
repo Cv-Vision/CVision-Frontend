@@ -158,10 +158,10 @@ export const JobDetails = ({ job, onApply, isApplying = false, applicantsCount =
           )}
 
           {/* Additional Requirements */}
-          {job.additional_requirements && (
+          {job.additional_requirements && job.additional_requirements.text && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Requisitos Adicionales</h3>
-              <p className="text-gray-700 leading-relaxed">{job.additional_requirements}</p>
+              <p className="text-gray-700 leading-relaxed">{job.additional_requirements.text}</p>
             </div>
           )}
 
