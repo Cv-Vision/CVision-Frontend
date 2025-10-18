@@ -82,17 +82,19 @@ const JobPostingDetails = () => {
   // === “Clear pending” como en la vieja ===
   useEffect(() => {
     if (isAnalysisPending) {
-      const hasAnalysisResults = analysisResults && analysisResults.length > 0;
-      const hasMetrics = metrics && metrics.total_analyzed > 0;
-      if (hasAnalysisResults || hasMetrics) {
+      // Stop polling only when every applicant has a score.
+      const allApplicantsAnalyzed = applicants.every(app => app.score !== null);
+
+      if (allApplicantsAnalyzed && applicants.length > 0) {
         setIsAnalysisPending(false);
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
+          showToast('Todos los análisis han completado.', 'success');
         }
       }
     }
-  }, [analysisResults, metrics, isAnalysisPending]);
+  }, [applicants, isAnalysisPending, showToast]);
 
   useEffect(() => {
     return () => {
