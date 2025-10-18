@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { fetchWithAuth } from '../services/fetchWithAuth';
 import { CONFIG } from '@/config';
 
+const getFileHash = async (file: File): Promise<string> => {
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
 export const useFileUploader = (jobId: string) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
@@ -17,6 +25,13 @@ export const useFileUploader = (jobId: string) => {
     const errors: string[] = [];
 
     try {
+      const fileDetails = await Promise.all(
+        files.map(async (file) => ({
+          filename: file.name,
+          hash: await getFileHash(file),
+        }))
+      );
+
       const cleanJobId = jobId.startsWith('JD#') ? jobId.substring(3) : jobId;
       const response = await fetchWithAuth(
         `${CONFIG.apiUrl}/job-postings/${cleanJobId}/cvs`, 
@@ -24,7 +39,7 @@ export const useFileUploader = (jobId: string) => {
           method: 'POST',
           body: JSON.stringify({
             job_id: cleanJobId,
-            filenames: files.map(f => f.name),
+            file_details: fileDetails,
           }),
         }
       );

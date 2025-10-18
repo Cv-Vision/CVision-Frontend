@@ -15,6 +15,7 @@ interface JobDetailsCardProps {
   salaryRange: string;
   publishedAt: string;
   description: string;
+  additionalRequirements?: { text: string };
   onViewQuestionsAnswers?: () => void;
 }
 
@@ -28,6 +29,7 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
   salaryRange,
   publishedAt,
   description,
+  additionalRequirements,
   onViewQuestionsAnswers,
 }) => {
   return (
@@ -117,6 +119,20 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({
         <h3 className="text-md font-semibold">Descripción</h3>
         <p className="text-sm text-gray-600 mt-2 leading-relaxed">{description}</p>
       </div>
+
+      {additionalRequirements && additionalRequirements.text && (
+        <>
+          <hr />
+          <div>
+            <h3 className="text-md font-semibold">Requisitos Adicionales</h3>
+            <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+              {additionalRequirements.text.split('\n').filter(req => req.trim() !== '').map((req, index) => (
+                <li key={index}>{req}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
     </aside>
   );
 };

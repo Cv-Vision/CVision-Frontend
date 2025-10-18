@@ -4,6 +4,7 @@ interface DescriptionStepProps {
   setDescription: (value: string) => void;
   additionalRequirements: string;
   setAdditionalRequirements: (value: string) => void;
+  isInvalid?: boolean;
 }
 
 export function DescriptionStep({
@@ -11,6 +12,7 @@ export function DescriptionStep({
   setDescription,
   additionalRequirements,
   setAdditionalRequirements,
+  isInvalid,
 }: DescriptionStepProps) {
   return (
     <div className="space-y-8">
@@ -23,12 +25,22 @@ export function DescriptionStep({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe el puesto, las responsabilidades principales y el perfil ideal del candidato..."
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base resize-none min-h-40"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 bg-white text-base resize-none min-h-40 ${
+            isInvalid
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500'
+          }`}
           required
         />
-        <p className="text-sm text-gray-500">
-          Proporciona una descripción clara y atractiva del puesto que ayude a los candidatos a entender el rol.
-        </p>
+        {isInvalid ? (
+          <p className="text-sm text-red-600">
+            Escribir al menos 50 palabras.
+          </p>
+        ) : (
+          <p className="text-sm text-gray-500">
+            Proporciona una descripción clara y atractiva del puesto que ayude a los candidatos a entender el rol.
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">
