@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetJobById } from '@/hooks/useGetJobById.ts';
 import { useState, useEffect, useRef } from 'react';
-import { useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
+import { Applicant, useGetApplicantsByJobId } from '@/hooks/useGetApplicantsByJobId.ts';
 import { useGetJobMetrics } from '@/hooks/useGetJobMetrics.ts';
 import { useGetAnalysisResults } from '@/hooks/useGetAnalysisResults';
 import { JobDetailsCard } from '@/components/rebranding/JobPostingDetails/JobDetailsCard';
@@ -12,12 +12,12 @@ import { ArrowLeft } from 'lucide-react';
 import JobQuestionsAnswersModal from '../../components/rebranding/JobPostingDetails/JobQuestionsAnswersModal';
 import axios from 'axios';
 import { CONFIG } from '@/config';
-
 import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
 import { useDeleteApplication } from '@/hooks/useDeleteApplication';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { AnalysisRequirementsModal } from '@/components/rebranding/JobPostingDetails/AnalysisRequirementsModal';
 
 // ==== Helpers (igual que en tu versión) ====
 function seniorityLabel(level?: string) {
@@ -47,6 +47,19 @@ function contractTypeLabel(type?: string) {
   }
 }
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return 'Fecha no disponible';
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (e) {
+    return 'Fecha inválida';
+  }
+};
+
 const JobPostingDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
@@ -69,7 +82,7 @@ const JobPostingDetails = () => {
 
   // Hooks de datos (igual que antes)
   const { applicants, refetch: refetchApplicants } = useGetApplicantsByJobId(cleanJobId);
-  const { results: analysisResults, refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
+  const { refetch: refetchAnalysisResults } = useGetAnalysisResults(cleanJobId);
   const { metrics } = useGetJobMetrics(cleanJobId);
 
 
@@ -82,17 +95,19 @@ const JobPostingDetails = () => {
   // === “Clear pending” como en la vieja ===
   useEffect(() => {
     if (isAnalysisPending) {
-      const hasAnalysisResults = analysisResults && analysisResults.length > 0;
-      const hasMetrics = metrics && metrics.total_analyzed > 0;
-      if (hasAnalysisResults || hasMetrics) {
+      // Stop polling only when every applicant has a score.
+      const allApplicantsAnalyzed = applicants.every(app => app.score !== null);
+
+      if (allApplicantsAnalyzed && applicants.length > 0) {
         setIsAnalysisPending(false);
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
+          showToast('Todos los análisis han completado.', 'success');
         }
       }
     }
-  }, [analysisResults, metrics, isAnalysisPending]);
+  }, [applicants, isAnalysisPending, showToast]);
 
   useEffect(() => {
     return () => {
@@ -111,6 +126,7 @@ const JobPostingDetails = () => {
   
   // Estados para el análisis
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
 
 
   // 3) Polling “igual que antes” tras subir archivos o lanzar análisis
@@ -164,8 +180,9 @@ const JobPostingDetails = () => {
       
       // Ocultar dropzone después de subir
       setShowDropzone(false);
-    } catch (err: any) {
-      showToast(err.message || 'Error al subir CVs', 'error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al subir CVs';
+      showToast(message, 'error');
     }
   };
 
@@ -173,21 +190,27 @@ const JobPostingDetails = () => {
     showToast(error, 'error');
   };
 
-  // 5) Handler para análisis de CVs
   const handleAnalyze = async () => {
+    setIsAnalysisModalOpen(true);
+  };
+
+  const handleConfirmAnalyze = async (additionalRequirements: string) => {
     if (!jobToShow?.pk) return;
     
     try {
       setIsAnalyzing(true);
-      // Reset analysis state
+      setIsAnalysisModalOpen(false);
       const token = sessionStorage.getItem('idToken');
       
       if (!token) {
         throw new Error('No hay token de autenticación. Por favor, inicie sesión nuevamente.');
       }
 
-      const payload: Record<string, any> = { job_id: jobToShow.pk };
-      // Ya no se envían requisitos adicionales
+      const payload: Record<string, string> = { 
+        job_id: jobToShow.pk,
+        additional_requirements: additionalRequirements
+      };
+
       const response = await axios.post(
         `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
         payload,
@@ -200,11 +223,8 @@ const JobPostingDetails = () => {
       );
 
       if (response.status === 200 || response.status === 202 || response.status === 201) {
-        // Analysis started successfully
         showToast('Análisis iniciado correctamente', 'success');
-        // Iniciar polling para obtener resultados
         startPollingForAnalysis();
-        // Analysis started successfully
       } else {
         throw new Error('Error al iniciar el análisis');
       }
@@ -227,8 +247,9 @@ const JobPostingDetails = () => {
       await deleteApplication(candidateId);
       showToast('Candidato eliminado exitosamente', 'success');
       refetchApplicants(); // Recargar la lista de candidatos
-    } catch (error: any) {
-      showToast(error.message || 'Error al eliminar el candidato', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al eliminar el candidato';
+      showToast(message, 'error');
     } finally {
       setDeletingCandidates(prev => {
         const newSet = new Set(prev);
@@ -288,8 +309,9 @@ const JobPostingDetails = () => {
           contractType={contractTypeLabel(jobToShow.contract_type) || 'No especificado'}
           level={seniorityLabel(jobToShow.experience_level) || 'No especificado'}
           salaryRange={'Salario a convenir'}
-          publishedAt={'Fecha no disponible'}
+          publishedAt={formatDate(jobToShow.created_at)}
           description={jobToShow.description || ''}
+          additionalRequirements={jobToShow.additional_requirements}
           onViewQuestionsAnswers={() => setShowQuestionsModal(true)}
         />
           </div>
@@ -320,7 +342,7 @@ const JobPostingDetails = () => {
         />
 
         <CandidateList
-          candidates={(applicants || []).map((a: any, idx: number) => ({
+          candidates={(applicants || []).map((a: Applicant, idx: number) => ({
             id: String(a.id || idx),
             name: a.fullName || 'Analizando...',
             email: a.email || '',
@@ -368,6 +390,13 @@ const JobPostingDetails = () => {
         onClose={() => setShowQuestionsModal(false)}
         jobId={cleanJobId}
         jobTitle={jobToShow?.title}
+      />
+
+      <AnalysisRequirementsModal
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        onAnalyze={handleConfirmAnalyze}
+        isAnalyzing={isAnalyzing}
       />
        </div>
   );

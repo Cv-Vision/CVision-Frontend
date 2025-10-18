@@ -34,6 +34,7 @@ const STEPS = [
 
 export function CreateJobForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isStepValid, setIsStepValid] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   
   // Form state - maintaining all existing functionality
@@ -138,6 +139,24 @@ export function CreateJobForm() {
     }
   }, [province, city, validateLocation]);
 
+  // Step validation
+  useEffect(() => {
+    let isValid = false;
+    switch (currentStep) {
+      case 1:
+        isValid = !!(title && company && province && city && contractType);
+        break;
+      case 2:
+        const wordCount = description.trim().split(/\s+/).length;
+        isValid = wordCount >= 50;
+        break;
+      default:
+        isValid = true; // For steps without validation
+        break;
+    }
+    setIsStepValid(isValid);
+  }, [currentStep, title, company, province, city, contractType, description]);
+
   const nextStep = () => {
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
@@ -181,12 +200,14 @@ export function CreateJobForm() {
           />
         );
       case 2:
+        const isDescriptionInvalid = description.length > 0 && description.trim().split(/\s+/).length < 50;
         return (
           <DescriptionStep
             description={description}
             setDescription={setDescription}
             additionalRequirements={additionalRequirements}
             setAdditionalRequirements={setAdditionalRequirements}
+            isInvalid={isDescriptionInvalid}
           />
         );
       case 3:
@@ -278,7 +299,8 @@ export function CreateJobForm() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-base flex items-center gap-2"
+                disabled={!isStepValid}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-base flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Siguiente
                 <ChevronRight className="h-4 w-4" />

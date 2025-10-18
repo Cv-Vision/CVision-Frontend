@@ -1,4 +1,4 @@
-import { TrashIcon, UsersIcon as UsersOutlineIcon, ArrowTrendingUpIcon, ClockIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, PlusIcon, UsersIcon as UsersOutlineIcon, ArrowTrendingUpIcon, ClockIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetTotaApplicants } from '@/hooks/useGetTotaApplicants.ts';
@@ -110,7 +110,7 @@ const RecruiterDashboard = () => {
   };
 
   const stats = [
-    { title: "Puestos Activos", value: totalActiveJobs, trend: "", icon: <TrashIcon className="w-5 h-5 text-blue-600" /> },
+    { title: "Puestos Activos", value: totalActiveJobs, trend: "", icon: <BriefcaseIcon className="w-5 h-5 text-blue-600" /> },
     { title: "Candidatos Totales", value: totalApplicants, trend: "", icon: <UsersOutlineIcon className="w-5 h-5 text-green-600" /> },
     { title: "Candidatos Externos", value: "15%", trend: "+5% vs mes anterior", icon: <ArrowTrendingUpIcon className="w-5 h-5 text-purple-600" /> },
     { title: "Tiempo Promedio de Busqueda", value: "18 días", trend: "", icon: <ClockIcon className="w-5 h-5 text-orange-600" /> },
@@ -173,7 +173,7 @@ const RecruiterDashboard = () => {
       location: job.city && job.province ? `${job.city}, ${job.province}` : job.city || job.province || 'Ubicación no especificada',
       publishedAt: job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Fecha no disponible',
       description: job.description,
-      candidatesCount: Math.floor(Math.random() * 50) + 10, // Simulated data
+      candidatesCount: job.candidates_count || 0,
       salaryRange: job.experience_level === 'JUNIOR' ? '25.000 - 35.000 €' :
                    job.experience_level === 'MID' ? '35.000 - 50.000 €' :
                    job.experience_level === 'SENIOR' ? '50.000 - 70.000 €' :
@@ -210,6 +210,13 @@ const RecruiterDashboard = () => {
                 Mi Perfil
               </button>
               <button
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 flex items-center gap-2 group"
+                onClick={handleCreateJob}
+              >
+                <PlusIcon className="h-5 w-5" />
+                Crear Nuevo Puesto
+              </button>
+              <button
                 className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold hover:scale-105 flex items-center gap-2 group"
                 onClick={handleLogout}
               >
@@ -222,7 +229,6 @@ const RecruiterDashboard = () => {
           <JobPostingHeader
             totalJobs={total}
             visibleJobs={adaptedJobs.length}
-            onCreate={handleCreateJob}
             onSearch={handleSearch}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}

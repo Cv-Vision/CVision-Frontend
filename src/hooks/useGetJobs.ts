@@ -60,7 +60,8 @@ export function useGetJobs() {
                 additional_requirements: item.additional_requirements,
                 modal: item.modal,
                 created_at: item.created_at,
-                updated_at: item.updated_at
+                updated_at: item.updated_at,
+                candidates_count: item.candidates_count || 0
             }));
 
             setJobs(prev => {
