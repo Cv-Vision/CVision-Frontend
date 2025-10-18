@@ -12,12 +12,12 @@ import { ArrowLeft } from 'lucide-react';
 import JobQuestionsAnswersModal from '../../components/rebranding/JobPostingDetails/JobQuestionsAnswersModal';
 import axios from 'axios';
 import { CONFIG } from '@/config';
-
 import { JobPostingStatus } from '../recruiter/jp_elements/jobPostingPermissions';
 import type { Job } from '@/context/JobContext';
 import { useToast } from '@/context/ToastContext';
 import { useDeleteApplication } from '@/hooks/useDeleteApplication';
 import { fetchWithAuth } from '@/services/fetchWithAuth';
+import { AnalysisRequirementsModal } from '@/components/rebranding/JobPostingDetails/AnalysisRequirementsModal';
 
 // ==== Helpers (igual que en tu versión) ====
 function seniorityLabel(level?: string) {
@@ -111,6 +111,7 @@ const JobPostingDetails = () => {
   
   // Estados para el análisis
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
 
 
   // 3) Polling “igual que antes” tras subir archivos o lanzar análisis
@@ -173,21 +174,27 @@ const JobPostingDetails = () => {
     showToast(error, 'error');
   };
 
-  // 5) Handler para análisis de CVs
   const handleAnalyze = async () => {
+    setIsAnalysisModalOpen(true);
+  };
+
+  const handleConfirmAnalyze = async (additionalRequirements: string) => {
     if (!jobToShow?.pk) return;
     
     try {
       setIsAnalyzing(true);
-      // Reset analysis state
+      setIsAnalysisModalOpen(false);
       const token = sessionStorage.getItem('idToken');
       
       if (!token) {
         throw new Error('No hay token de autenticación. Por favor, inicie sesión nuevamente.');
       }
 
-      const payload: Record<string, any> = { job_id: jobToShow.pk };
-      // Ya no se envían requisitos adicionales
+      const payload: Record<string, any> = { 
+        job_id: jobToShow.pk,
+        additional_requirements: additionalRequirements
+      };
+
       const response = await axios.post(
         `${CONFIG.apiUrl}/recruiter/${jobId}/analyze-job-cvs`,
         payload,
@@ -200,11 +207,8 @@ const JobPostingDetails = () => {
       );
 
       if (response.status === 200 || response.status === 202 || response.status === 201) {
-        // Analysis started successfully
         showToast('Análisis iniciado correctamente', 'success');
-        // Iniciar polling para obtener resultados
         startPollingForAnalysis();
-        // Analysis started successfully
       } else {
         throw new Error('Error al iniciar el análisis');
       }
@@ -368,6 +372,13 @@ const JobPostingDetails = () => {
         onClose={() => setShowQuestionsModal(false)}
         jobId={cleanJobId}
         jobTitle={jobToShow?.title}
+      />
+
+      <AnalysisRequirementsModal
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        onAnalyze={handleConfirmAnalyze}
+        isAnalyzing={isAnalyzing}
       />
        </div>
   );
