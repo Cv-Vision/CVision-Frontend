@@ -17,11 +17,12 @@ export type Job = {
     required: boolean;
     industry?: string;
   };
-  additional_requirements?: string;
+  additional_requirements?: { text: string };
   isApplied?: boolean;
   modal?: string; // NEW optional work modality (REMOTE, HYBRID, ONSITE)
   created_at?: string;
   updated_at?: string;
+  candidates_count?: number;
 };
 
 export type Application = {

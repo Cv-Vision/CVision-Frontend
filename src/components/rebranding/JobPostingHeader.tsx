@@ -4,7 +4,6 @@ import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
 interface JobPostingHeaderProps {
   totalJobs: number;
   visibleJobs: number;
-  onCreate: () => void;
   onSearch: (term: string) => void;
   onSortChange: (value: string) => void;
   onFilterChange: (value: string) => void;
@@ -13,7 +12,6 @@ interface JobPostingHeaderProps {
 export const JobPostingHeader: React.FC<JobPostingHeaderProps> = ({
   totalJobs,
   visibleJobs,
-  onCreate,
   onSearch,
   onSortChange,
   onFilterChange,
@@ -26,13 +24,6 @@ export const JobPostingHeader: React.FC<JobPostingHeaderProps> = ({
           <h1 className="text-2xl font-bold">Puestos de Trabajo</h1>
           <p className="text-gray-500">Gestiona tus ofertas de empleo</p>
         </div>
-        <button
-          onClick={onCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-        >
-          <PlusIcon className="w-5 h-5" />
-          Crear Nuevo Puesto
-        </button>
       </div>
 
       {/* Filters row */}

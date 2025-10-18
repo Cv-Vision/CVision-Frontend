@@ -47,7 +47,8 @@ export function useGetJobById(jobId: string) {
         city: jobData.city,
         industry_experience: jobData.industry_experience,
         additional_requirements: jobData.additional_requirements,
-        modal: jobData.modal
+        modal: jobData.modal,
+        created_at: jobData.created_at
       };
       
       setJob(mappedJob);
